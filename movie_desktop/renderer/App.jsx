@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Search from './Search';
+import Movie from './Movie';
 
 function App() {
     return (
-        <div>
-            <h1 style={{ textAlign: 'center', marginTop: '2rem' }}>Movie Search App</h1>
-            <Search />
-        </div>
+        <Router>
+            <Routes>
+                <Route path="/" element={<Search />} />
+                <Route path="/movie" element={<Movie />} />
+            </Routes>
+        </Router>
     );
 }
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import MovieSearchResult from './MovieSearchResult';
+import styles from './Search.module.css';
 
 function Search() {
     const [query, setQuery] = useState('');
@@ -17,17 +18,14 @@ function Search() {
             const response = await fetch(`http://127.0.0.1:8000/movie/search/?query=${encodeURIComponent(query)}&cat=${cat}&count=${count}`);
             const data = await response.json();
 
-            // Deduplicate by tmdb_id
             const uniqueResults = [];
             const seen = new Set();
-
             for (const movie of data) {
                 if (movie.imdb && !seen.has(movie.tmdb_id)) {
                     seen.add(movie.tmdb_id);
                     uniqueResults.push(movie);
                 }
             }
-
             setResults(uniqueResults);
         } catch (err) {
             console.error('Search error:', err);
@@ -38,16 +36,16 @@ function Search() {
     };
 
     return (
-        <div style={{ maxWidth: '800px', margin: '2rem auto', textAlign: 'center' }}>
-            <form onSubmit={handleSearch} style={{ marginBottom: '1rem' }}>
+        <div className={styles.container}>
+            <form onSubmit={handleSearch} className={styles.form}>
                 <input
                     type="text"
                     placeholder="Search movie..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    style={{ padding: '0.5rem', width: '70%' }}
+                    className={styles.input}
                 />
-                <button type="submit" style={{ padding: '0.5rem 1rem', marginLeft: '0.5rem' }}>
+                <button type="submit" className={styles.button}>
                     {loading ? 'Searching...' : 'Search'}
                 </button>
             </form>
