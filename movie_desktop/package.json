@@ -1,0 +1,19 @@
+{
+    "name": "vite-react-electron",
+    "version": "1.0.0",
+    "main": "main/main.js",
+    "scripts": {
+        "dev": "concurrently \"vite --host\" \"electronmon .\"",
+        "build": "vite build",
+        "start": "electron ."
+    },
+    "devDependencies": {
+        "@vitejs/plugin-react": "^4.7.0",
+        "concurrently": "^8.2.2",
+        "electron": "^30.5.1",
+        "electronmon": "^2.0.3",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "vite": "^5.4.19"
+    }
+}
