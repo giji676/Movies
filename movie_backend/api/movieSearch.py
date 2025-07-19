@@ -83,17 +83,14 @@ class TMDB:
 
         response = requests.get(url, params=params)
         if response.status_code != 200:
-            #print(f"Error: {response.status_code}")
             return None
 
         data = response.json()
         movie_results = data.get("movie_results", [])
         if not movie_results:
-            #print("No matching TMDb movie found.")
             return None
 
         tmdb_id = movie_results[0]["id"]
-        #print(f"IMDb ID {imdb_id} corresponds to TMDb ID {tmdb_id}")
         return tmdb_id
 
     def getMovieCredits(self, movie_id):
@@ -116,3 +113,11 @@ class TMDB:
         response = requests.get(url, params=params)
         response.raise_for_status()
         return response.json()["crew"]
+
+    def getPopularMovies(self, page):
+        url = f"{self.BASE_URL}/movie/popular?language=en-US&page={page}"
+        params = {'api_key': self.API_KEY}
+        headers = {"accept": "application/json"}
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        return response.json()

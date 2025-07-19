@@ -1,7 +1,7 @@
 from django.http import FileResponse
 from rest_framework import status
 from rest_framework.response import Response
-from .movieSearch import MovieSearch
+from .movieSearch import MovieSearch, TMDB
 from rest_framework.views import APIView
 
 
@@ -26,6 +26,15 @@ class MovieSearchAPI(APIView):
             "movies": limited_movies
         }
         return Response(limited_result, status=status.HTTP_200_OK)
+
+class MoviePopulars(APIView):
+    def get(self, request):
+        page = request.query_params.get("page")
+        if not page:
+            page = 1
+        tmdb = TMDB()
+        result = tmdb.getPopularMovies(page)
+        return Response(result, status=status.HTTP_200_OK)
 
 class MovieStream(APIView):
     def get(self, request):
