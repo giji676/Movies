@@ -5,6 +5,7 @@ import styles from './Search.module.css';
 function Search() {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
+    const [tmdbConfig, setTmdbConfig] = useState({});
     const [loading, setLoading] = useState(false);
 
     const handleSearch = async (e) => {
@@ -17,10 +18,11 @@ function Search() {
             const count = 5;
             const response = await fetch(`http://127.0.0.1:8000/movie/search/?query=${encodeURIComponent(query)}&cat=${cat}&count=${count}`);
             const data = await response.json();
+            setTmdbConfig(data.tmdb_config);
 
             const uniqueResults = [];
             const seen = new Set();
-            for (const movie of data) {
+            for (const movie of data.movies) {
                 if (movie.imdb && !seen.has(movie.tmdb_id)) {
                     seen.add(movie.tmdb_id);
                     uniqueResults.push(movie);
@@ -51,7 +53,7 @@ function Search() {
             </form>
 
             {results.map((movie, index) => (
-                <MovieSearchResult key={index} movie={movie} />
+                <MovieSearchResult key={index} movie={movie} tmdbConfig={tmdbConfig} />
             ))}
         </div>
     );

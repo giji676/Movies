@@ -11,14 +11,24 @@ class MovieSearch:
         base_url = "https://apibay.org/"
         url = f"{base_url}q.php?q={query}&cat={cat}"
         data = requests.get(url).json()
+
         tmdb = TMDB()
+        movies = []
+
         for movie in data:
-            if not movie["imdb"] or movie["imdb"] == "":
+            if not movie.get("imdb"):
                 continue
             movie["tmdb_id"] = tmdb.imdbIDLookup(movie["imdb"])
-            if movie["tmdb_id"] != "":
+            if movie["tmdb_id"]:
                 movie["tmdb"] = tmdb.getMovieByTMDBID(movie["tmdb_id"])
-        return data
+                movies.append(movie)
+
+        result = {
+            "tmdb_config": tmdb.getConfig(),
+            "movies": movies
+        }
+
+        return result
 
     def getMagnetLink(self, torrent):
         info_hash = torrent['info_hash']
@@ -57,7 +67,7 @@ class TMDB:
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
         return response.json()['results']
-    
+
     def getMovieByTMDBID(self, tmdb_id):
         url = f"{self.BASE_URL}/movie/{tmdb_id}"
         params = {"api_key": self.API_KEY}
@@ -66,7 +76,7 @@ class TMDB:
         response.raise_for_status()
         movie_info = response.json()
         return movie_info
-    
+
     def imdbIDLookup(self, imdb_id):
         url = f"{self.BASE_URL}/find/{imdb_id}"
         params = {"api_key": self.API_KEY, "external_source": "imdb_id"}

@@ -18,8 +18,14 @@ class MovieSearchAPI(APIView):
         if not query:
             return Response({"error": "No query specified"}, status=status.HTTP_400_BAD_REQUEST)
 
-        titles = MovieSearch().search(query, cat=cat)[:count]
-        return Response(titles, status=status.HTTP_200_OK)
+        result = MovieSearch().search(query, cat=cat)
+        limited_movies = result["movies"][:count]
+
+        limited_result = {
+            "tmdb_config": result["tmdb_config"],
+            "movies": limited_movies
+        }
+        return Response(limited_result, status=status.HTTP_200_OK)
 
 class MovieStream(APIView):
     def get(self, request):

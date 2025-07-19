@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import styles from './MovieSearchResult.module.css';
 
-function MovieSearchResult({ movie }) {
+function MovieSearchResult({ movie, tmdbConfig }) {
     const { original_title, release_date, overview, poster_path } = movie.tmdb;
 
     return (
@@ -13,7 +13,7 @@ function MovieSearchResult({ movie }) {
             <div className={styles.movieResult}>
                 {poster_path && (
                     <img
-                        src={`https://image.tmdb.org/t/p/w500${poster_path}`}
+                        src={`${tmdbConfig.images.secure_base_url}${tmdbConfig.images.poster_sizes[tmdbConfig.images.poster_sizes.length - 1]}${poster_path}`}
                         alt={original_title}
                         className={styles.poster}
                     />
