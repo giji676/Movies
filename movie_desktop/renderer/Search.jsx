@@ -16,7 +16,19 @@ function Search() {
             const count = 5;
             const response = await fetch(`http://127.0.0.1:8000/movie/search/?query=${encodeURIComponent(query)}&cat=${cat}&count=${count}`);
             const data = await response.json();
-            setResults(data);
+
+            // Deduplicate by tmdb_id
+            const uniqueResults = [];
+            const seen = new Set();
+
+            for (const movie of data) {
+                if (movie.imdb && !seen.has(movie.tmdb_id)) {
+                    seen.add(movie.tmdb_id);
+                    uniqueResults.push(movie);
+                }
+            }
+
+            setResults(uniqueResults);
         } catch (err) {
             console.error('Search error:', err);
             setResults([]);
