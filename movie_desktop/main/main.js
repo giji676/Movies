@@ -17,6 +17,7 @@ function createWindow() {
     } else {
         win.loadFile(path.join(__dirname, '../dist/index.html'));
     }
+    win.maximize();
 }
 
 // Simple IPC handler
