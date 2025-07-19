@@ -1,26 +1,21 @@
+import styles from './MovieSearchResult.module.css';
+
 function MovieSearchResult({ movie }) {
     const { original_title, release_date, overview, poster_path } = movie.tmdb;
 
     return (
-        <div style={{
-            display: 'flex',
-            marginBottom: '1rem',
-            padding: '1rem',
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-            alignItems: 'center'
-        }}>
+        <div className={styles.movieResult}>
             {poster_path && (
                 <img
                     src={`https://image.tmdb.org/t/p/w500${poster_path}`}
                     alt={original_title}
-                    style={{ marginRight: '1rem', borderRadius: '8px' }}
+                    className={styles.poster}
                 />
             )}
-            <div style={{ textAlign: 'left' }}>
-                <h3 style={{ margin: '0 0 0.5rem 0' }}>{original_title}</h3>
-                <p style={{ margin: 0, color: '#555' }}>{release_date}</p>
-                <p style={{ marginTop: '0.5rem' }}>{overview}</p>
+            <div className={styles.details}>
+                <h3 className={styles.title}>{original_title}</h3>
+                <p className={styles.date}>{release_date}</p>
+                <p className={styles.overview}>{overview}</p>
             </div>
         </div>
     );
