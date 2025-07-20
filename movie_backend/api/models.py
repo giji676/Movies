@@ -1,11 +1,19 @@
+from asyncio import create_eager_task_factory
 from django.db import models
 
 class Movie(models.Model):
-    title = models.CharField(max_length=200)
-    description = models.TextField()
-    published_date = models.DateTimeField(auto_now_add=False)
-    seeders = models.IntegerField()
-    leechers = models.IntegerField()
+    tmdb_id = models.IntegerField(primary_key=True)
+    imdb = models.CharField(max_length=50, default="", blank=True)
+    title = models.CharField(max_length=300)
+    info_hash = models.CharField(max_length=200, default="", blank=True)
+    seeders = models.IntegerField(default=0)
+    leechers = models.IntegerField(default=0)
+    backdrop_path = models.CharField(max_length=200, default="", blank=True)
+    poster_path = models.CharField(max_length=200, default="", blank=True)
+    category = models.CharField(max_length=8, default="201")
+    overview = models.TextField()
+    release_date = models.DateField(null=True, blank=True)
+    download_path = models.CharField(max_length=300, default=".", blank=True)
 
     def __str__(self):
         return self.title

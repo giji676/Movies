@@ -47,6 +47,7 @@ class MovieSearch:
 
     async def download(self, uri, path="."):
         """ asyncio.run(download(...)) """
+        print(f"starting async download at: {path}")
         torrent_file = TorrentDownloader(uri, path) 
         await torrent_file.start_download()
 
@@ -117,7 +118,7 @@ class TMDB:
         response.raise_for_status()
         return response.json()["crew"]
 
-    def getPopularMovies(self, page):
+    def getPopularMovies(self, page=1):
         url = f"{self.BASE_URL}/movie/popular?language=en-US&page={page}"
         params = {'api_key': self.API_KEY}
         headers = {"accept": "application/json"}
