@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 import urllib.parse
 from torrentp import TorrentDownloader
@@ -27,6 +28,8 @@ class MovieSearch:
             "tmdb_config": tmdb.getConfig(),
             "movies": movies
         }
+        #with open("movie_dump.json", "w") as f:
+        #    json.dump(result["movies"][0], f, indent=2)
 
         return result
 
