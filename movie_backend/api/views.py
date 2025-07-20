@@ -75,7 +75,8 @@ class StreamMovie(APIView):
             time.sleep(1)
 
         movie_file = self.downloads[tmdb_id]["movie_file"]
-        public_url = f"{self.PUBLIC_BASE_URL}/{tmdb_id}/{movie_file}"
+        #public_url = f"{self.PUBLIC_BASE_URL}/{tmdb_id}/{movie_file}"
+        public_url = request.build_absolute_uri(f"/media/downloads/{tmdb_id}/{movie_file}")
 
         return Response({"url": public_url}, status=200)
 
