@@ -16,7 +16,7 @@ function Search() {
         try {
             const cat = 207;
             const count = 5;
-            const response = await fetch(`http://127.0.0.1:8000/movie/search/?query=${encodeURIComponent(query)}&cat=${cat}&count=${count}`);
+            const response = await fetch(`http://192.168.1.215:8000/movie/search/?query=${encodeURIComponent(query)}&cat=${cat}&count=${count}`);
             const data = await response.json();
             setTmdbConfig(data.tmdb_config);
 

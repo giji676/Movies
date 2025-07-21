@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import MovieCard from "./MovieCard";
+import style from "./AvailableMovies.module.css";
 
 function AvailableMovies() {
     const [movies, setMovies] = useState([]);
@@ -14,7 +15,7 @@ function AvailableMovies() {
 
     const getMovieData = async () => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/movie/`);
+            const response = await fetch(`http://192.168.1.215:8000//movie/`);
             const data = await response.json();
             const tmdbConfig = data.tmdb_config;
             const movies = data.movies;
@@ -26,7 +27,7 @@ function AvailableMovies() {
     };
 
     return (
-        <div>
+        <div className={style.movie_grid}>
             {movies.map((movie, index) => (
                 <MovieCard key={index} movie={movie} tmdbConfig={tmdbConfig} />
             ))}

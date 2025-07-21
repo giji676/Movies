@@ -6,7 +6,7 @@ function MovieCard({ tmdbConfig, movie }) {
 
     return (
         <Link
-            to="/movie"
+            to=""
             state={{ movie }}
             style={{ textDecoration: 'none', color: 'inherit' }}
         >
