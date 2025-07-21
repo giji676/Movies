@@ -2,13 +2,26 @@ import os
 import time
 import json
 import threading
-from django.http import FileResponse, StreamingHttpResponse, Http404
+from django.http import FileResponse, JsonResponse, StreamingHttpResponse, Http404
 from rest_framework import status
 from rest_framework.response import Response
 from .movieSearch import MovieSearch, TMDB
 from rest_framework.views import APIView
 import libtorrent as lt
+from .models import Movie
+from .serializers import MovieSerializer
 
+
+class MovieShowAvailable(APIView):
+    def get(self, request):
+        movies = Movie.objects.all()
+        serializer = MovieSerializer(movies, many=True)
+
+        result = {
+            "tmdb_config": TMDB().getConfig(),
+            "movies": serializer.data,
+        }
+        return Response(result)
 
 class MovieSearchAPI(APIView):
     def get(self, request):
