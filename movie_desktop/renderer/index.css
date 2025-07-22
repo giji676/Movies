@@ -1,5 +1,5 @@
 * {
     margin: 0;
     padding: 0;
-    background-color: var(--oxford-blue);
+    background-color: rgb(var(--oxford-blue));
 }

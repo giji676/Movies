@@ -1,34 +1,37 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import styles from './Movie.module.css';
 
 function Movie() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { movie } = location.state || {};
 
-    if (!movie) {
-        return (
-            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-                <p>No movie data found.</p>
-                <button onClick={() => navigate(-1)}>Go Back</button>
-            </div>
-        );
+    const { tmdbConfig, movie } = location.state || {};
+
+    if (!movie || !tmdbConfig) {
+        return <p>Movie data not found.</p>;
     }
 
-    const { original_title, release_date, overview, poster_path } = movie.tmdb;
+    const { title, release_date, overview, poster_path, backdrop_path } = movie;
+
+    const backdropUrl = `${tmdbConfig.images.secure_base_url}${tmdbConfig.images.backdrop_sizes[tmdbConfig.images.backdrop_sizes.length - 1]}${backdrop_path}`;
+    const posterUrl = `${tmdbConfig.images.secure_base_url}${tmdbConfig.images.poster_sizes[tmdbConfig.images.poster_sizes.length - 1]}${poster_path}`;
 
     return (
-        <div style={{ maxWidth: '800px', margin: '2rem auto', textAlign: 'center' }}>
-            <h1>{original_title}</h1>
-            {poster_path && (
-                <img
-                    src={`https://image.tmdb.org/t/p/w500${poster_path}`}
-                    alt={original_title}
-                    style={{ borderRadius: '8px', marginBottom: '1rem' }}
-                />
-            )}
-            <p><strong>Release Date:</strong> {release_date}</p>
-            <p style={{ marginTop: '1rem' }}>{overview}</p>
-            <button onClick={() => navigate(-1)} style={{ marginTop: '2rem' }}>Back to Search</button>
+        <div
+            className={styles.backdropContainer}
+            style={{ '--backdrop': `url(${backdropUrl})` }}
+        >
+            <button className={styles.backButton} onClick={() => navigate(-1)}>
+                ← Back
+            </button>
+            <div className={styles.content}>
+                <img className={styles.poster} src={posterUrl} alt={title} />
+                <div className={styles.text}>
+                    <h1>{title}</h1>
+                    <p><strong></strong> {release_date}</p>
+                    <p>{overview}</p>
+                </div>
+            </div>
         </div>
     );
 }

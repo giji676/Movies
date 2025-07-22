@@ -6,8 +6,8 @@ function MovieCard({ tmdbConfig, movie }) {
 
     return (
         <Link
-            to=""
-            state={{ movie }}
+            to="/movie"
+            state={{ tmdbConfig, movie }}
             style={{ textDecoration: 'none', color: 'inherit' }}
         >
             <div className={styles.movie_card}>
@@ -18,10 +18,6 @@ function MovieCard({ tmdbConfig, movie }) {
                         className={styles.poster}
                     />
                 )}
-                <div className={styles.details}>
-                    <h3 className={styles.title}>{title}</h3>
-                    <p className={styles.date}>{release_date}</p>
-                </div>
             </div>
         </Link>
     );

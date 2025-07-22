@@ -1,51 +1,21 @@
 .movie_card {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center; /* centered content */
     align-items: center;
     border-radius: 12px;
-    padding: 2px;
-    background-color: var(--chocolate-cosmos);
-    border: 2px solid #83a;
+    padding: 12px 0; /* remove padding to prevent extra space around */
     width: 180px;
-    height: 370px;
     box-sizing: border-box;
+    overflow: hidden; /* clip children, including image corners */
 }
 
 .poster {
     width: 100%;
-    border-radius: 10px;
-    flex-shrink: 0;
-    margin-bottom: 0.5rem;
+    height: 270px; /* fixed height for consistent aspect ratio */
+    border-radius: 12px; /* same as container */
     object-fit: cover;
-}
-
-.details {
-    flex-grow: 1;
-    text-align: center;
-    width: 100%;
-    background: transparent; /* Inherit visible background from parent */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.title, .date {
-    padding: 4px;
-    color: #fff;
-    background: transparent; /* Inherit visible background from parent */
-    text-align: center;
-}
-
-.title {
-    font-size: 1.1rem;
-    color: #fff;
-    margin: 0.5rem 0;
-    text-align: center;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;  /* show up to 2 lines */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    word-break: break-word;
+    display: block; /* removes inline gap */
+    flex-shrink: 0;
+    margin: 0; /* no margin here */
 }
