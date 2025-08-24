@@ -13,8 +13,7 @@
     justify-content: center;
     background-image: linear-gradient(
         to bottom,
-        transparent,
-        rgba(var(--oxford-blue), 0),
+        rgba(var(--oxford-blue), 0.3),
         rgba(var(--oxford-blue), 1)),
         var(--backdrop);
 }
@@ -24,7 +23,7 @@
     max-width: 900px;
     gap: 2rem;
     align-items: flex-start;
-    background-color: rgba(var(--oxford-blue), 0.75); /* semi-transparent background */
+    background-color: rgba(var(--oxford-blue), 0.75);
     border-radius: 12px;
 }
 
@@ -32,14 +31,50 @@
     background-color: transparent !important;
 }
 
+.posterWrapper {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
 .poster {
     width: 250px;
+    display: block;
     border-radius: 12px;
-    flex-shrink: 0;
+    transition: filter 0.3s ease;
+}
+
+.playButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.9);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.posterWrapper:hover .playButton {
+    opacity: 1;
+}
+
+.posterWrapper:hover .poster {
+    filter: brightness(60%);
 }
 
 .text {
     max-width: 600px;
+    margin: 15px;
 }
 
 .text h1 {

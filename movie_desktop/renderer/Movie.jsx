@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom'
 import styles from './Movie.module.css';
 
 function Movie() {
@@ -25,7 +26,14 @@ function Movie() {
                 ← Back
             </button>
             <div className={styles.content}>
-                <img className={styles.poster} src={posterUrl} alt={title} />
+                <Link
+                    to="/player"
+                    state={{ tmdbConfig, movie }}
+                    className={styles.posterWrapper}
+                >
+                    <img className={styles.poster} src={posterUrl} alt={title} />
+                    <div className={styles.playButton}>▶</div>
+                </Link>
                 <div className={styles.text}>
                     <h1>{title}</h1>
                     <p><strong></strong> {release_date}</p>

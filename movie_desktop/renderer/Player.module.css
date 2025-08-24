@@ -1,0 +1,40 @@
+.playerContainer {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: auto;
+    background-color: black;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.video {
+    width: 100%;
+    display: block;
+    cursor: pointer;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    color: white;
+}
+
+.controls button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.controls input[type="range"] {
+    flex-grow: 1;
+}
