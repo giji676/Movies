@@ -1,0 +1,68 @@
+:root {
+    --input-bg: #001930;
+    --input-bg-focus: #002b55;
+    --button-bg: #0061ff;
+    --button-bg-hover: #004acc;
+    --button-bg-disabled: #44556e;
+    --text-color: #e0ecff;
+    --placeholder-color: #89a1c1;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: inherit;
+    color: var(--text-color);
+}
+
+.form {
+    display: flex;
+    width: 100%;
+    max-width: 600px;
+    background-color: inherit;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    background-color: var(--input-bg);
+    color: inherit;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.input::placeholder {
+    color: var(--placeholder-color);
+}
+
+.input:focus {
+    background-color: var(--input-bg-focus);
+}
+
+.button {
+    padding: 0 1.5rem;
+    background-color: var(--button-bg);
+    color: inherit;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.button:hover {
+    background-color: var(--button-bg-hover);
+}
+
+.button:disabled {
+    background-color: var(--button-bg-disabled);
+    cursor: not-allowed;
+}

@@ -1,6 +1,7 @@
 * {
     margin: 0;
     padding: 0;
-    background-color: rgb(var(--oxford-blue));
     font-family: Monospace;
+    background-color: rgb(var(--oxford-blue));
+    color: #e0ecff;
 }

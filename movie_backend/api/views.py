@@ -11,8 +11,7 @@ import libtorrent as lt
 from .models import Movie
 from .serializers import MovieSerializer
 
-
-class MovieShowAvailable(APIView):
+class ShowAvailableMovies(APIView):
     def get(self, request):
         movies = Movie.objects.all()
         serializer = MovieSerializer(movies, many=True)
@@ -23,7 +22,7 @@ class MovieShowAvailable(APIView):
         }
         return Response(result)
 
-class MovieSearchAPI(APIView):
+class MovieSearch(APIView):
     def get(self, request):
         query = request.query_params.get("query")
         cat = request.query_params.get("cat")
@@ -54,125 +53,3 @@ class MoviePopulars(APIView):
         result = tmdb.getPopularMovies(page)
         return Response(result, status=status.HTTP_200_OK)
 
-class MovieDownload(APIView):
-    def get(self, request):
-        tmdb_id = request.query_params.get("tmdb_id")
-        if not tmdb_id:
-            return Response({"error": "No tmdb_id specified"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            movie = Movie.objects.get(tmdb_id=tmdb_id)
-        except Movie.DoesNotExist:
-            return Response({"error": "Movie not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        path = movie.download_path
-        if not os.path.exists(path):
-            return Response({"error": "Download path not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        video_extensions = ['.mp4', '.mkv', '.avi', '.mov']
-        selected_file = None
-        largest_size = 0
-
-        for root, dirs, files in os.walk(path):
-            for file in files:
-                file_path = os.path.join(root, file)
-                if any(file_path.lower().endswith(ext) for ext in video_extensions):
-                    file_size = os.path.getsize(file_path)
-                    if file_size > largest_size:
-                        largest_size = file_size
-                        selected_file = file_path
-
-        if selected_file:
-            # Get relative path after /var/www/media
-            relative_path = os.path.relpath(selected_file, '/var/www/media')
-            public_url = request.build_absolute_uri(f"/media/{relative_path}".replace("\\", "/"))
-            return Response({"file_path": public_url}, status=status.HTTP_200_OK)
-        return Response({"error": "No video file found"}, status=status.HTTP_404_NOT_FOUND)
-
-class MovieStream(APIView):
-    def get(self, request):
-        path = f"./Avengers: Endgame/output_new.m3u8"
-        return FileResponse(open(path, 'rb'), content_type='application/vnd.apple.mpegurl')
-
-class GetTS(APIView):
-    def get(self, request, name):
-        path = f"./Avengers: Endgame/{name}"
-        return FileResponse(open(path, 'rb'), content_type='application/vnd.apple.mpegurl')
-
-class StreamMovie(APIView):
-    DOWNLOAD_PATH = "/var/www/media/downloads"
-    PUBLIC_BASE_URL = "http://127.0.0.1:8000/media/downloads"
-    downloads = {}  # { tmdb_id: {"movie_file": str, "status": "downloading"/"done" } }
-
-    def get(self, request):
-        tmdb_id = request.query_params.get("tmdb_id")
-
-        with open("./movie_dump.json", "r") as f:
-            data = json.load(f)
-        tmdb_id = str(data["tmdb_id"])
-
-        movie_dir = os.path.join(self.DOWNLOAD_PATH, tmdb_id)
-
-        if tmdb_id not in self.downloads:
-            self.downloads[tmdb_id] = {"movie_file": None, "status": "starting"}
-            threading.Thread(target=self.start_download, args=(tmdb_id,), daemon=True).start()
-            print("Started download in background")
-
-        while self.downloads[tmdb_id]["movie_file"] is None:
-            print("Waiting for metadata to get movie file...")
-            time.sleep(1)
-
-        movie_file = self.downloads[tmdb_id]["movie_file"]
-        #public_url = f"{self.PUBLIC_BASE_URL}/{tmdb_id}/{movie_file}"
-        public_url = request.build_absolute_uri(f"/media/downloads/{tmdb_id}/{movie_file}")
-
-        return Response({"url": public_url}, status=200)
-
-    def start_download(self, tmdb_id):
-        with open("./movie_dump.json", "r") as f:
-            data = json.load(f)
-        movie_dir = os.path.join(self.DOWNLOAD_PATH, tmdb_id)
-        os.makedirs(movie_dir, exist_ok=True)
-
-        magnet_link = MovieSearch().getMagnetLink(data)
-
-        ses = lt.session()
-        params = {
-            'save_path': movie_dir,
-            'storage_mode': lt.storage_mode_t.storage_mode_sparse,
-        }
-        handle = lt.add_magnet_uri(ses, magnet_link, params)
-        handle.set_sequential_download(True)
-
-        while not handle.has_metadata():
-            print("Fetching metadata...")
-            time.sleep(1)
-
-        torrent_info = handle.get_torrent_info()
-        fs = torrent_info.files()
-        num_files = fs.num_files()
-
-        video_extensions = ['.mp4', '.mkv', '.avi', '.mov']
-        largest_size = 0
-        selected_file = None
-
-        for idx in range(num_files):
-            file_path = fs.file_path(idx)
-            file_size = fs.file_size(idx)
-
-            if any(file_path.lower().endswith(ext) for ext in video_extensions):
-                if file_size > largest_size:
-                    largest_size = file_size
-                    selected_file = file_path
-
-        if selected_file:
-            self.downloads[tmdb_id]["movie_file"] = selected_file
-            self.downloads[tmdb_id]["status"] = "downloading"
-
-        while not handle.is_seed():
-            s = handle.status()
-            print(f"Progress: {s.progress * 100:.2f}%")
-            time.sleep(1)
-
-        self.downloads[tmdb_id]["status"] = "done"
-        print("Download complete.")
