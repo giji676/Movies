@@ -23,7 +23,7 @@ function Player() {
         
         try {
             setIsLoading(true);
-            const response = await fetch(`http://192.168.1.215:8000/movie/download-new/?tmdb_id=${tmdb_id}`);
+            const response = await fetch(`http://192.168.1.215:8000/movie/stream-to-client/?tmdb_id=${tmdb_id}`);
             const data = await response.json();
             
             if (data.file_path) {
