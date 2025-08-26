@@ -28,6 +28,7 @@ function Player() {
             
             if (data.file_path) {
                 setVideoPath(data.file_path);
+                console.log(videoPath);
             } else {
                 console.error("No file_path returned for movie:", tmdb_id);
             }
@@ -44,12 +45,24 @@ function Player() {
         }
     }, [tmdb_id]);
 
+    useEffect(() => {
+        if (videoPath && videoRef.current) {
+            const playPromise = videoRef.current.play();
+            if (playPromise !== undefined) {
+                playPromise.catch((err) => console.warn("Autoplay blocked:", err));
+            }
+        }
+    }, [videoPath]);
+
     return (
         <div className={styles.playerContainer}>
             {videoPath ? (
                 <video
                     ref={videoRef}
                     src={videoPath}
+                    controls
+                    crossOrigin="anonymous"
+                    style={{ width: "100%", maxHeight: "80vh" }}
                 />
             ) : (
                 <div className={styles.loading}>

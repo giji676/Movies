@@ -7,5 +7,4 @@ urlpatterns = [
     path("movie/", views.ShowAvailableMovies.as_view(), name="show-available-movies"),
     path("movie/search/", views.MovieSearch.as_view(), name="movie-search"),
     path("movie/populars/", views.MoviePopulars.as_view(), name="movie-populars"),
-    path("movie/stream-to-client/", views.StreamToClient.as_view(), name="steam-to-client"),
 ]
