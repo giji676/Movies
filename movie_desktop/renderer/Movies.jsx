@@ -3,6 +3,8 @@ import MovieCard from "./MovieCard";
 import style from "./Movies.module.css";
 
 function Movies({ searchResults, searchTmdbConfig }) {
+    const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
     const [movies, setMovies] = useState([]);
     const [tmdbConfig, setTmdbConfig] = useState({});
     const [visibleCount, setVisibleCount] = useState(25);
@@ -20,7 +22,7 @@ function Movies({ searchResults, searchTmdbConfig }) {
 
         const getMovieData = async () => {
             try {
-                const response = await fetch(`http://192.168.1.215:8000/movie/`);
+                const response = await fetch(`${BASE_URL}/movie/`);
                 const data = await response.json();
                 setTmdbConfig(data.tmdb_config);
                 setMovies(data.movies);

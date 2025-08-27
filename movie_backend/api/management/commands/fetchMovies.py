@@ -12,9 +12,10 @@ class Command(BaseCommand):
     DOWNLOAD_PATH = "/var/www/media/downloads"
 
     def handle(self, *args, **kwargs):
+        tmdb = TMDB()
         page = 1
         while True:
-            popular_movies = TMDB().getPopularMovies(page=page)
+            popular_movies = tmdb.getPopularMovies(page=page)
             for movie in popular_movies["results"]:
                 tmdb_id = movie["id"]
                 if Movie.objects.filter(tmdb_id=tmdb_id).exists():
@@ -32,8 +33,8 @@ class Command(BaseCommand):
                         "title": movie["title"],
                         "overview": movie["overview"],
                         "release_date": movie["release_date"],
-                        "backdrop_path": movie["backdrop_path"],
-                        "poster_path": movie["poster_path"],
+                        "backdrop_path": "",
+                        "poster_path": "",
                         "seeders": int(tpb_data["seeders"]),
                         "imdb": tpb_data["imdb"],
                         "leechers": int(tpb_data["leechers"]),
@@ -45,6 +46,34 @@ class Command(BaseCommand):
                 )
                 print(f"Saved: {movie['title']} data")
                 print()
+
+                images_path = os.path.join(movie_path, "images")
+                os.makedirs(images_path, exist_ok=True)
+
+                poster_rel = os.path.join("images", "poster.jpg")
+                poster_file = os.path.join(images_path, "poster.jpg")
+                backdrop_rel = os.path.join("images", "backdrop.jpg")
+                backdrop_file = os.path.join(images_path, "backdrop.jpg")
+
+                try:
+                    # Download poster
+                    if movie["poster_path"] and not os.path.isfile(poster_file):
+                        poster_url = tmdb.buildImageURL(movie["poster_path"], "poster")
+                        self.download_image(poster_url, poster_file)
+                        print(f"Downloaded poster for {movie['title']}")
+
+                    # Download backdrop
+                    if movie["backdrop_path"] and not os.path.isfile(backdrop_file):
+                        backdrop_url = tmdb.buildImageURL(movie["backdrop_path"], "backdrop")
+                        self.download_image(backdrop_url, backdrop_file)
+                        print(f"Downloaded backdrop for {movie['title']}")
+
+                    # Update local paths in DB
+                    movie_obj.poster_path = poster_rel
+                    movie_obj.backdrop_path = backdrop_rel
+                    movie_obj.save(update_fields=["poster_path", "backdrop_path"])
+                except Exception as e:
+                    print(f"Image download failed for {movie['title']}: {e}")
                 if created:
                     # Start HLS conversion in a new thread
                     #threading.Thread(target=self.convert_to_hls, args=(movie_obj,), daemon=True).start()
@@ -123,6 +152,16 @@ class Command(BaseCommand):
         movie.save(update_fields=["hls_available"])
         print(f"HLS conversion finished for {movie.title}")
 
+    def download_image(self, url, path):
+        try:
+            response = requests.get(url, stream=True)
+            response.raise_for_status()
+            with open(path, "wb") as f:
+                for chunk in response.iter_content(1024):
+                    f.write(chunk)
+        except Exception as e:
+            self.stderr.write(f"Failed to download {url}: {e}")
+
     def download(self, tmdb):
         title = tmdb["title"]
         release_year = tmdb["release_date"].split("-")[0]
@@ -133,7 +172,7 @@ class Command(BaseCommand):
             movie_match = results["movies"][0]
             id_match = False
             for movie in results["movies"]:
-                imdb_id = TMDB().imdbIDLookup(movie["imdb"])
+                imdb_id = tmdb.imdbIDLookup(movie["imdb"])
                 tmdb_id = tmdb["id"]
 
                 if int(movie["seeders"]) < 10:

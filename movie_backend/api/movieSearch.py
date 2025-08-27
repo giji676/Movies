@@ -125,3 +125,17 @@ class TMDB:
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
         return response.json()
+
+    def buildImageURL(self, movie_id, type="poster"):
+        movie = self.getMovieByTMDBID(movie_id)
+        image_path = ""
+        if type == "poster":
+            size = self.config["images"]["poster_sizes"][-1]  # largest poster size
+            image_path = movie["poster_path"]
+        elif type == "backdrop":
+            size = self.config["images"]["backdrop_sizes"][-1]  # largest backdrop size
+            image_path = movie["backdrop_path"]
+        else:
+            size = self.config["images"]["poster_sizes"][-1]  # largest poster size
+            image_path = movie["poster_path"]
+        return f"{self.config["images"]["secure_base_url"]}{size}{image_path}"

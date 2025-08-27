@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "main": "main/main.js",
     "scripts": {
-        "dev": "concurrently \"vite --host\" \"electronmon .\"",
+        "dev": "concurrently \"vite --host --mode dev\" \"electronmon .\"",
         "build": "vite build",
         "start": "electron ."
     },
