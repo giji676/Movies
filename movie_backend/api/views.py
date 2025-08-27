@@ -1,11 +1,47 @@
+import os
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .serializers import MovieSerializer
 from .models import Movie
-
 from .movieSearch import MovieSearch, TMDB
+
+class StreamToClient(APIView):
+    """
+    Returns the HLS .m3u8 URL for a movie given its TMDB ID.
+    Assumes Nginx serves /var/www/media/ as /media/ URL.
+    """
+    def get(self, request):
+        tmdb_id = request.query_params.get("tmdb_id")
+        if not tmdb_id:
+            return Response({"error": "No tmdb_id provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            tmdb_id = int(tmdb_id)
+        except ValueError:
+            return Response({"error": "Invalid tmdb_id"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            movie = Movie.objects.get(tmdb_id=tmdb_id)
+        except Movie.DoesNotExist:
+            return Response({"error": "Movie not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in movie.title)
+        hls_dir = os.path.join(movie.download_path, "hls")
+        m3u8_filename = f"{safe_title}.m3u8"
+        m3u8_path = os.path.join(hls_dir, m3u8_filename)
+
+        if not os.path.isfile(m3u8_path):
+            return Response({"error": "HLS not available"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Convert filesystem path to URL served by Nginx
+        media_root = "/var/www/media"
+        url_path = m3u8_path.replace(media_root, "").replace(os.sep, "/")
+        url = f"http://{request.get_host()}/media{url_path}"
+
+        return Response({"file_path": url}, status=status.HTTP_200_OK)
 
 class ShowAvailableMovies(APIView):
     """ return the json of all the movies available on the server """
