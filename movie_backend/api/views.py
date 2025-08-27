@@ -3,6 +3,8 @@ import os
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.db.models import Q
+from django.contrib.postgres.search import TrigramSimilarity
 
 from .serializers import MovieSerializer
 from .models import Movie
@@ -55,10 +57,10 @@ class ShowAvailableMovies(APIView):
         }
         return Response(result)
 
-class MovieSearch(APIView):
+class SearchTPB(APIView):
     """
-        queries apibay (ThePirrateBay) for a movie
-        returns list of movies from the query reuslt
+    queries apibay (ThePirrateBay) for a movie
+    returns list of movies from the query reuslt
     """
     def get(self, request):
         query = request.query_params.get("query")
@@ -81,6 +83,28 @@ class MovieSearch(APIView):
         }
         return Response(limited_result, status=status.HTTP_200_OK)
 
+
+class Search(APIView):
+    """Search through local movies in the database with TMDB config included."""
+    def get(self, request):
+        query = request.query_params.get("query")
+        if not query:
+            return Response({"error": "No query specified"}, status=status.HTTP_400_BAD_REQUEST)
+
+        movies = Movie.objects.annotate(
+            similarity=TrigramSimilarity('title', query)
+        ).filter(similarity__gt=0.15).order_by('-similarity')
+
+        serializer = MovieSerializer(movies, many=True)
+        tmdb_config = TMDB().getConfig()
+
+        result = {
+            "tmdb_config": tmdb_config,
+            "movies": serializer.data
+        }
+
+        return Response(result, status=status.HTTP_200_OK)
+
 class MoviePopulars(APIView):
     """ returns a json of popular movies currently """
     def get(self, request):
@@ -90,4 +114,3 @@ class MoviePopulars(APIView):
         tmdb = TMDB()
         result = tmdb.getPopularMovies(page)
         return Response(result, status=status.HTTP_200_OK)
-

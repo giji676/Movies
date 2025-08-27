@@ -1,7 +1,13 @@
-
 .body {
     background-color: var(--chocolate-cosmos);
     margin: 0;
-    padding: 0;
 }
 
+.searchWrapper {
+    display: flex;
+    justify-content: center; /* centers horizontally */
+    margin-bottom: 2rem;
+    margin-top: 2rem;
+}
+
+/* Movies component should handle its own grid layout */

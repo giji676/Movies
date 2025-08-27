@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import MovieCard from "./MovieCard";
-import style from "./AvailableMovies.module.css";
+import style from "./Movies.module.css";
 
-function AvailableMovies() {
+function Movies({ searchResults, searchTmdbConfig }) {
     const [movies, setMovies] = useState([]);
     const [tmdbConfig, setTmdbConfig] = useState({});
     const [visibleCount, setVisibleCount] = useState(25);
@@ -10,21 +10,26 @@ function AvailableMovies() {
     const loader = useRef(null);
 
     useEffect(() => {
+        if (searchResults) {
+            setMovies(searchResults);
+            setTmdbConfig(searchTmdbConfig);
+            return;
+        }
         if (fetchedRef.current) return;
         fetchedRef.current = true;
-        getMovieData();
-    }, []);
 
-    const getMovieData = async () => {
-        try {
-            const response = await fetch(`http://192.168.1.215:8000/movie/`);
-            const data = await response.json();
-            setTmdbConfig(data.tmdb_config);
-            setMovies(data.movies);
-        } catch (err) {
-            console.log("failed to fetch movie data", err);
-        }
-    };
+        const getMovieData = async () => {
+            try {
+                const response = await fetch(`http://192.168.1.215:8000/movie/`);
+                const data = await response.json();
+                setTmdbConfig(data.tmdb_config);
+                setMovies(data.movies);
+            } catch (err) {
+                console.log("failed to fetch movie data", err);
+            }
+        };
+        getMovieData();
+    }, [searchResults, searchTmdbConfig]);
 
     useEffect(() => {
         if (!loader.current) return;
@@ -47,4 +52,4 @@ function AvailableMovies() {
     );
 }
 
-export default AvailableMovies;
+export default Movies;
