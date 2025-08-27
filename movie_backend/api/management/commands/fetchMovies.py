@@ -74,6 +74,10 @@ class Command(BaseCommand):
             if not os.path.exists(movie_path):
                 os.mkdir(movie_path)
 
+            movie_path = os.path.join(movie_path, "torrent")
+            if not os.path.exists(movie_path):
+                os.mkdir(movie_path)
+
             asyncio.run(m_search.download(magnet_link, path=movie_path))
             return movie_match
         return None
