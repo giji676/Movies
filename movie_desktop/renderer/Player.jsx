@@ -77,7 +77,7 @@ function Player() {
             {videoPath ? (
                 <video
                     ref={videoRef}
-                    controls
+                    controls={false}
                     crossOrigin="anonymous"
                     style={{ width: "100%", maxHeight: "80vh" }}
                 />
