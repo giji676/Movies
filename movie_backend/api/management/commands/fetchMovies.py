@@ -47,7 +47,8 @@ class Command(BaseCommand):
                 print()
                 if created:
                     # Start HLS conversion in a new thread
-                    threading.Thread(target=self.convert_to_hls, args=(movie_obj,), daemon=True).start()
+                    #threading.Thread(target=self.convert_to_hls, args=(movie_obj,), daemon=True).start()
+                    pass
 
             print(f"page {page} done")
             print()
