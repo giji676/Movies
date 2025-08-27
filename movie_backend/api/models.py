@@ -1,4 +1,3 @@
-from asyncio import create_eager_task_factory
 from django.db import models
 
 class Movie(models.Model):
@@ -14,6 +13,7 @@ class Movie(models.Model):
     overview = models.TextField()
     release_date = models.DateField(null=True, blank=True)
     download_path = models.CharField(max_length=300, default=".", blank=True)
+    hls_available = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.title
+        return f"{self.title} {self.release_date} {self.tmdb_id}"
