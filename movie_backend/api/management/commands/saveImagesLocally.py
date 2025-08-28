@@ -1,8 +1,11 @@
 import os
 import requests
+import logging
 from django.core.management.base import BaseCommand
 from api.models import Movie
 from api.movieSearch import TMDB
+
+logger = logging.getLogger("movies")
 
 class Command(BaseCommand):
     help = "Download TMDB poster and backdrop images locally for all movies"
@@ -11,32 +14,33 @@ class Command(BaseCommand):
         tmdb = TMDB()
         movies = Movie.objects.all()
         for movie in movies:
-            self.stdout.write(f"Processing: {movie.title} ({movie.tmdb_id})")
+            logger.info("Processing: %s (%s)", movie.title, movie.tmdb_id)
+
             movie_path = os.path.join(movie.download_path, "images")
             os.makedirs(movie_path, exist_ok=True)
 
             # Poster
             poster_file = os.path.join(movie_path, "poster.jpg")
-            if os.path.isfile(poster_file):
+            if not os.path.isfile(poster_file):
                 self.download_image(tmdb.buildImageURL(movie.tmdb_id, "poster"), poster_file)
-                self.stdout.write(f"Downloaded poster for {movie.title}")
+                logger.info("Downloaded poster for %s", movie.title)
             else:
-                self.stdout.write(f"Poster already exists for {movie.title}")
-            return
+                logger.info("Poster already exists for %s", movie.title)
 
             # Backdrop
             backdrop_file = os.path.join(movie_path, "backdrop.jpg")
             if not os.path.isfile(backdrop_file):
                 self.download_image(tmdb.buildImageURL(movie.tmdb_id, "backdrop"), backdrop_file)
-                self.stdout.write(f"Downloaded backdrop for {movie.title}")
+                logger.info("Downloaded backdrop for %s", movie.title)
             else:
-                self.stdout.write(f"Backdrop already exists for {movie.title}")
+                logger.info("Backdrop already exists for %s", movie.title)
+
+            # Update DB paths
             movie.poster_path = os.path.join("images", "poster.jpg")
             movie.backdrop_path = os.path.join("images", "backdrop.jpg")
             movie.save(update_fields=["poster_path","backdrop_path"])
 
     def download_image(self, url, path):
-        return
         try:
             response = requests.get(url, stream=True)
             response.raise_for_status()
@@ -44,4 +48,4 @@ class Command(BaseCommand):
                 for chunk in response.iter_content(1024):
                     f.write(chunk)
         except Exception as e:
-            self.stderr.write(f"Failed to download {url}: {e}")
+            logger.warning("Failed to download %s: %s", url, e)

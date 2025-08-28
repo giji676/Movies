@@ -1,8 +1,11 @@
 import os
 import subprocess
+import logging
 
 from django.core.management.base import BaseCommand
 from api.models import Movie
+
+logger = logging.getLogger("movies")
 
 class Command(BaseCommand):
     help = "Converts movies to HLS format. If TMDB_ID is given, only converts that one."
@@ -18,29 +21,29 @@ class Command(BaseCommand):
         tmdb_id = options.get("tmdb_id")
 
         if tmdb_id:
-            self.stdout.write(f"Converting movie with TMDB ID: {tmdb_id}")
+            logger.info("Converting movie with TMDB ID: %s", tmdb_id)
             movie_obj = Movie.objects.filter(tmdb_id=tmdb_id).first()
             if movie_obj:
                 self.convert_to_hls(movie_obj)
             else:
-                self.stderr.write(f"No movie found with TMDB ID {tmdb_id}")
+                logger.info("No movie found with TMDB ID %s", tmdb_id)
         else:
-            self.stdout.write("Converting all movies")
+            logger.info("Converting all movies")
             movies = Movie.objects.all()
             for movie in movies:
                 self.convert_to_hls(movie)
 
     def convert_to_hls(self, movie):
         if movie.hls_available and self.validate_hls_exists(movie):
-            self.stdout.write(f"HLS already available for {movie.title} ({movie.tmdb_id})")
+            logger.info("HLS already available for %s (%s)", movie.title, movie.tmdb_id)
             return
 
-        self.stdout.write(f"Generating HLS for {movie.title} ({movie.tmdb_id})")
+        logger.info("Generating HLS for %s (%s)", movie.title, movie.tmdb_id)
 
         torrent_path = os.path.join(movie.download_path, "torrent")
         movie_path = self.get_movie_file(torrent_path)
         if not movie_path:
-            self.stderr.write(f"Couldn't locate movie file for {movie.title}")
+            logger.warning("Couldn't locate movie file for %s (%s)", movie.title, movie.tmdb_id)
             return
 
         HLS_PATH = os.path.join(movie.download_path, "hls")
@@ -62,7 +65,7 @@ class Command(BaseCommand):
             )
             total_duration = float(result.stdout.strip())
         except Exception as e:
-            self.stderr.write(f"Failed to get duration: {e}")
+            logger.warning(f"Failed to get duration: {e}")
             total_duration = None
 
         # Helper to run ffmpeg with progress reporting
@@ -84,14 +87,13 @@ class Command(BaseCommand):
                         current_seconds = h*3600 + m*60 + s
                         percent = (current_seconds / total_duration) * 100
                         # Overwrite the same line
-                        print(f"\rProgress: {percent:.1f}%", end="", flush=True)
+                        self.stdout.write(f"\rProgress: {percent:.1f}%", end="", flush=True)
                     except Exception:
                         pass
                 elif line.startswith("progress=end"):
-                    print("\rProgress: 100.0% - Conversion complete!")
+                    self.stdout.write("\rProgress: 100.0% - Conversion complete!")
 
             process.wait()
-            print()  # move to next line after done
             return process.returncode == 0
 
         # Try copy first
@@ -111,9 +113,9 @@ class Command(BaseCommand):
             m3u8_path
         ]
 
-        self.stdout.write(f"Attempting fast HLS conversion (copy) for {movie.title}")
+        logger.info("Attempting fast HLS conversion (copy) for %s", movie.title)
         if not run_ffmpeg(ffmpeg_copy_cmd):
-            self.stdout.write(f"Copy failed, falling back to re-encoding for {movie.title}")
+            logger.info("Copy failed, falling back to re-encoding for %s", movie.title)
             ffmpeg_reencode_cmd = [
                 "ffmpeg",
                 "-i", movie_path,
@@ -129,11 +131,11 @@ class Command(BaseCommand):
                 m3u8_path
             ]
             run_ffmpeg(ffmpeg_reencode_cmd)
-            self.stdout.write(f"HLS conversion (re-encode) finished for {movie.title}")
+            logger.info("HLS conversion (re-encode) finished for %s", movie.title)
 
         movie.hls_available = True
         movie.save(update_fields=["hls_available"])
-        self.stdout.write(f"HLS conversion done for {movie.title}")
+        logger.info("HLS conversion done for %s", movie.title)
 
     def validate_hls_exists(self, movie):
         safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in movie.title)
@@ -153,7 +155,7 @@ class Command(BaseCommand):
             duration = float(result.stdout.strip())
             return duration > 0
         except Exception as e:
-            self.stderr.write(f"Invalid HLS file for {movie.title}: {e}")
+            logger.warning("Invalid HLS file for %s (%s): %s", movie.title, movie.tmdb_id, e)
             return False
 
     def get_movie_file(self, torrent_path):

@@ -2,29 +2,32 @@ import os
 import asyncio
 import subprocess
 import threading
+import logging
 
 from django.core.management.base import BaseCommand
 from api.models import Movie
 from api.movieSearch import MovieSearch, TMDB
+
+logger = logging.getLogger("movies")
 
 class Command(BaseCommand):
     help = 'Fetches and populates movie data from TMDB IDs'
     DOWNLOAD_PATH = "/var/www/media/downloads"
 
     def handle(self, *args, **kwargs):
-        tmdb = TMDB()
+        self.tmdb = TMDB()
         page = 1
         while True:
-            popular_movies = tmdb.getPopularMovies(page=page)
+            popular_movies = self.tmdb.getPopularMovies(page=page)
             for movie in popular_movies["results"]:
                 tmdb_id = movie["id"]
                 if Movie.objects.filter(tmdb_id=tmdb_id).exists():
-                    print(f"skipping {movie['title']} (already exists)")
+                    logger.info("Skipping %s (already exists)", movie["title"])
                     continue
-                print(f"processing {movie['title']}")
+                logger.info("Processing %s", movie["title"])
                 tpb_data = self.download(movie)
                 if not tpb_data:
-                    print("no tpb results found")
+                    logger.info("No TPB results found for %s", movie["title"])
                     continue
                 movie_path = os.path.join(self.DOWNLOAD_PATH, str(movie["id"]))
                 movie_obj, created = Movie.objects.update_or_create(
@@ -44,8 +47,7 @@ class Command(BaseCommand):
                         "hls_available": False,
                     }
                 )
-                print(f"Saved: {movie['title']} data")
-                print()
+                logger.info("Saved: %s data", movie["title"])
 
                 images_path = os.path.join(movie_path, "images")
                 os.makedirs(images_path, exist_ok=True)
@@ -58,29 +60,27 @@ class Command(BaseCommand):
                 try:
                     # Download poster
                     if movie["poster_path"] and not os.path.isfile(poster_file):
-                        poster_url = tmdb.buildImageURL(movie["poster_path"], "poster")
+                        poster_url = self.tmdb.buildImageURL(movie["poster_path"], "poster")
                         self.download_image(poster_url, poster_file)
-                        print(f"Downloaded poster for {movie['title']}")
-
+                        logger.info("Downloaded poster for %s", movie["title"])
                     # Download backdrop
                     if movie["backdrop_path"] and not os.path.isfile(backdrop_file):
-                        backdrop_url = tmdb.buildImageURL(movie["backdrop_path"], "backdrop")
+                        backdrop_url = self.tmdb.buildImageURL(movie["backdrop_path"], "backdrop")
                         self.download_image(backdrop_url, backdrop_file)
-                        print(f"Downloaded backdrop for {movie['title']}")
+                        logger.info("Downloaded backdrop for %s", movie["title"])
 
                     # Update local paths in DB
                     movie_obj.poster_path = poster_rel
                     movie_obj.backdrop_path = backdrop_rel
                     movie_obj.save(update_fields=["poster_path", "backdrop_path"])
                 except Exception as e:
-                    print(f"Image download failed for {movie['title']}: {e}")
+                    logger.warning("Image download failed for %s (%s): %s", movie["title"], tmdb_id, e)
                 if created:
                     # Start HLS conversion in a new thread
                     #threading.Thread(target=self.convert_to_hls, args=(movie_obj,), daemon=True).start()
                     pass
 
-            print(f"page {page} done")
-            print()
+            logger.info("page %s done", page)
             page += 1
 
     def get_movie_file(self, torrent_path):
@@ -103,7 +103,7 @@ class Command(BaseCommand):
         torrent_path = os.path.join(movie.download_path, "torrent")
         movie_path = self.get_movie_file(torrent_path)
         if not movie_path:
-            print("Couldn't locate movie file for HLS conversion")
+            logger.info("Couldn't locate movie file for HLS conversion (%s", movie.tmdb_id)
             return
 
         HLS_PATH = os.path.join(movie.download_path, "hls")
@@ -127,12 +127,12 @@ class Command(BaseCommand):
             m3u8_path
         ]
 
-        print(f"Attempting fast HLS conversion (copy) for {movie.title}")
+        logger.info("Attempting fast HLS conversion (copy) for %s", movie.title)
         try:
             subprocess.run(ffmpeg_copy_cmd, check=True, stdout=subprocess.DEVNULL)
-            print(f"HLS conversion (copy) finished for {movie.title}")
+            logger.info("Attempting fast HLS conversion (copy) for %s", movie.title)
         except subprocess.CalledProcessError:
-            print(f"Copy failed, falling back to re-encoding for {movie.title}")
+            logger.info("Copy failed, falling back to re-encoding for %s", movie.title)
             ffmpeg_reencode_cmd = [
                 "ffmpeg",
                 "-i", movie_path,
@@ -146,11 +146,11 @@ class Command(BaseCommand):
                 m3u8_path
             ]
             subprocess.run(ffmpeg_reencode_cmd, check=True, stdout=subprocess.DEVNULL)
-            print(f"HLS conversion (re-encode) finished for {movie.title}")
+            logger.info("HLS conversion (re-encode) finished for %s", movie.title)
 
         movie.hls_available = True
         movie.save(update_fields=["hls_available"])
-        print(f"HLS conversion finished for {movie.title}")
+        logger.info("HLS conversion finished for %s", movie.title)
 
     def download_image(self, url, path):
         try:
@@ -160,11 +160,11 @@ class Command(BaseCommand):
                 for chunk in response.iter_content(1024):
                     f.write(chunk)
         except Exception as e:
-            self.stderr.write(f"Failed to download {url}: {e}")
+            logger.warning("Failed to download %s: %s", url, e)
 
-    def download(self, tmdb):
-        title = tmdb["title"]
-        release_year = tmdb["release_date"].split("-")[0]
+    def download(self, tmdb_json):
+        title = tmdb_json["title"]
+        release_year = tmdb_json["release_date"].split("-")[0]
         m_search = MovieSearch()
         results = m_search.search(f"{title} {release_year}")
 
@@ -172,8 +172,8 @@ class Command(BaseCommand):
             movie_match = results["movies"][0]
             id_match = False
             for movie in results["movies"]:
-                imdb_id = tmdb.imdbIDLookup(movie["imdb"])
-                tmdb_id = tmdb["id"]
+                imdb_id = self.tmdb.imdbIDLookup(movie["imdb"])
+                tmdb_id = tmdb_json["id"]
 
                 if int(movie["seeders"]) < 10:
                     continue
@@ -186,7 +186,7 @@ class Command(BaseCommand):
                 return None
 
             magnet_link = m_search.getMagnetLink(movie_match)
-            movie_path = os.path.join(self.DOWNLOAD_PATH, str(tmdb["id"]))
+            movie_path = os.path.join(self.DOWNLOAD_PATH, str(tmdb_json["id"]))
             os.makedirs(movie_path, exist_ok=True)
 
             movie_path = os.path.join(movie_path, "torrent")

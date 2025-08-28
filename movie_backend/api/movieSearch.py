@@ -1,11 +1,13 @@
 import os
-import json
+import logging
 import requests
 import urllib.parse
 from torrentp import TorrentDownloader
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger("movies")
 
 class MovieSearch:
     def search(self, query, cat=None):
@@ -47,8 +49,8 @@ class MovieSearch:
 
     async def download(self, uri, path="."):
         """ asyncio.run(download(...)) """
-        print(f"starting async download at: {path}")
-        torrent_file = TorrentDownloader(uri, path) 
+        logger.info("starting async download at: %s", path)
+        torrent_file = TorrentDownloader(uri, path)
         await torrent_file.start_download()
 
 class TMDB:
@@ -131,12 +133,10 @@ class TMDB:
         image_path = ""
         if type == "poster":
             size = self.config["images"]["poster_sizes"]  # largest poster size
-            print(size)
             image_path = movie["poster_path"]
         elif type == "backdrop":
             size = self.config["images"]["backdrop_sizes"]  # largest backdrop size
             image_path = movie["backdrop_path"]
-            print(size)
         else:
             size = self.config["images"]["poster_sizes"][-1]  # largest poster size
             image_path = movie["poster_path"]
