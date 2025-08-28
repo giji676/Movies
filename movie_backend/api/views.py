@@ -119,7 +119,6 @@ class Search(APIView):
         }
 
         return Response(result, status=status.HTTP_200_OK)
-    
 
 class MoviePopulars(APIView):
     """ returns a json of popular movies currently """

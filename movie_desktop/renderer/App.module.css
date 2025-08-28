@@ -5,9 +5,7 @@
 
 .searchWrapper {
     display: flex;
-    justify-content: center; /* centers horizontally */
+    justify-content: center;
     margin-bottom: 2rem;
     margin-top: 2rem;
 }
-
-/* Movies component should handle its own grid layout */

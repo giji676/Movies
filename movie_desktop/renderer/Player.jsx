@@ -89,16 +89,20 @@ function Player() {
     };
 
     return (
-        <div className={styles.playerContainer} style={{ backgroundImage: `url(${backdropUrl})` }}>
+        <div
+            className={styles.playerContainer}
+            style={{ backgroundImage: videoPath ? "none" : `url(${backdropUrl})` }}
+        >
             {videoPath ? (
-                <>
+                <div className={styles.videoContainer}>
                     <video
                         ref={videoRef}
+                        className={styles.video}
                         controls
                         crossOrigin="anonymous"
-                        style={{ width: "100%", maxHeight: "80vh" }}
+                        autoPlay
                     />
-                </>
+                </div>
             ) : (
                     <div className={styles.loading}>
                         {isLoading ? "Loading video..." : "Video not available"}
