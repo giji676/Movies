@@ -16,8 +16,7 @@ function Player() {
     const hlsRef = useRef(null);
     const [videoPath, setVideoPath] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-
-    // const backdropUrl = `${tmdbConfig.images.secure_base_url}${tmdbConfig.images.backdrop_sizes.slice(-1)[0]}${backdrop_path}`;
+    const [isPlaying, setIsPlaying] = useState(false);
 
     const backdropUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${tmdb_id}/${movie.backdrop_path}`;
 
@@ -78,20 +77,33 @@ function Player() {
         };
     }, [videoPath]);
 
+    const togglePlay = () => {
+        if (!videoRef.current) return;
+        if (videoRef.current.paused) {
+            videoRef.current.play().catch(() => console.warn("Autoplay blocked"));
+            setIsPlaying(true);
+        } else {
+            videoRef.current.pause();
+            setIsPlaying(false);
+        }
+    };
+
     return (
         <div className={styles.playerContainer} style={{ backgroundImage: `url(${backdropUrl})` }}>
             {videoPath ? (
-                <video
-                    ref={videoRef}
-                    controls={false}
-                    crossOrigin="anonymous"
-                    style={{ width: "100%", maxHeight: "80vh" }}
-                />
+                <>
+                    <video
+                        ref={videoRef}
+                        controls
+                        crossOrigin="anonymous"
+                        style={{ width: "100%", maxHeight: "80vh" }}
+                    />
+                </>
             ) : (
-                <div className={styles.loading}>
-                    {isLoading ? "Loading video..." : "Video not available"}
-                </div>
-            )}
+                    <div className={styles.loading}>
+                        {isLoading ? "Loading video..." : "Video not available"}
+                    </div>
+                )}
         </div>
     );
 }

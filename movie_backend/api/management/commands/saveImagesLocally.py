@@ -17,11 +17,12 @@ class Command(BaseCommand):
 
             # Poster
             poster_file = os.path.join(movie_path, "poster.jpg")
-            if not os.path.isfile(poster_file):
+            if os.path.isfile(poster_file):
                 self.download_image(tmdb.buildImageURL(movie.tmdb_id, "poster"), poster_file)
                 self.stdout.write(f"Downloaded poster for {movie.title}")
             else:
                 self.stdout.write(f"Poster already exists for {movie.title}")
+            return
 
             # Backdrop
             backdrop_file = os.path.join(movie_path, "backdrop.jpg")
@@ -35,6 +36,7 @@ class Command(BaseCommand):
             movie.save(update_fields=["poster_path","backdrop_path"])
 
     def download_image(self, url, path):
+        return
         try:
             response = requests.get(url, stream=True)
             response.raise_for_status()

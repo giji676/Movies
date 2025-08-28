@@ -1,4 +1,5 @@
 import os
+import time
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -9,6 +10,8 @@ from django.contrib.postgres.search import TrigramSimilarity
 from .serializers import MovieSerializer
 from .models import Movie
 from .movieSearch import MovieSearch, TMDB
+
+tmdb = TMDB()
 
 class StreamToClient(APIView):
     """
@@ -46,13 +49,19 @@ class StreamToClient(APIView):
         return Response({"file_path": url}, status=status.HTTP_200_OK)
 
 class ShowAvailableMovies(APIView):
-    """ return the json of all the movies available on the server """
+    """Return a paginated JSON of the movies available on the server"""
     def get(self, request):
-        movies = Movie.objects.all()
-        serializer = MovieSerializer(movies, many=True)
+        try:
+            offset = int(request.GET.get('offset', 0))
+            limit = int(request.GET.get('limit', 25))
+        except ValueError:
+            return Response({"error": "Invalid offset or limit"}, status=status.HTTP_400_BAD_REQUEST)
+
+        movies_qs = Movie.objects.order_by("-tmdb_id")[offset:offset + limit]
+        serializer = MovieSerializer(movies_qs, many=True, context={'request': request, 'tmdb': tmdb})
 
         result = {
-            "tmdb_config": TMDB().getConfig(),
+            "tmdb_config": tmdb.config,
             "movies": serializer.data,
         }
         return Response(result)
@@ -96,7 +105,7 @@ class Search(APIView):
         ).filter(similarity__gt=0.15).order_by('-similarity')
 
         serializer = MovieSerializer(movies, many=True)
-        tmdb_config = TMDB().getConfig()
+        tmdb_config = tmdb.config
 
         result = {
             "tmdb_config": tmdb_config,
@@ -111,6 +120,5 @@ class MoviePopulars(APIView):
         page = request.query_params.get("page")
         if not page:
             page = 1
-        tmdb = TMDB()
         result = tmdb.getPopularMovies(page)
         return Response(result, status=status.HTTP_200_OK)

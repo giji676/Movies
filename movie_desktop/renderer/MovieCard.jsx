@@ -16,7 +16,7 @@ function MovieCard({ tmdbConfig, movie }) {
             style={{ textDecoration: 'none', color: 'inherit' }}
         >
             <div className={styles.movie_card}>
-                {movie.poster_path && (
+                {poster_path && (
                     <img
                         src={posterUrl}
                         alt={title}

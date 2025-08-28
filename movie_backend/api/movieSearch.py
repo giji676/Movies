@@ -25,7 +25,7 @@ class MovieSearch:
                 movies.append(movie)
 
         result = {
-            "tmdb_config": tmdb.getConfig(),
+            "tmdb_config": tmdb.config,
             "movies": movies
         }
         #with open("movie_dump.json", "w") as f:
@@ -55,9 +55,9 @@ class TMDB:
     def __init__(self):
         self.API_KEY = os.getenv('API_KEY')
         self.BASE_URL = "https://api.themoviedb.org/3"
-        self.config = self.getConfig()
+        self.config = self._getConfig()
 
-    def getConfig(self):
+    def _getConfig(self):
         url = f"{self.BASE_URL}/configuration"
         params = {'api_key': self.API_KEY}
         headers = {"accept": "application/json"}
@@ -130,11 +130,13 @@ class TMDB:
         movie = self.getMovieByTMDBID(movie_id)
         image_path = ""
         if type == "poster":
-            size = self.config["images"]["poster_sizes"][-1]  # largest poster size
+            size = self.config["images"]["poster_sizes"]  # largest poster size
+            print(size)
             image_path = movie["poster_path"]
         elif type == "backdrop":
-            size = self.config["images"]["backdrop_sizes"][-1]  # largest backdrop size
+            size = self.config["images"]["backdrop_sizes"]  # largest backdrop size
             image_path = movie["backdrop_path"]
+            print(size)
         else:
             size = self.config["images"]["poster_sizes"][-1]  # largest poster size
             image_path = movie["poster_path"]

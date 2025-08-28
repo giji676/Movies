@@ -17,8 +17,6 @@ function Movie() {
 
     const { title, release_date, overview, poster_path, backdrop_path } = movie;
 
-    // const backdropUrl = `${tmdbConfig.images.secure_base_url}${tmdbConfig.images.backdrop_sizes[tmdbConfig.images.backdrop_sizes.length - 1]}${backdrop_path}`;
-    // const posterUrl = `${tmdbConfig.images.secure_base_url}${tmdbConfig.images.poster_sizes[tmdbConfig.images.poster_sizes.length - 1]}${poster_path}`;
     const posterUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${movie.tmdb_id}/${poster_path}`;
     const backdropUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${movie.tmdb_id}/${backdrop_path}`;
 
