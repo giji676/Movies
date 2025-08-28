@@ -1,5 +1,6 @@
 import os
 import time
+import logging
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -10,8 +11,11 @@ from django.contrib.postgres.search import TrigramSimilarity
 from .serializers import MovieSerializer
 from .models import Movie
 from .movieSearch import MovieSearch, TMDB
+from .utils import serialize_movie_cached
 
+logger = logging.getLogger("movies")
 tmdb = TMDB()
+
 
 class StreamToClient(APIView):
     """
@@ -92,9 +96,9 @@ class SearchTPB(APIView):
         }
         return Response(limited_result, status=status.HTTP_200_OK)
 
-
 class Search(APIView):
     """Search through local movies in the database with TMDB config included."""
+
     def get(self, request):
         query = request.query_params.get("query")
         if not query:
@@ -104,15 +108,18 @@ class Search(APIView):
             similarity=TrigramSimilarity('title', query)
         ).filter(similarity__gt=0.15).order_by('-similarity')
 
-        serializer = MovieSerializer(movies, many=True)
+        # Use cached serialization
+        serialized_movies = [serialize_movie_cached(m) for m in movies]
+
         tmdb_config = tmdb.config
 
         result = {
             "tmdb_config": tmdb_config,
-            "movies": serializer.data
+            "movies": serialized_movies
         }
 
         return Response(result, status=status.HTTP_200_OK)
+    
 
 class MoviePopulars(APIView):
     """ returns a json of popular movies currently """

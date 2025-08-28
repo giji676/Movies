@@ -18,6 +18,7 @@ function MovieCard({ tmdbConfig, movie }) {
             <div className={styles.movie_card}>
                 {poster_path && (
                     <img
+                        loading="lazy"
                         src={posterUrl}
                         alt={title}
                         className={styles.poster}
