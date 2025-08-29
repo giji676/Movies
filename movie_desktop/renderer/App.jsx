@@ -4,16 +4,24 @@ import Search from './Search';
 import Movie from './Movie';
 import Movies from './Movies';
 import Player from './Player';
-import styles from "./App.module.css";
+import UserMenu from './UserMenu';
+import styles from './App.module.css';
 import './Colors.module.css';
 
 function App() {
     const [searchResults, setSearchResults] = useState(null);
     const [searchTmdbConfig, setSearchTmdbConfig] = useState(null);
 
+    // Example user state
+    const [user, setUser] = useState(null);
+
     const handleSearchResults = (movies, tmdbConfig) => {
         setSearchResults(movies);
         setSearchTmdbConfig(tmdbConfig);
+    };
+
+    const handleSignOut = () => {
+        setUser(null);
     };
 
     return (
@@ -24,8 +32,18 @@ function App() {
                         path="/" 
                         element={
                             <>
-                                <div className={styles.searchWrapper}>
-                                    <Search onResults={handleSearchResults} />
+                                <div className={styles.topBar}>
+                                    <div className={styles.logo}>
+                                        Movies
+                                    </div>
+
+                                    <div className={styles.searchWrapper}>
+                                        <Search onResults={handleSearchResults} />
+                                    </div>
+
+                                    <div className={styles.userWrapper}>
+                                        <UserMenu user={user} onSignOut={handleSignOut} />
+                                    </div>
                                 </div>
 
                                 <Movies 

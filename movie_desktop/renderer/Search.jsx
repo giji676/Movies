@@ -5,13 +5,15 @@ function Search({ onResults }) {
     const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
     const handleSearch = async (e) => {
         e.preventDefault();
         if (!query) return;
 
         setLoading(true);
         try {
-            const response = await fetch(`http://192.168.1.215:8000/movie/search/?query=${encodeURIComponent(query)}`);
+            const response = await fetch(`${BASE_URL}/movie/search/?query=${encodeURIComponent(query)}`);
             const data = await response.json();
             onResults(data.movies, data.tmdb_config);
         } catch (err) {

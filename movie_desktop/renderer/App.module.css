@@ -1,11 +1,21 @@
 .body {
-    background-color: var(--chocolate-cosmos);
-    margin: 0;
+}
+
+.topBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #e6effc;
 }
 
 .searchWrapper {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 2rem;
-    margin-top: 2rem;
+}
+
+.userWrapper {
 }

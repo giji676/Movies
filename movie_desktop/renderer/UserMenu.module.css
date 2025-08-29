@@ -1,0 +1,48 @@
+.container {
+    display: inline-flex;       /* flex so avatar + text align horizontally */
+    align-items: center;
+    gap: 0.5rem;               /* spacing between avatar and text */
+    border: 2px solid white;
+    border-radius: 9999px;
+    padding: 0.75rem 1rem;
+    cursor: pointer;           /* whole capsule is clickable */
+    position: relative;        /* needed for dropdown */
+}
+
+.button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: rgb(18, 40, 65);
+    border-radius: 1rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    margin-top: 0.5rem;
+    min-width: 150px;
+    z-index: 100;
+}
+
+.item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    background-color: transparent;
+}
+
+.item:hover {
+    background-color: rgba(0,0,0,0.05);
+}

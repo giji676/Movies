@@ -37,7 +37,7 @@
     font-size: 1rem;
     background-color: var(--input-bg);
     color: inherit;
-    transition: background-color 0.2s ease-in-out;
+    transition: background-color 0.15s ease-in-out;
 }
 
 .input::placeholder {
