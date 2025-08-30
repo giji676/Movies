@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Movie(models.Model):
     tmdb_id = models.IntegerField(primary_key=True)
@@ -17,3 +18,12 @@ class Movie(models.Model):
 
     def __str__(self):
         return f"{self.title} {self.release_date} {self.tmdb_id}"
+
+class PlaylistMovie(models.Model):
+    time_stamp = models.IntegerField(default=0)
+    last_watched = models.DateField(null=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="playlist_movie")
+    tmdb_id = models.ForeignKey(Movie, on_delete=models.DO_NOTHING, related_name="movie")
+
+    def __str__(self):
+        return self.title

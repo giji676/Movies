@@ -2,20 +2,49 @@ import os
 import time
 import logging
 
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.db.models import Q
 from django.contrib.postgres.search import TrigramSimilarity
+from django.contrib.auth.models import User
 
-from .serializers import MovieSerializer
-from .models import Movie
+from .serializers import MovieSerializer, UserSerializer, PlaylistMovieSerializer
+from .models import Movie, PlaylistMovie
 from .movieSearch import MovieSearch, TMDB
 from .utils import serialize_movie_cached
 
 logger = logging.getLogger("movies")
 tmdb = TMDB()
 
+class PlaylistMovieCreate(generics.ListCreateAPIView):
+    serializer_class = PlaylistMovieSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return PlaylistMovie.objects.filter(author=user)
+    
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            tmdb_id=self.request.data.get('tmdb_id')
+        )
+
+class PlaylistMovieDelete(generics.DestroyAPIView):
+    serializer_class = PlaylistMovieSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "tmdb_id"
+
+    def get_queryset(self):
+        user = self.request.user
+        return PlaylistMovie.objects.filter(author=user)
+    
+class CreateUserView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
 
 class StreamToClient(APIView):
     """
