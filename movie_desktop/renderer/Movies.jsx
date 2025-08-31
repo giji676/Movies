@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import MovieCard from "./MovieCard";
+import MovieCard from "./components/MovieCard";
 import style from "./Movies.module.css";
 
 function Movies({ searchResults, searchTmdbConfig }) {

@@ -4,7 +4,7 @@ import Search from './Search';
 import Movie from './Movie';
 import Movies from './Movies';
 import Player from './Player';
-import UserMenu from './UserMenu';
+import UserMenu from './components/UserMenu';
 import Login from './Login';
 import NotFound from './NotFound';
 import styles from './App.module.css';
