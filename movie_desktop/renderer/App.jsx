@@ -38,7 +38,7 @@ function App() {
                         path="/" 
                         element={
                             <div className={styles.body}>
-                                <Sidebar /> {/* Sidebar only here */}
+                                <Sidebar />
                                 <div className={styles.mainContent}>
                                     <div className={styles.topBar}>
                                         <div className={styles.logo}>
@@ -62,8 +62,22 @@ function App() {
                             </div>
                         } 
                     />
-                    <Route path="/login" element={<Login route="/api/token/" method="login" />} />
-                    <Route path="/register" element={<Login route="api/user/register/" method="register" />} />
+                    <Route path="/login" element={
+                        <div className={styles.body}>
+                            <Sidebar />
+                            <div className={styles.mainContent}>
+                                <Login route="/api/token/" method="login" />
+                            </div>
+                        </div>
+                    } />
+                    <Route path="/register" element={
+                        <div className={styles.body}>
+                            <Sidebar />
+                            <div className={styles.mainContent}>
+                                <Login route="api/user/register/" method="register" />
+                            </div>
+                        </div>
+                    } />
                     <Route path="/logout" element={<Logout />} />
                     <Route path="/movie" element={<Movie />} />
                     <Route path="/player" element={<Player />} />
@@ -74,8 +88,7 @@ function App() {
                                 <NotFound />
                             </div>
                         </div>
-                    }
-                    />
+                    } />
                 </Routes>
             </div>
         </Router>
