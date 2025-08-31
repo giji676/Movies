@@ -15,11 +15,6 @@ function Logout() {
     return <Navigate to="/login" />;
 }
 
-function RegisterAndLogout() {
-    localStorage.clear();
-    return <Navigate />;
-}
-
 function App() {
     const [searchResults, setSearchResults] = useState(null);
     const [searchTmdbConfig, setSearchTmdbConfig] = useState(null);
@@ -31,6 +26,7 @@ function App() {
     };
 
     const handleLogout= () => {
+        localStorage.clear();
         setUser(null);
     };
 
