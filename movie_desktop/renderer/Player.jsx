@@ -1,10 +1,11 @@
 import { useRef, useState, useEffect } from 'react';
 import Hls from 'hls.js';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Player.module.css';
 
 function Player() {
     const location = useLocation();
+    const navigate = useNavigate();
 
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
@@ -102,10 +103,17 @@ function Player() {
                         crossOrigin="anonymous"
                         autoPlay
                     />
+                    <button className={styles.backButton} onClick={() => navigate(-1)}>
+                        ← Back
+                    </button>
                 </div>
             ) : (
                     <div className={styles.loading}>
-                        {isLoading ? "Loading video..." : "Video not available"}
+                        <button className={styles.backButton} onClick={() => navigate(-1)}>
+                            ← Back
+                        </button>
+                        <h1>Video Not Available</h1>
+                        <p>Sorry, this movie cannot be played at the moment.</p>
                     </div>
                 )}
         </div>
