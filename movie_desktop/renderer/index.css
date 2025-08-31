@@ -5,3 +5,33 @@
     background-color: rgb(var(--oxford-blue));
     color: #e0ecff;
 }
+
+/* Scrollbar width */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+/* Track (background behind the thumb) */
+::-webkit-scrollbar-track {
+    background: #1e1e2f;
+    border-radius: 6px;
+}
+
+/* Thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 6px;
+    border: 3px solid #1e1e2f;
+}
+
+/* Thumb hover */
+::-webkit-scrollbar-thumb:hover {
+    background-color: #888;
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: 12px;
+    scrollbar-color: #555 #1e1e2f;
+}
