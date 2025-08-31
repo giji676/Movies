@@ -1,12 +1,12 @@
 .container {
-    display: inline-flex;       /* flex so avatar + text align horizontally */
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;               /* spacing between avatar and text */
+    gap: 0.5rem;
     border: 2px solid white;
     border-radius: 9999px;
     padding: 0.75rem 1rem;
-    cursor: pointer;           /* whole capsule is clickable */
-    position: relative;        /* needed for dropdown */
+    cursor: pointer;
+    position: relative;
 }
 
 .button {

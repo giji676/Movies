@@ -10,7 +10,7 @@ urlpatterns = [
     path("movie/search-tpb/", views.SearchTPB.as_view(), name="search-tpb"),
     path("movie/populars/", views.MoviePopulars.as_view(), name="movie-populars"),
     path("movie/stream-to-client/", views.StreamToClient.as_view(), name="stream-to-client"),
-    path("api/user/register", views.CreateUserView.as_view(), name="register"),
+    path("api/user/register/", views.CreateUserView.as_view(), name="register"),
     path("api/token/", TokenObtainPairView.as_view(), name="get-token"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="refresh"),
     path("api-auth/", include("rest_framework.urls")),

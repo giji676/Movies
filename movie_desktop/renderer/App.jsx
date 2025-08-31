@@ -1,18 +1,28 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import Search from './Search';
 import Movie from './Movie';
 import Movies from './Movies';
 import Player from './Player';
 import UserMenu from './UserMenu';
+import Login from './Login';
+import NotFound from './NotFound';
 import styles from './App.module.css';
 import './Colors.module.css';
+
+function Logout() {
+    localStorage.clear();
+    return <Navigate to="/login" />;
+}
+
+function RegisterAndLogout() {
+    localStorage.clear();
+    return <Navigate />;
+}
 
 function App() {
     const [searchResults, setSearchResults] = useState(null);
     const [searchTmdbConfig, setSearchTmdbConfig] = useState(null);
-
-    // Example user state
     const [user, setUser] = useState(null);
 
     const handleSearchResults = (movies, tmdbConfig) => {
@@ -20,7 +30,7 @@ function App() {
         setSearchTmdbConfig(tmdbConfig);
     };
 
-    const handleSignOut = () => {
+    const handleLogout= () => {
         setUser(null);
     };
 
@@ -42,7 +52,7 @@ function App() {
                                     </div>
 
                                     <div className={styles.userWrapper}>
-                                        <UserMenu user={user} onSignOut={handleSignOut} />
+                                        <UserMenu user={user} onLogout={handleLogout} />
                                     </div>
                                 </div>
 
@@ -53,8 +63,12 @@ function App() {
                             </>
                         } 
                     />
+                    <Route path="/login" element={<Login route="/api/token/" method="login" />} />
+                    <Route path="/register" element={<Login route="api/user/register/" method="register" />} />
+                    <Route path="/logout" element={<Logout />} />
                     <Route path="/movie" element={<Movie />} />
                     <Route path="/player" element={<Player />} />
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
             </div>
         </Router>
