@@ -1,4 +1,13 @@
 .body {
+    display: flex;
+    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.mainContent {
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
 .topBar {

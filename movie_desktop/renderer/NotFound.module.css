@@ -1,0 +1,9 @@
+.body {
+    display: flex;
+    flex-direction: column; /* stack h1 and p vertically */
+    justify-content: center; /* vertical center */
+    align-items: center;     /* horizontal center */
+    height: 100vh;           /* fill full viewport height */
+    text-align: left;      /* optional, center text inside elements */
+    color: #fff;               /* optional text color */
+}

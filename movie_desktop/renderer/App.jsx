@@ -6,6 +6,7 @@ import Movies from './Movies';
 import Player from './Player';
 import UserMenu from './components/UserMenu';
 import Login from './Login';
+import Sidebar from './Sidebar';
 import NotFound from './NotFound';
 import styles from './App.module.css';
 import './Colors.module.css';
@@ -14,7 +15,6 @@ function Logout() {
     localStorage.clear();
     return <Navigate to="/login" />;
 }
-
 function App() {
     const [searchResults, setSearchResults] = useState(null);
     const [searchTmdbConfig, setSearchTmdbConfig] = useState(null);
@@ -32,31 +32,34 @@ function App() {
 
     return (
         <Router>
-            <div className={styles.body}>
+            <div>
                 <Routes>
                     <Route 
                         path="/" 
                         element={
-                            <>
-                                <div className={styles.topBar}>
-                                    <div className={styles.logo}>
-                                        Movies
+                            <div className={styles.body}>
+                                <Sidebar /> {/* Sidebar only here */}
+                                <div className={styles.mainContent}>
+                                    <div className={styles.topBar}>
+                                        <div className={styles.logo}>
+                                            Movies
+                                        </div>
+
+                                        <div className={styles.searchWrapper}>
+                                            <Search onResults={handleSearchResults} />
+                                        </div>
+
+                                        <div className={styles.userWrapper}>
+                                            <UserMenu user={user} onLogout={handleLogout} />
+                                        </div>
                                     </div>
 
-                                    <div className={styles.searchWrapper}>
-                                        <Search onResults={handleSearchResults} />
-                                    </div>
-
-                                    <div className={styles.userWrapper}>
-                                        <UserMenu user={user} onLogout={handleLogout} />
-                                    </div>
+                                    <Movies 
+                                        searchResults={searchResults} 
+                                        searchTmdbConfig={searchTmdbConfig} 
+                                    />
                                 </div>
-
-                                <Movies 
-                                    searchResults={searchResults} 
-                                    searchTmdbConfig={searchTmdbConfig} 
-                                />
-                            </>
+                            </div>
                         } 
                     />
                     <Route path="/login" element={<Login route="/api/token/" method="login" />} />
@@ -64,7 +67,15 @@ function App() {
                     <Route path="/logout" element={<Logout />} />
                     <Route path="/movie" element={<Movie />} />
                     <Route path="/player" element={<Player />} />
-                    <Route path="*" element={<NotFound />} />
+                    <Route path="*" element={
+                        <div className={styles.body}>
+                            <Sidebar />
+                            <div className={styles.mainContent}>
+                                <NotFound />
+                            </div>
+                        </div>
+                    }
+                    />
                 </Routes>
             </div>
         </Router>
