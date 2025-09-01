@@ -28,6 +28,7 @@ function Login({ route, method }) {
             if (!register) {
                 localStorage.setItem(ACCESS_TOKEN, res.data.access);
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+                alert("logged in");
                 navigate("/");
             } else {
                 setMessage("Registered, redirecting to login");

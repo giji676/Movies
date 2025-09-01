@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import MovieCard from "./components/MovieCard";
 import style from "./Movies.module.css";
+import api from "../main/api";
 
 function Movies({ moviesList, moviesTmdbConfig }) {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -16,8 +17,8 @@ function Movies({ moviesList, moviesTmdbConfig }) {
     const fetchMoviesBatch = async (currentOffset) => {
         setIsFetching(true);
         try {
-            const res = await fetch(`${BASE_URL}/movie/?offset=${currentOffset}&limit=${BATCH_SIZE}`);
-            const data = await res.json();
+            const res = await api.get(`/movie/?offset=${currentOffset}&limit=${BATCH_SIZE}`);
+            const data = res.data;
 
             if (currentOffset === 0) {
                 setTmdbConfig(data.tmdb_config);
