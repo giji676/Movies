@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styles from './Search.module.css';
 
-function Search({ onResults }) {
+function Search({ onResults, resetMovieListData }) {
     const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -9,7 +9,10 @@ function Search({ onResults }) {
 
     const handleSearch = async (e) => {
         e.preventDefault();
-        if (!query) return;
+        if (!query) {
+            resetMovieListData();
+            return;
+        }
 
         setLoading(true);
         try {

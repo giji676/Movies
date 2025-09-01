@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import MovieCard from "./components/MovieCard";
 import style from "./Movies.module.css";
 
-function Movies({ searchResults, searchTmdbConfig }) {
+function Movies({ moviesList, moviesTmdbConfig }) {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const BATCH_SIZE = 10;
 
@@ -39,14 +39,14 @@ function Movies({ searchResults, searchTmdbConfig }) {
 
     // Load initial or search data
     useEffect(() => {
-        if (searchResults) {
-            setMovies(searchResults);
-            setTmdbConfig(searchTmdbConfig);
+        if (moviesList) {
+            setMovies(moviesList);
+            setTmdbConfig(moviesTmdbConfig);
             setHasMore(false);
         } else {
             fetchMoviesBatch(0);
         }
-    }, [searchResults, searchTmdbConfig]);
+    }, [moviesList, moviesTmdbConfig]);
 
     // Setup infinite scroll observer
     useEffect(() => {

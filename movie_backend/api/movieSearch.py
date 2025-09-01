@@ -4,8 +4,11 @@ import requests
 import urllib.parse
 from torrentp import TorrentDownloader
 from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv()
+env_path = Path('.') / '.env.local'
+
+load_dotenv(dotenv_path=env_path)
 
 logger = logging.getLogger("movies")
 

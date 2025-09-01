@@ -16,13 +16,18 @@ function Logout() {
     return <Navigate to="/login" />;
 }
 function App() {
-    const [searchResults, setSearchResults] = useState(null);
-    const [searchTmdbConfig, setSearchTmdbConfig] = useState(null);
+    const [moviesList, setMoviesList] = useState(null);
+    const [moviesTmdbConfig, setMoviesTmdbConfig] = useState(null);
     const [user, setUser] = useState(null);
 
-    const handleSearchResults = (movies, tmdbConfig) => {
-        setSearchResults(movies);
-        setSearchTmdbConfig(tmdbConfig);
+    const setMovieListData = (movies, tmdbConfig) => {
+        setMoviesList(movies);
+        setMoviesTmdbConfig(tmdbConfig);
+    };
+
+    const resetMovieListData = () => {
+        setMoviesList(null);
+        setMoviesTmdbConfig(null);
     };
 
     const handleLogout= () => {
@@ -46,7 +51,10 @@ function App() {
                                         </div>
 
                                         <div className={styles.searchWrapper}>
-                                            <Search onResults={handleSearchResults} />
+                                            <Search 
+                                                onResults={setMovieListData}
+                                                resetMovieListData={resetMovieListData}
+                                            />
                                         </div>
 
                                         <div className={styles.userWrapper}>
@@ -55,8 +63,9 @@ function App() {
                                     </div>
 
                                     <Movies 
-                                        searchResults={searchResults} 
-                                        searchTmdbConfig={searchTmdbConfig} 
+                                        moviesList={moviesList} 
+                                        moviesTmdbConfig={moviesTmdbConfig} 
+                                        resetMovieListData={resetMovieListData}
                                     />
                                 </div>
                             </div>
@@ -64,7 +73,9 @@ function App() {
                     />
                     <Route path="/login" element={
                         <div className={styles.body}>
-                            <Sidebar />
+                            <Sidebar 
+                                resetMovieListData={resetMovieListData}
+                            />
                             <div className={styles.mainContent}>
                                 <Login route="/api/token/" method="login" />
                             </div>
@@ -72,7 +83,9 @@ function App() {
                     } />
                     <Route path="/register" element={
                         <div className={styles.body}>
-                            <Sidebar />
+                            <Sidebar 
+                                resetMovieListData={resetMovieListData}
+                            />
                             <div className={styles.mainContent}>
                                 <Login route="api/user/register/" method="register" />
                             </div>
@@ -83,7 +96,9 @@ function App() {
                     <Route path="/player" element={<Player />} />
                     <Route path="*" element={
                         <div className={styles.body}>
-                            <Sidebar />
+                            <Sidebar 
+                                resetMovieListData={resetMovieListData}
+                            />
                             <div className={styles.mainContent}>
                                 <NotFound />
                             </div>
