@@ -15,7 +15,7 @@ function WatchLater({ resetMovieListData }) {
             .get("/playlist-movie/")
             .then((res) => res.data)
             .then((data) => {setMovies(data.movies); console.log(data)})
-            .catch((err) => alert(err));
+            .catch((err) => console.log(err));
     };
 
     useEffect(() => {
@@ -27,9 +27,9 @@ function WatchLater({ resetMovieListData }) {
         api
             .post("/playlist-movie/", {tmdb_id})
             .then((res) => {
-                if (res.status === 201) alert("Movie added");
-                else alert("Failed to add movie");
-            }).catch((err) => alert(err));
+                if (res.status === 201) console.log("Movie added");
+                else console.log("Failed to add movie");
+            }).catch((err) => console.log(err));
         getWatchLater();
     }
 

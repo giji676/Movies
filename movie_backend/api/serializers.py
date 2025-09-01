@@ -30,7 +30,8 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class PlaylistMovieSerializer(serializers.ModelSerializer):
+    movie = MovieSerializer(source='tmdb_id', read_only=True)
+
     class Meta:
         model = PlaylistMovie
-        fields = ["id", "time_stamp", "last_watched", "author", "tmdb_id"]
-        extra_kwargs = {"author": {"read_only": True}}
+        fields = ["id", "time_stamp", "last_watched", "movie"]
