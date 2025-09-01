@@ -44,7 +44,6 @@ function WatchLater({ resetMovieListData }) {
                 resetMovieListData={resetMovieListData}
             />
         </ProtectedRoute>
-
     );
 }
 

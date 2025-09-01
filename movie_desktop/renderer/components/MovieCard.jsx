@@ -93,7 +93,9 @@ function MovieCard({ tmdbConfig, movie, playlist, onChangePlaylist }) {
                         onClick={toggleSave}
                         style={{ opacity: (hovered || isSaved) ? 1 : 0 }}
                     >
-                        {isSaved ? <FaBookmark /> : <FaRegBookmark />}
+                        {isSaved ? 
+                            <FaBookmark className={styles.btn_icon} /> 
+                            : <FaRegBookmark className={styles.btn_icon} />}
                     </button>
                 )}
             </div>
