@@ -14,7 +14,7 @@ function WatchLater({ resetMovieListData }) {
         api
             .get("/playlist-movie/")
             .then((res) => res.data)
-            .then((data) => {setMovies(data.movies); console.log(data)})
+            .then((data) => {setMovies(data.movies)})
             .catch((err) => console.log(err));
     };
 

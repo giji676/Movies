@@ -9,6 +9,7 @@ function Movies({ moviesList, moviesTmdbConfig }) {
 
     const [movies, setMovies] = useState([]);
     const [tmdbConfig, setTmdbConfig] = useState({});
+    const [watchLaterPlaylist, setWatchLaterPlaylist] = useState([]);
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [isFetching, setIsFetching] = useState(false);
@@ -27,7 +28,7 @@ function Movies({ moviesList, moviesTmdbConfig }) {
             setMovies(prev => [...prev, ...data.movies]);
 
             if (data.movies.length < BATCH_SIZE) {
-                setHasMore(false); // No more data to fetch
+                setHasMore(false);
             } else {
                 setOffset(prev => prev + BATCH_SIZE);
             }
@@ -38,7 +39,29 @@ function Movies({ moviesList, moviesTmdbConfig }) {
         }
     };
 
-    // Load initial or search data
+    const fetchWatchLaterMovies = async () => {
+        api
+            .get("/playlist-movie/")
+            .then((res) => res.data)
+            .then((data) => {setWatchLaterPlaylist(data)})
+            .catch((err) => console.log("Failed to fetch watch later movies", err));
+    }
+
+    const onChangePlaylist = (movie, action) => {
+        setWatchLaterPlaylist((watchLaterPlaylist) => {
+            if (action === "add") {
+                if (watchLaterPlaylist.some((m) => m.movie.tmdb_id === movie.movie.tmdb_id)) {
+                    return watchLaterPlaylist;
+                }
+                return [...watchLaterPlaylist, movie];
+            } else if (action === "delete") {
+                return watchLaterPlaylist.filter((m) => m.movie.tmdb_id !== movie.movie.tmdb_id);
+            } else {
+                return watchLaterPlaylist;
+            }
+        });
+    };
+
     useEffect(() => {
         if (moviesList) {
             setMovies(moviesList);
@@ -48,6 +71,10 @@ function Movies({ moviesList, moviesTmdbConfig }) {
             fetchMoviesBatch(0);
         }
     }, [moviesList, moviesTmdbConfig]);
+
+    useEffect(() => {
+        fetchWatchLaterMovies();
+    }, []);
 
     // Setup infinite scroll observer
     useEffect(() => {
@@ -66,7 +93,13 @@ function Movies({ moviesList, moviesTmdbConfig }) {
     return (
         <div className={style.movie_grid}>
             {movies.map((movie, index) => (
-                <MovieCard key={index} movie={movie} tmdbConfig={tmdbConfig} />
+                <MovieCard 
+                    key={index} 
+                    movie={movie} 
+                    tmdbConfig={tmdbConfig} 
+                    playlist={watchLaterPlaylist} 
+                    onChangePlaylist={onChangePlaylist}
+                />
             ))}
             {hasMore && <div ref={loader} style={{ height: "20px" }} />}
         </div>

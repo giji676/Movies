@@ -15,5 +15,5 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="refresh"),
     path("api-auth/", include("rest_framework.urls")),
     path("playlist-movie/", views.PlaylistMovieCreate.as_view(), name="playlist-movie"),
-    path("playlist-movie/delete/<int:pk>/", views.PlaylistMovieDelete.as_view(), name="delete-playlist-movie"),
+    path("playlist-movie/delete/<int:tmdb_id>/", views.PlaylistMovieDelete.as_view(), name="delete-playlist-movie"),
 ]
