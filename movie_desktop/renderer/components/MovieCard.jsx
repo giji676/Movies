@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import styles from './MovieCard.module.css';
+import { FaBookmark } from "react-icons/fa"; // or any other icon you like
 
 function MovieCard({ tmdbConfig, movie }) {
     const { title, release_date, overview, download_path, poster_path } = movie;
@@ -24,6 +25,12 @@ function MovieCard({ tmdbConfig, movie }) {
                         className={styles.poster}
                     />
                 )}
+                <button className={styles.save_button} onClick={(e) => {
+                    e.preventDefault();
+                    // call your save/watch-later function here
+                }}>
+                    <FaBookmark />
+                </button>
             </div>
         </Link>
     );
