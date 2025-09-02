@@ -66,3 +66,26 @@
     background-color: var(--button-bg-disabled);
     cursor: not-allowed;
 }
+
+.searchIcon {
+    background-color: transparent;
+}
+
+.spinnerWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.spinner {
+    font-size: 2rem; /* Adjust size here */
+    animation: spin 1s linear infinite;
+    color: var(--button-bg); /* Optional: Use button color */
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

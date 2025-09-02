@@ -22,22 +22,8 @@ function WatchLater({ resetMovieListData }) {
         getWatchLater();
     }, []);
 
-    const saveToWatchLater = (e) => {
-        e.preventDefault();
-        api
-            .post("/playlist-movie/", {tmdb_id})
-            .then((res) => {
-                if (res.status === 201) console.log("Movie added");
-                else console.log("Failed to add movie");
-            }).catch((err) => console.log(err));
-        getWatchLater();
-    }
-
     return (
         <ProtectedRoute>
-            <form onSubmit={saveToWatchLater}>
-                <input type="submit" value="submit"></input>
-            </form>
             <Movies 
                 searchResults={movies} 
                 searchTmdbConfig={tmdbConfig} 
