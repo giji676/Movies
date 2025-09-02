@@ -8,7 +8,6 @@ function WatchLater({ resetMovieListData }) {
 
     const [movies, setMovies] = useState([]);
     const [tmdbConfig, setTmdbConfig] = useState({});
-    const tmdb_id = 411; // TEMP: tmdb_id of a movie to add
  
     const getWatchLater = () => {
         api

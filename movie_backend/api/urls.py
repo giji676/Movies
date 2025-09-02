@@ -1,6 +1,5 @@
-from django.urls import path, include
+from django.urls import path
 from django.views.generic import RedirectView
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from . import views
 
 urlpatterns = [
@@ -10,6 +9,6 @@ urlpatterns = [
     path("movie/search-tpb/", views.SearchTPB.as_view(), name="search-tpb"),
     path("movie/populars/", views.MoviePopulars.as_view(), name="movie-populars"),
     path("movie/stream-to-client/", views.StreamToClient.as_view(), name="stream-to-client"),
-    path("playlist-movie/", views.PlaylistMovieCreate.as_view(), name="playlist-movie"),
-    path("playlist-movie/delete/<int:tmdb_id>/", views.PlaylistMovieDelete.as_view(), name="delete-playlist-movie"),
+    path("playlist-movie-create/", views.PlaylistMovieCreate.as_view(), name="playlist-movie-create"),
+    path("playlist-movie/delete/<int:tmdb_id>/", views.PlaylistMovieDelete.as_view(), name="playlist-movie-delete"),
 ]
