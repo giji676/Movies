@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import Hls from 'hls.js';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Player.module.css';
+import api from "../main/api";
 
 function Player() {
     const location = useLocation();
@@ -25,8 +26,8 @@ function Player() {
         if (isLoading) return;
         try {
             setIsLoading(true);
-            const response = await fetch(`${BASE_URL}/movie/stream-to-client/?tmdb_id=${tmdb_id}`);
-            const data = await response.json();
+            const res = await api.get(`/movie/stream-to-client/?tmdb_id=${tmdb_id}`);
+            const data = res.data;
             if (data.file_path) {
                 setVideoPath(data.file_path);
             } else {

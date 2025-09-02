@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.postgres.search import TrigramSimilarity
 
-from accounts.serializers import UserProfileSerializer
 from .serializers import MovieSerializer, PlaylistMovieSerializer
 from .models import Movie, PlaylistMovie
 from .movieSearch import MovieSearch, TMDB
@@ -42,6 +41,7 @@ class PlaylistMovieDelete(generics.DestroyAPIView):
         return PlaylistMovie.objects.filter(author=user)
 
 class StreamToClient(APIView):
+    permission_classes = [AllowAny]
     """
     Returns the HLS .m3u8 URL for a movie given its TMDB ID.
     Assumes Nginx serves /var/www/media/ as /media/ URL.

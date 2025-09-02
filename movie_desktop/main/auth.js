@@ -30,7 +30,7 @@ async function refreshAccessToken() {
     if (!refreshToken) return false;
 
     try {
-        const res = await api.post("/api/token/refresh/", {
+        const res = await api.post("/api/user/token/refresh/", {
             refresh: refreshToken
         });
 
