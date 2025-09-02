@@ -18,3 +18,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
         if obj.avatar and hasattr(obj.avatar, 'url'):
             return request.build_absolute_uri(obj.avatar.url)
         return None
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ["email", "username", "password"]
+
+    def create(self, validated_data):
+        return CustomUser.objects.create_user(**validated_data)

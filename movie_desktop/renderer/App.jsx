@@ -6,6 +6,7 @@ import Movies from './Movies';
 import Player from './Player';
 import UserMenu from './components/UserMenu';
 import Login from './Login';
+import Register from './Register';
 import Sidebar from './Sidebar';
 import NotFound from './NotFound';
 import WatchLater from './WatchLater';
@@ -17,6 +18,7 @@ function Logout() {
     localStorage.clear();
     return <Navigate to="/login" />;
 }
+
 function App() {
     const [moviesList, setMoviesList] = useState(null);
     const [moviesTmdbConfig, setMoviesTmdbConfig] = useState(null);
@@ -32,7 +34,7 @@ function App() {
         setMoviesTmdbConfig(null);
     };
 
-    const handleLogout= () => {
+    const handleLogout = () => {
         localStorage.clear();
         setUser(null);
     };
@@ -46,22 +48,16 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <div className={styles.body}>
-                                    <Sidebar 
-                                        resetMovieListData={resetMovieListData}
-                                    />
+                                    <Sidebar resetMovieListData={resetMovieListData} />
                                     <div className={styles.mainContent}>
                                         <div className={styles.topBar}>
-                                            <div className={styles.logo}>
-                                                Movies
-                                            </div>
-
+                                            <div className={styles.logo}>Movies</div>
                                             <div className={styles.searchWrapper}>
                                                 <Search 
                                                     onResults={setMovieListData}
                                                     resetMovieListData={resetMovieListData}
                                                 />
                                             </div>
-
                                             <div className={styles.userWrapper}>
                                                 <UserMenu user={user} onLogout={handleLogout} />
                                             </div>
@@ -77,46 +73,39 @@ function App() {
                             </ProtectedRoute>
                         } 
                     />
+
                     <Route path="/login" element={
                         <div className={styles.body}>
-                            <Sidebar 
-                                resetMovieListData={resetMovieListData}
-                            />
+                            <Sidebar resetMovieListData={resetMovieListData} />
                             <div className={styles.mainContent}>
-                                <Login route="/api/token/" method="login" />
+                                <Login />
                             </div>
                         </div>
                     } />
+
                     <Route path="/register" element={
                         <div className={styles.body}>
-                            <Sidebar 
-                                resetMovieListData={resetMovieListData}
-                            />
+                            <Sidebar resetMovieListData={resetMovieListData} />
                             <div className={styles.mainContent}>
-                                <Login route="api/user/register/" method="register" />
+                                <Register />
                             </div>
                         </div>
                     } />
+
                     <Route path="/logout" element={<Logout />} />
                     <Route path="/movie" element={<Movie />} />
                     <Route path="/player" element={<Player />} />
                     <Route path="/watch-later" element={
                         <div className={styles.body}>
-                            <Sidebar 
-                                resetMovieListData={resetMovieListData}
-                            />
+                            <Sidebar resetMovieListData={resetMovieListData} />
                             <div className={styles.mainContent}>
-                                <WatchLater 
-                                    resetMovieListData={resetMovieListData}
-                                />
+                                <WatchLater resetMovieListData={resetMovieListData} />
                             </div>
                         </div>
                     } />
                     <Route path="*" element={
                         <div className={styles.body}>
-                            <Sidebar 
-                                resetMovieListData={resetMovieListData}
-                            />
+                            <Sidebar resetMovieListData={resetMovieListData} />
                             <div className={styles.mainContent}>
                                 <NotFound />
                             </div>
