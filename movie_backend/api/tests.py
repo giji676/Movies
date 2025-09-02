@@ -1,5 +1,3 @@
-from django.test import TestCase
-
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
@@ -14,7 +12,7 @@ class PlaylistTests(APITestCase):
         self.movie = Movie.objects.create(title="Test Movie", tmdb_id=1)
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
-        self.playlist_url = reverse("playlist-movie")  # your URL name
+        self.playlist_url = reverse("playlist-movie")
 
     def test_add_movie_to_playlist(self):
         response = self.client.post(self.playlist_url, {"tmdb_id": self.movie.tmdb_id})

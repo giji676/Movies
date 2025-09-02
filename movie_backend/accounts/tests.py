@@ -2,12 +2,11 @@ from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from api.models import Movie, PlaylistMovie
 
 class UserAuthTests(APITestCase):
     def setUp(self):
-        self.register_url = reverse("register")  # your URL name
-        self.login_url = reverse("get-token")    # JWT login
+        self.register_url = reverse("register")
+        self.login_url = reverse("get-token")
         self.user_data = {
             "email": "test@example.com",
             "password": "strongpassword123"
@@ -19,7 +18,6 @@ class UserAuthTests(APITestCase):
         self.assertTrue(get_user_model().objects.filter(email="test@example.com").exists())
 
     def test_login_user(self):
-        # first create a user
         get_user_model().objects.create_user(**self.user_data)
         response = self.client.post(self.login_url, self.user_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -33,7 +31,7 @@ class UserProfileTests(APITestCase):
         )
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
-        self.profile_url = reverse("user-profile")  # make sure you have a name
+        self.profile_url = reverse("user-profile")
         self.settings_url = reverse("user-settings")
 
     def test_get_profile(self):
