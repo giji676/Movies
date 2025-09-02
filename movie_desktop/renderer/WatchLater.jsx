@@ -11,7 +11,7 @@ function WatchLater({ resetMovieListData }) {
  
     const getWatchLater = () => {
         api
-            .get("/playlist-movie/")
+            .get("/playlist-movie-create/")
             .then((res) => res.data)
             .then((data) => {setMovies(data.movies)})
             .catch((err) => console.log(err));

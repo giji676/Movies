@@ -41,7 +41,7 @@ function Movies({ moviesList, moviesTmdbConfig }) {
 
     const fetchWatchLaterMovies = async () => {
         api
-            .get("/playlist-movie/")
+            .get("/playlist-movie-create/")
             .then((res) => res.data)
             .then((data) => {setWatchLaterPlaylist(data)})
             .catch((err) => console.log("Failed to fetch watch later movies", err));

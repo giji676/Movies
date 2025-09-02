@@ -29,7 +29,7 @@ function MovieCard({ tmdbConfig, movie, playlist, onChangePlaylist }) {
     const saveToWatchLater = (e) => {
         e.preventDefault();
         api
-            .post("/playlist-movie/", {tmdb_id: movie.tmdb_id})
+            .post("/playlist-movie-create/", {tmdb_id: movie.tmdb_id})
             .then((res) => {
                 if (res.status === 201) {
                     setIsSaved(true);
