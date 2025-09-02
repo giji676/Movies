@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "api",
-    "accounts",
+    'accounts.apps.AccountsConfig',
 ]
 
 MIDDLEWARE = [
@@ -146,6 +146,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    }
 
 LOGGING = {
     'version': 1,

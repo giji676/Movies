@@ -1,6 +1,14 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
 from django.utils import timezone
+from django.apps import AppConfig
+
+class AccountsConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'accounts'
+
+    def ready(self):
+        import accounts.signals  # make sure signals are imported
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
