@@ -6,9 +6,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.postgres.search import TrigramSimilarity
-from django.contrib.auth.models import User
 
-from .serializers import MovieSerializer, UserSerializer, PlaylistMovieSerializer
+from accounts.serializers import UserProfileSerializer
+from .serializers import MovieSerializer, PlaylistMovieSerializer
 from .models import Movie, PlaylistMovie
 from .movieSearch import MovieSearch, TMDB
 from .utils import serialize_movie_cached
@@ -19,7 +19,6 @@ tmdb = TMDB()
 class PlaylistMovieCreate(generics.ListCreateAPIView):
     serializer_class = PlaylistMovieSerializer
     permission_classes = [IsAuthenticated]
-    permission_classes = [AllowAny]
 
     def get_queryset(self):
         user = self.request.user
@@ -41,11 +40,6 @@ class PlaylistMovieDelete(generics.DestroyAPIView):
     def get_queryset(self):
         user = self.request.user
         return PlaylistMovie.objects.filter(author=user)
-    
-class CreateUserView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny]
 
 class StreamToClient(APIView):
     """
