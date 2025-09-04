@@ -1,33 +1,52 @@
 import { useState, useEffect } from 'react';
 import api from "../main/api";
-import Movies from './Movies';
+import style from "./WatchLater.module.css";
+import PlaylistMovieCard from './components/PlaylistMovieCard';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function WatchLater({ resetMovieListData }) {
-    const BASE_URL = import.meta.env.VITE_BACKEND_URL;
-
     const [movies, setMovies] = useState([]);
-    const [tmdbConfig, setTmdbConfig] = useState({});
  
     const getWatchLater = () => {
         api
             .get("/playlist-movie-create/")
             .then((res) => res.data)
-            .then((data) => {setMovies(data.movies)})
+            .then((data) => {setMovies(data); console.log(data);})
             .catch((err) => console.log(err));
     };
 
+    const onPlaylistUpdate = (movie, action) => {
+        setMovies((movies) => {
+            if (action === "add") {
+                if (movies.some((m) => m.movie.tmdb_id === movie.movie.tmdb_id)) {
+                    return movies;
+                }
+                return [...movies, movie];
+            } else if (action === "delete") {
+                return movies.filter((m) => m.movie.tmdb_id !== movie.movie.tmdb_id);
+            } else {
+                return movies;
+            }
+        });
+    };
+
     useEffect(() => {
+        resetMovieListData();
         getWatchLater();
     }, []);
 
     return (
         <ProtectedRoute>
-            <Movies 
-                searchResults={movies} 
-                searchTmdbConfig={tmdbConfig} 
-                resetMovieListData={resetMovieListData}
-            />
+            <div className={style.movie_grid}>
+                {movies.map((movie, index) => (
+                    <PlaylistMovieCard 
+                        key={index} 
+                        playlistMovie={movie} 
+                        playlist={movies} 
+                        onPlaylistUpdate={onPlaylistUpdate}
+                    />
+                ))}
+            </div>
         </ProtectedRoute>
     );
 }

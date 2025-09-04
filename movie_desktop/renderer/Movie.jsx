@@ -9,9 +9,9 @@ function Movie() {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
 
-    const { tmdbConfig, movie } = location.state || {};
+    const { movie } = location.state || {};
 
-    if (!movie || !tmdbConfig) {
+    if (!movie ) {
         return <p>Movie data not found.</p>;
     }
 
@@ -31,7 +31,7 @@ function Movie() {
             <div className={styles.content}>
                 <Link
                     to="/player"
-                    state={{ tmdbConfig, movie }}
+                    state={{ movie }}
                     className={styles.posterWrapper}
                 >
                     <img className={styles.poster} src={posterUrl} alt={title} />

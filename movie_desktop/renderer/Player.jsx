@@ -11,7 +11,7 @@ function Player() {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
 
-    const { tmdbConfig, movie } = location.state || {};
+    const { movie } = location.state || {};
     const { tmdb_id, title, backdrop_path } = movie || {};
 
     const videoRef = useRef(null);

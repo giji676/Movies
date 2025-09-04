@@ -3,12 +3,11 @@ import MovieCard from "./components/MovieCard";
 import style from "./Movies.module.css";
 import api from "../main/api";
 
-function Movies({ moviesList, moviesTmdbConfig }) {
+function Movies({ moviesList }) {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const BATCH_SIZE = 10;
 
     const [movies, setMovies] = useState([]);
-    const [tmdbConfig, setTmdbConfig] = useState({});
     const [watchLaterPlaylist, setWatchLaterPlaylist] = useState([]);
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(true);
@@ -20,10 +19,6 @@ function Movies({ moviesList, moviesTmdbConfig }) {
         try {
             const res = await api.get(`/movie/?offset=${currentOffset}&limit=${BATCH_SIZE}`);
             const data = res.data;
-
-            if (currentOffset === 0) {
-                setTmdbConfig(data.tmdb_config);
-            }
 
             setMovies(prev => [...prev, ...data.movies]);
 
@@ -65,12 +60,11 @@ function Movies({ moviesList, moviesTmdbConfig }) {
     useEffect(() => {
         if (moviesList) {
             setMovies(moviesList);
-            setTmdbConfig(moviesTmdbConfig);
             setHasMore(false);
         } else {
             fetchMoviesBatch(0);
         }
-    }, [moviesList, moviesTmdbConfig]);
+    }, [moviesList]);
 
     useEffect(() => {
         fetchWatchLaterMovies();
@@ -96,7 +90,6 @@ function Movies({ moviesList, moviesTmdbConfig }) {
                 <MovieCard 
                     key={index} 
                     movie={movie} 
-                    tmdbConfig={tmdbConfig} 
                     playlist={watchLaterPlaylist} 
                     onChangePlaylist={onChangePlaylist}
                 />

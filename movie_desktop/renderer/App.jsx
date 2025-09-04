@@ -21,17 +21,14 @@ function Logout() {
 
 function App() {
     const [moviesList, setMoviesList] = useState(null);
-    const [moviesTmdbConfig, setMoviesTmdbConfig] = useState(null);
     const [user, setUser] = useState(null);
 
-    const setMovieListData = (movies, tmdbConfig) => {
+    const setMovieListData = (movies) => {
         setMoviesList(movies);
-        setMoviesTmdbConfig(tmdbConfig);
     };
 
     const resetMovieListData = () => {
         setMoviesList(null);
-        setMoviesTmdbConfig(null);
     };
 
     const handleLogout = () => {
@@ -65,8 +62,6 @@ function App() {
 
                                         <Movies 
                                             moviesList={moviesList} 
-                                            moviesTmdbConfig={moviesTmdbConfig} 
-                                            resetMovieListData={resetMovieListData}
                                         />
                                     </div>
                                 </div>
