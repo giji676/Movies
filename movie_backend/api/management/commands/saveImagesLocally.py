@@ -10,7 +10,15 @@ logger = logging.getLogger("movies")
 class Command(BaseCommand):
     help = "Download TMDB poster and backdrop images locally for all movies"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Force download even if already converted",
+        )
+
     def handle(self, *args, **kwargs):
+        self.force = kwargs.get("force")
         tmdb = TMDB()
         movies = Movie.objects.all()
         for movie in movies:
@@ -21,7 +29,7 @@ class Command(BaseCommand):
 
             # Poster
             poster_file = os.path.join(movie_path, "poster.jpg")
-            if not os.path.isfile(poster_file):
+            if not os.path.isfile(poster_file) or self.force:
                 self.download_image(tmdb.buildImageURL(movie.tmdb_id, "poster"), poster_file)
                 logger.info("Downloaded poster for %s", movie.title)
             else:
@@ -29,7 +37,7 @@ class Command(BaseCommand):
 
             # Backdrop
             backdrop_file = os.path.join(movie_path, "backdrop.jpg")
-            if not os.path.isfile(backdrop_file):
+            if not os.path.isfile(backdrop_file) or self.force:
                 self.download_image(tmdb.buildImageURL(movie.tmdb_id, "backdrop"), backdrop_file)
                 logger.info("Downloaded backdrop for %s", movie.title)
             else:

@@ -1,14 +1,12 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.conf import settings
 
 class Movie(models.Model):
     tmdb_id = models.IntegerField(primary_key=True)
     imdb = models.CharField(max_length=50, default="", blank=True)
     title = models.CharField(max_length=300)
-    info_hash = models.CharField(max_length=200, default="", blank=True)
-    seeders = models.IntegerField(default=0)
-    leechers = models.IntegerField(default=0)
     backdrop_path = models.CharField(max_length=200, default="", blank=True)
     poster_path = models.CharField(max_length=200, default="", blank=True)
     category = models.CharField(max_length=8, default="201")
@@ -16,6 +14,9 @@ class Movie(models.Model):
     release_date = models.DateField(null=True, blank=True)
     download_path = models.CharField(max_length=300, default=".", blank=True)
     hls_available = models.BooleanField(default=False)
+    duration = models.PositiveIntegerField(default=1,
+                                                 help_text="seconds",
+                                                 validators=[MinValueValidator(0)])
 
     def __str__(self):
         return f"{self.title} {self.release_date} {self.tmdb_id}"

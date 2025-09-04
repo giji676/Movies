@@ -135,10 +135,10 @@ class TMDB:
         movie = self.getMovieByTMDBID(movie_id)
         image_path = ""
         if type == "poster":
-            size = self.config["images"]["poster_sizes"]  # largest poster size
+            size = self.config["images"]["poster_sizes"][-1]  # largest poster size
             image_path = movie["poster_path"]
         elif type == "backdrop":
-            size = self.config["images"]["backdrop_sizes"]  # largest backdrop size
+            size = self.config["images"]["backdrop_sizes"][-1]  # largest backdrop size
             image_path = movie["backdrop_path"]
         else:
             size = self.config["images"]["poster_sizes"][-1]  # largest poster size
