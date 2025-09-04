@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import styles from './MovieCard.module.css';
+import styles from './PlaylistMovieCard.module.css';
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import api from "../../main/api";
 
@@ -80,23 +80,25 @@ function MovieCard({ movie, playlist, onChangePlaylist }) {
                 onMouseLeave={() => setHovered(false)}
             >
                 {poster_path && (
-                    <img
-                        loading="lazy"
-                        src={posterUrl}
-                        alt={title}
-                        className={styles.poster}
-                    />
-                )}
-                {(hovered || isSaved) && (
-                    <button
-                        className={styles.save_button}
-                        onClick={toggleSave}
-                        style={{ opacity: (hovered || isSaved) ? 1 : 0 }}
-                    >
-                        {isSaved ? 
-                            <FaBookmark className={styles.btn_icon} /> 
-                            : <FaRegBookmark className={styles.btn_icon} />}
-                    </button>
+                    <div className={styles.imageWrapper}>
+                        <img
+                            loading="lazy"
+                            src={posterUrl}
+                            alt={movie.title}
+                            className={styles.poster}
+                        />
+                        {(hovered || isSaved) && (
+                            <button
+                                className={styles.save_button}
+                                onClick={toggleSave}
+                                style={{ opacity: (hovered || isSaved) ? 1 : 0 }}
+                            >
+                                {isSaved ? 
+                                    <FaBookmark className={styles.btn_icon} /> 
+                                    : <FaRegBookmark className={styles.btn_icon} />}
+                            </button>
+                        )}
+                    </div>
                 )}
             </div>
         </Link>
