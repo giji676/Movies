@@ -16,9 +16,15 @@ class Command(BaseCommand):
             type=int,
             help="TMDB ID of the movie to convert",
         )
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Force conversion even if already converted",
+        )
 
     def handle(self, *args, **options):
         tmdb_id = options.get("tmdb_id")
+        self.force = options.get("force")
 
         if tmdb_id:
             logger.info("Converting movie with TMDB ID: %s", tmdb_id)
@@ -34,9 +40,10 @@ class Command(BaseCommand):
                 self.convert_to_hls(movie)
 
     def convert_to_hls(self, movie):
-        if movie.hls_available and self.validate_hls_exists(movie):
-            logger.info("HLS already available for %s (%s)", movie.title, movie.tmdb_id)
-            return
+        if not self.force:
+            if movie.hls_available and self.validate_hls_exists(movie):
+                logger.info("HLS already available for %s (%s)", movie.title, movie.tmdb_id)
+                return
 
         logger.info("Generating HLS for %s (%s)", movie.title, movie.tmdb_id)
 
