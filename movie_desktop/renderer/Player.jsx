@@ -16,6 +16,7 @@ function Player() {
 
     const videoRef = useRef(null);
     const hlsRef = useRef(null);
+    const updateInterval = useRef(null);
     const [videoPath, setVideoPath] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -39,15 +40,55 @@ function Player() {
             setIsLoading(false);
         }
     };
+    const updateTimeStamp = async () => {
+        if (!videoRef.current) return;
 
-    // Fetch video URL once when component mounts
+        const currentTime = Math.floor(videoRef.current.currentTime); // seconds
+        try {
+            await api.patch(`/playlist/${tmdb_id}/update-progress/`, { time_stamp: currentTime });
+        } catch (error) {
+            console.error("Failed to update time stamp:", error.response?.data || error.message);
+        }
+    };
+
+    const startTracking = () => {
+        if (updateInterval.current) return;
+        updateInterval.current = setInterval(updateTimeStamp, 15000); // every 15 seconds
+    };
+
+    const stopTracking = () => {
+        if (updateInterval.current) {
+            clearInterval(updateInterval.current);
+            updateInterval.current = null;
+        }
+    };
+
+    const setupTrackingListeners = () => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        video.addEventListener("play", startTracking);
+        video.addEventListener("pause", stopTracking);
+        video.addEventListener("ended", stopTracking);
+
+        if (!videoRef.current.paused) {
+            startTracking();
+        }
+
+        return () => {
+            stopTracking();
+            video.removeEventListener("play", startTracking);
+            video.removeEventListener("pause", stopTracking);
+            video.removeEventListener("ended", stopTracking);
+        };
+    };
+
     useEffect(() => {
         if (tmdb_id && !videoPath) {
             getMoviePath();
         }
     }, [tmdb_id]);
 
-    // Setup HLS playback whenever videoPath changes
     useEffect(() => {
         if (!videoPath || !videoRef.current) return;
 
@@ -103,6 +144,7 @@ function Player() {
                         controls
                         crossOrigin="anonymous"
                         autoPlay
+                        onLoadedMetadata={() => setupTrackingListeners()}
                     />
                     <button className={styles.backButton} onClick={() => navigate(-1)}>
                         ← Back
