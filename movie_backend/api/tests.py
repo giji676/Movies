@@ -140,6 +140,39 @@ class PlaylistTests(APITestCase):
         response = self.client.post(self.create_url, {"tmdb_id": self.movie.tmdb_id})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("detail", response.data)
+    
+    def test_create_on_modify(self):
+        """
+        If a PlaylistMovie does not exist for the user and movie,
+        PATCHing to modify a field should create it and set the correct value.
+        """
+        # Ensure PlaylistMovie does NOT exist
+        PlaylistMovie.objects.filter(author=self.user, tmdb=self.movie2).delete()
+        self.assertFalse(
+            PlaylistMovie.objects.filter(author=self.user, tmdb=self.movie2).exists()
+        )
+
+        # PATCH request to set watch_later=True
+        response = self.client.patch(self.modify_url(self.movie2.tmdb_id), {"modify_field": "watch_later", "value": True})
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["created"], True)
+
+        # Check that it was created with correct field
+        playlist_movie = PlaylistMovie.objects.get(author=self.user, tmdb=self.movie2)
+        self.assertTrue(playlist_movie.watch_later)
+        self.assertFalse(playlist_movie.watch_history)  # Default
+
+        # Now try setting watch_history=True for another new movie
+        movie3 = Movie.objects.create(title="Movie 3", tmdb_id=3)
+        response = self.client.patch(self.modify_url(movie3.tmdb_id), {"modify_field": "watch_history", "value": True})
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["created"], True)
+
+        playlist_movie = PlaylistMovie.objects.get(author=self.user, tmdb=movie3)
+        self.assertTrue(playlist_movie.watch_history)
+        self.assertFalse(playlist_movie.watch_later)
 
     def test_modify_watch_later_flag(self):
         # Initially watch_later is False

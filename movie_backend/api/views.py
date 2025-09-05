@@ -50,12 +50,7 @@ class PlaylistMovieModify(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
     lookup_field = "tmdb_id"
 
-    def get_queryset(self):
-        # Only allow modifying playlist entries for the current user
-        return PlaylistMovie.objects.filter(author=self.request.user)
-
     def patch(self, request, *args, **kwargs):
-        playlist_movie = self.get_object()
         tmdb_id = self.kwargs.get("tmdb_id")
         modify_field = request.data.get("modify_field")
         value = request.data.get("value")
@@ -77,21 +72,25 @@ class PlaylistMovieModify(generics.UpdateAPIView):
             value = bool(value)
 
         movie = get_object_or_404(Movie, tmdb_id=tmdb_id)
+
         playlist_movie, created = PlaylistMovie.objects.get_or_create(
             author=request.user,
             tmdb=movie,
             defaults={modify_field: value}
         )
 
-        # If it already existed, update the field
         if not created:
             setattr(playlist_movie, modify_field, value)
             playlist_movie.save()
 
+        serializer = self.get_serializer(playlist_movie)
+        status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+
         return Response({
             "message": f"{modify_field} set to {value}.",
-            "created": created
-        })
+            "created": created,
+            "data": serializer.data
+        }, status=status_code)
 
 class UpdateTimeStamp(generics.UpdateAPIView):
     queryset = PlaylistMovie.objects.all()
