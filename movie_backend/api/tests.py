@@ -6,13 +6,14 @@ from django.contrib.auth import get_user_model
 from api.serializers import MovieSerializer
 from api.models import Movie, PlaylistMovie
 from unittest.mock import Mock
+from django.utils import timezone
 
 class TimeStampTests(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
             email="user@example.com", password="password123"
         )
-        self.movie = Movie.objects.create(title="Test Movie", tmdb_id=1)
+        self.movie = Movie.objects.create(title="Test Movie", tmdb_id=1, duration=60)
         self.playlist_movie = PlaylistMovie.objects.create(author=self.user, tmdb_id=self.movie)
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
@@ -41,6 +42,17 @@ class TimeStampTests(APITestCase):
         url = reverse("playlist-update-progress", kwargs={"tmdb_id": 9999})
         response = self.client.patch(url, {"time_stamp": 100})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_complete_check(self):
+        self.client.patch(self.update_url, {"time_stamp": int(self.movie.duration*0.99)})
+        self.playlist_movie.refresh_from_db()
+        self.assertTrue(self.playlist_movie.completed)
+
+    def test_last_watched_updated(self):
+        before = timezone.now()
+        self.client.patch(self.update_url, {"time_stamp": 5})
+        self.playlist_movie.refresh_from_db()
+        self.assertTrue(self.playlist_movie.last_watched >= before)
 
 class PlaylistTests(APITestCase):
     def setUp(self):
