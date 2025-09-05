@@ -5,6 +5,7 @@ from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.exceptions import ValidationError
 from django.contrib.postgres.search import TrigramSimilarity
 
 from .serializers import MovieSerializer, PlaylistMovieSerializer
@@ -25,11 +26,17 @@ class PlaylistMovieCreate(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         tmdb_id = self.request.data.get('tmdb_id')
-        movie = Movie.objects.get(tmdb_id=tmdb_id)
-        serializer.save(
-            author=self.request.user,
-            tmdb_id=movie
-        )
+        # validate movie exists with that tmdb id
+        try:
+            movie = Movie.objects.get(tmdb_id=tmdb_id)
+        except Movie.DoesNotExist:
+            raise ValidationError({"tmdb_id": "Movie with this TMDB ID does not exist."})
+            
+        user = self.request.user
+        # check for duplicate
+        if PlaylistMovie.objects.filter(author=user, tmdb_id=movie).exists():
+            raise ValidationError({"detail": "This movie is already in your playlist."})
+        serializer.save(author=user, tmdb_id=movie)
 
 class PlaylistMovieDelete(generics.DestroyAPIView):
     serializer_class = PlaylistMovieSerializer
