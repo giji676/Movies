@@ -7,6 +7,41 @@ from api.serializers import MovieSerializer
 from api.models import Movie, PlaylistMovie
 from unittest.mock import Mock
 
+class TimeStampTests(APITestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email="user@example.com", password="password123"
+        )
+        self.movie = Movie.objects.create(title="Test Movie", tmdb_id=1)
+        self.playlist_movie = PlaylistMovie.objects.create(author=self.user, tmdb_id=self.movie)
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+        self.update_url = reverse("playlist-update-progress", kwargs={"tmdb_id": self.movie.tmdb_id})
+
+    def test_update_time(self):
+        response = self.client.patch(self.update_url, {"time_stamp": 10})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.playlist_movie.refresh_from_db()
+        self.assertEqual(self.playlist_movie.time_stamp, 10)
+
+    def test_update_time_with_string(self):
+        response = self.client.patch(self.update_url, {"time_stamp": "abcd"})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_time_with_negative(self):
+        response = self.client.patch(self.update_url, {"time_stamp": -10})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_time_missing_field(self):
+        response = self.client.patch(self.update_url, {})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("time_stamp", response.data)
+
+    def test_update_time_with_nonexistent_playlist(self):
+        url = reverse("playlist-update-progress", kwargs={"tmdb_id": 9999})
+        response = self.client.patch(url, {"time_stamp": 100})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
 class PlaylistTests(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(

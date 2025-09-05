@@ -5,7 +5,7 @@ from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotFound
 from django.contrib.postgres.search import TrigramSimilarity
 
 from .serializers import MovieSerializer, PlaylistMovieSerializer
@@ -15,6 +15,33 @@ from .utils import serialize_movie_cached
 
 logger = logging.getLogger("movies")
 tmdb = TMDB()
+
+class UpdateTimeStamp(generics.UpdateAPIView):
+    queryset = PlaylistMovie.objects.all()
+    serializer_class = PlaylistMovieSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        tmdb_id = self.kwargs.get("tmdb_id")
+        try:
+            return PlaylistMovie.objects.get(author=self.request.user, tmdb_id=tmdb_id)
+        except:
+            raise NotFound("PlaylistMovie not found.")
+    
+    def patch(self, request, *args, **kwargs):
+        playlist_movie = self.get_object()
+        time_stamp = request.data.get("time_stamp")
+        if time_stamp is None:
+            raise ValidationError({"time_stamp": "This field is required"})
+        try:
+            time_stamp = int(time_stamp)
+        except:
+            raise ValidationError({"time_stamp": "This field must be a positive integer"})
+        if time_stamp < 0:
+            raise ValidationError({"time_stamp": "This field must be a positive integer"})
+        playlist_movie.time_stamp = time_stamp
+        playlist_movie.save()
+        return Response({"message": "Time stamp updated"})
 
 class PlaylistMovieCreate(generics.ListCreateAPIView):
     serializer_class = PlaylistMovieSerializer

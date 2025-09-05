@@ -11,4 +11,5 @@ urlpatterns = [
     path("movie/stream-to-client/", views.StreamToClient.as_view(), name="stream-to-client"),
     path("playlist-movie-create/", views.PlaylistMovieCreate.as_view(), name="playlist-movie-create"),
     path("playlist-movie/delete/<int:tmdb_id>/", views.PlaylistMovieDelete.as_view(), name="playlist-movie-delete"),
+    path("playlist/<int:tmdb_id>/update-progress/", views.UpdateTimeStamp.as_view(), name="playlist-update-progress"),
 ]
