@@ -28,7 +28,7 @@ class PlaylistMovie(models.Model):
         on_delete=models.CASCADE,
         related_name="playlist_movies"
     )
-    tmdb_id = models.ForeignKey(
+    tmdb = models.ForeignKey(
         "Movie",
         on_delete=models.DO_NOTHING,
         related_name="playlist_entries"
@@ -40,7 +40,7 @@ class PlaylistMovie(models.Model):
 
     # User-facing lists
     watch_later = models.BooleanField(default=False)
-    watch_history = models.BooleanField(default=True)
+    watch_history = models.BooleanField(default=False)
     completed = models.BooleanField(default=False)
 
     # Permanent history (never removed)
@@ -53,7 +53,7 @@ class PlaylistMovie(models.Model):
     COMPLETION_THRESHOLD = 0.9
 
     class Meta:
-        unique_together = ("author", "tmdb_id")
+        unique_together = ("author", "tmdb")
         indexes = [
             models.Index(fields=["author", "watch_later"]),
             models.Index(fields=["author", "watch_history"]),
@@ -61,7 +61,7 @@ class PlaylistMovie(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.tmdb_id.title} ({self.author.email})"
+        return f"{self.tmdb.title} ({self.author.email})"
 
     # Override save to auto-update last_watched
     def save(self, *args, **kwargs):
@@ -91,7 +91,7 @@ class PlaylistMovie(models.Model):
         self.save()
 
     def check_and_mark_completed(self):
-        if not self.tmdb_id.duration:
+        if not self.tmdb.duration:
             return  # skip if duration unknown
-        if self.time_stamp >= int(self.tmdb_id.duration * self.COMPLETION_THRESHOLD):
+        if self.time_stamp >= int(self.tmdb.duration * self.COMPLETION_THRESHOLD):
             self.mark_completed()

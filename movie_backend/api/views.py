@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import ValidationError, NotFound
 from django.contrib.postgres.search import TrigramSimilarity
+from django.shortcuts import get_object_or_404
 
 from .serializers import MovieSerializer, PlaylistMovieSerializer
 from .models import Movie, PlaylistMovie
@@ -15,6 +16,54 @@ from .utils import serialize_movie_cached
 
 logger = logging.getLogger("movies")
 tmdb = TMDB()
+
+class PlaylistMovieModify(generics.UpdateAPIView):
+    serializer_class = PlaylistMovieSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "tmdb_id"
+
+    def get_queryset(self):
+        # Only allow modifying playlist entries for the current user
+        return PlaylistMovie.objects.filter(author=self.request.user)
+
+    def patch(self, request, *args, **kwargs):
+        playlist_movie = self.get_object()
+        tmdb_id = self.kwargs.get("tmdb_id")
+        modify_field = request.data.get("modify_field")
+        value = request.data.get("value")
+
+        if modify_field not in ["watch_later", "watch_history"]:
+            raise ValidationError({"modify_field": "Must be 'watch_later' or 'watch_history'."})
+
+        if value is None:
+            raise ValidationError({"value": "This field is required and should be true or false."})
+
+        if isinstance(value, str):
+            if value.lower() == "true":
+                value = True
+            elif value.lower() == "false":
+                value = False
+            else:
+                raise ValidationError({"value": "Must be true or false."})
+        else:
+            value = bool(value)
+
+        movie = get_object_or_404(Movie, tmdb_id=tmdb_id)
+        playlist_movie, created = PlaylistMovie.objects.get_or_create(
+            author=request.user,
+            tmdb=movie,
+            defaults={modify_field: value}
+        )
+
+        # If it already existed, update the field
+        if not created:
+            setattr(playlist_movie, modify_field, value)
+            playlist_movie.save()
+
+        return Response({
+            "message": f"{modify_field} set to {value}.",
+            "created": created
+        })
 
 class UpdateTimeStamp(generics.UpdateAPIView):
     queryset = PlaylistMovie.objects.all()
@@ -47,6 +96,7 @@ class UpdateTimeStamp(generics.UpdateAPIView):
         return Response({"message": "Time stamp updated"})
 
 class PlaylistMovieCreate(generics.ListCreateAPIView):
+    """ deprecated - playlist movie automatically created if it doesn't exist from modify endpoint """
     serializer_class = PlaylistMovieSerializer
     permission_classes = [IsAuthenticated]
 
@@ -64,18 +114,9 @@ class PlaylistMovieCreate(generics.ListCreateAPIView):
             
         user = self.request.user
         # check for duplicate
-        if PlaylistMovie.objects.filter(author=user, tmdb_id=movie).exists():
+        if PlaylistMovie.objects.filter(author=user, tmdb=movie).exists():
             raise ValidationError({"detail": "This movie is already in your playlist."})
-        serializer.save(author=user, tmdb_id=movie)
-
-class PlaylistMovieDelete(generics.DestroyAPIView):
-    serializer_class = PlaylistMovieSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = "tmdb_id"
-
-    def get_queryset(self):
-        user = self.request.user
-        return PlaylistMovie.objects.filter(author=user)
+        serializer.save(author=user, tmdb=movie)
 
 class StreamToClient(APIView):
     permission_classes = [AllowAny]

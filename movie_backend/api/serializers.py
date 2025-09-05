@@ -22,7 +22,7 @@ class MovieSerializer(serializers.ModelSerializer):
         return None
 
 class PlaylistMovieSerializer(serializers.ModelSerializer):
-    movie = MovieSerializer(source='tmdb_id', read_only=True)
+    movie = MovieSerializer(source='tmdb', read_only=True)
 
     class Meta:
         model = PlaylistMovie
