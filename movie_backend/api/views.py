@@ -25,22 +25,25 @@ class UpdateTimeStamp(generics.UpdateAPIView):
         tmdb_id = self.kwargs.get("tmdb_id")
         try:
             return PlaylistMovie.objects.get(author=self.request.user, tmdb_id=tmdb_id)
-        except:
+        except PlaylistMovie.DoesNotExist:
             raise NotFound("PlaylistMovie not found.")
-    
+
     def patch(self, request, *args, **kwargs):
         playlist_movie = self.get_object()
         time_stamp = request.data.get("time_stamp")
+
         if time_stamp is None:
-            raise ValidationError({"time_stamp": "This field is required"})
+            raise ValidationError({"time_stamp": "This field is required."})
+
         try:
             time_stamp = int(time_stamp)
-        except:
-            raise ValidationError({"time_stamp": "This field must be a positive integer"})
+        except ValueError:
+            raise ValidationError({"time_stamp": "This field must be a positive integer."})
+
         if time_stamp < 0:
-            raise ValidationError({"time_stamp": "This field must be a positive integer"})
-        playlist_movie.time_stamp = time_stamp
-        playlist_movie.save()
+            raise ValidationError({"time_stamp": "This field must be a positive integer."})
+
+        playlist_movie.update_time_stamp(time_stamp)
         return Response({"message": "Time stamp updated"})
 
 class PlaylistMovieCreate(generics.ListCreateAPIView):

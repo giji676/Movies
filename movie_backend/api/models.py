@@ -16,8 +16,8 @@ class Movie(models.Model):
     download_path = models.CharField(max_length=300, default=".", blank=True)
     hls_available = models.BooleanField(default=False)
     duration = models.PositiveIntegerField(default=1,
-                                                 help_text="seconds",
-                                                 validators=[MinValueValidator(0)])
+                                           help_text="seconds",
+                                           validators=[MinValueValidator(0)])
 
     def __str__(self):
         return f"{self.title} {self.release_date} {self.tmdb_id}"
@@ -33,12 +33,24 @@ class PlaylistMovie(models.Model):
         on_delete=models.DO_NOTHING,
         related_name="playlist_entries"
     )
-    time_stamp = models.IntegerField(default=0)
-    watch_later = models.BooleanField(default=False)
-    watch_history = models.BooleanField(default=False)
-    completed = models.BooleanField(default=False)
-    added_at = models.DateTimeField(auto_now_add=True)
+
+    # Progress tracking
+    time_stamp = models.IntegerField(default=0)  # seconds watched
     last_watched = models.DateTimeField(null=True)
+
+    # User-facing lists
+    watch_later = models.BooleanField(default=False)
+    watch_history = models.BooleanField(default=True)
+    completed = models.BooleanField(default=False)
+
+    # Permanent history (never removed)
+    watched_at = models.DateTimeField(null=True)
+    completed_at = models.DateTimeField(null=True)
+
+    # Record creation
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    COMPLETION_THRESHOLD = 0.9
 
     class Meta:
         unique_together = ("author", "tmdb_id")
@@ -55,10 +67,31 @@ class PlaylistMovie(models.Model):
     def save(self, *args, **kwargs):
         if self.time_stamp > 0:
             self.last_watched = timezone.now()
+            if not self.watched_at:
+                self.watched_at = timezone.now()
+        if self.completed and not self.completed_at:
+            self.completed_at = timezone.now()
         super().save(*args, **kwargs)
 
-    # Optional helper to update time_stamp safely
+    # Helper to safely update progress
     def update_time_stamp(self, seconds: int):
-        self.time_stamp = seconds
-        self.last_watched = timezone.now()
+        self.time_stamp = max(0, seconds)
+        if self.time_stamp > 0:
+            self.last_watched = timezone.now()
+            if not self.watched_at:
+                self.watched_at = timezone.now()
+        self.check_and_mark_completed()
         self.save()
+
+    # Helper to mark as completed
+    def mark_completed(self):
+        self.completed = True
+        if not self.completed_at:
+            self.completed_at = timezone.now()
+        self.save()
+
+    def check_and_mark_completed(self):
+        if not self.tmdb_id.duration:
+            return  # skip if duration unknown
+        if self.time_stamp >= int(self.tmdb_id.duration * self.COMPLETION_THRESHOLD):
+            self.mark_completed()
