@@ -8,6 +8,62 @@ from api.models import Movie, PlaylistMovie
 from unittest.mock import Mock
 from django.utils import timezone
 
+class PlaylistMovieListTests(APITestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email="user@example.com", password="password123"
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+        self.movie1 = Movie.objects.create(title="Movie 1", tmdb_id=1)
+        self.movie2 = Movie.objects.create(title="Movie 2", tmdb_id=2)
+        self.movie3 = Movie.objects.create(title="Movie 3", tmdb_id=3)
+
+        # Create PlaylistMovies with different combinations
+        PlaylistMovie.objects.create(author=self.user, tmdb=self.movie1, watch_later=True, watch_history=True)
+        PlaylistMovie.objects.create(author=self.user, tmdb=self.movie2, watch_later=True, watch_history=False)
+        PlaylistMovie.objects.create(author=self.user, tmdb=self.movie3, watch_later=False, watch_history=True)
+
+        self.url = reverse("playlist-movie-list")
+
+    def test_list_all_playlist_movies(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 3)
+
+    def test_filter_watch_later_true(self):
+        response = self.client.get(self.url, {"watch_later": "true"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+        tmdb_ids = {movie["movie"]["tmdb_id"] for movie in response.data}
+        self.assertEqual(tmdb_ids, {1, 2})
+
+    def test_filter_watch_history_true(self):
+        response = self.client.get(self.url, {"watch_history": "true"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+        tmdb_ids = {movie["movie"]["tmdb_id"] for movie in response.data}
+        self.assertEqual(tmdb_ids, {1, 3})
+
+    def test_filter_both_watch_later_and_watch_history_true(self):
+        response = self.client.get(self.url, {"watch_later": "true", "watch_history": "true"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["movie"]["tmdb_id"], 1)
+
+    def test_filter_watch_later_false(self):
+        response = self.client.get(self.url, {"watch_later": "false"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["movie"]["tmdb_id"], 3)
+
+    def test_filter_watch_history_false(self):
+        response = self.client.get(self.url, {"watch_history": "false"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["movie"]["tmdb_id"], 2)
+
 class TimeStampTests(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(

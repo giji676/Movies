@@ -17,6 +17,34 @@ from .utils import serialize_movie_cached
 logger = logging.getLogger("movies")
 tmdb = TMDB()
 
+class PlaylistMovieList(generics.ListAPIView):
+    """
+    Returns a list of playlist movies for the authenticated user.
+    Can filter by watch_later or watch_history using query params:
+        ?watch_later=true
+        ?watch_history=true
+    """
+    serializer_class = PlaylistMovieSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = PlaylistMovie.objects.filter(author=user).order_by("-added_at")
+
+        watch_later = self.request.query_params.get("watch_later")
+        watch_history = self.request.query_params.get("watch_history")
+
+        filters = {}
+        if watch_later is not None:
+            filters["watch_later"] = watch_later.lower() == "true"
+        if watch_history is not None:
+            filters["watch_history"] = watch_history.lower() == "true"
+
+        if filters:
+            queryset = queryset.filter(**filters)
+
+        return queryset
+
 class PlaylistMovieModify(generics.UpdateAPIView):
     serializer_class = PlaylistMovieSerializer
     permission_classes = [IsAuthenticated]
