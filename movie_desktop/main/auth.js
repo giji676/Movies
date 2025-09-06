@@ -1,12 +1,14 @@
-import { jwtDecode } from "jwt-decode";
-import api from "./api";
+import axios from "axios";
 import { REFRESH_TOKEN, ACCESS_TOKEN } from "./constants";
+import { jwtDecode } from "jwt-decode";
+
+const rawAxios = axios.create({
+    baseURL: import.meta.env.VITE_BACKEND_URL,
+});
 
 export async function checkAuth() {
     const accessToken = localStorage.getItem(ACCESS_TOKEN);
-    if (!accessToken) {
-        return false;
-    }
+    if (!accessToken) return null;
 
     try {
         const decoded = jwtDecode(accessToken);
@@ -14,34 +16,37 @@ export async function checkAuth() {
         const now = Date.now() / 1000;
 
         if (tokenExpiration < now) {
-            const refreshed = await refreshAccessToken();
-            return refreshed;
+            const newToken = await refreshAccessToken();
+            if (!newToken) {
+                throw new Error("Token refresh failed");
+            }
+            return newToken;
         }
 
-        return true;
+        return accessToken;
     } catch (error) {
         console.error("Auth check failed:", error);
-        return false;
+        throw error; // important
     }
 }
 
 async function refreshAccessToken() {
     const refreshToken = localStorage.getItem(REFRESH_TOKEN);
-    if (!refreshToken) return false;
+    if (!refreshToken) return null;
 
     try {
-        const res = await api.post("/api/user/token/refresh/", {
+        const res = await rawAxios.post("/api/user/token/refresh/", {
             refresh: refreshToken
         });
 
         if (res.status === 200) {
             localStorage.setItem(ACCESS_TOKEN, res.data.access);
-            return true;
+            return res.data.access;
         }
 
-        return false;
+        return null;
     } catch (error) {
         console.error("Failed to refresh token:", error);
-        return false;
+        return null;
     }
 }
