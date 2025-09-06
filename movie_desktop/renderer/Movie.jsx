@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom'
 import styles from './Movie.module.css';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function Movie() {
     const location = useLocation();
@@ -9,41 +10,43 @@ function Movie() {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
 
-    const { movie } = location.state || {};
+    const { playlistMovie } = location.state || {};
 
-    if (!movie ) {
+    if (!playlistMovie ) {
         return <p>Movie data not found.</p>;
     }
 
-    const { title, release_date, overview, poster_path, backdrop_path } = movie;
+    const { title, release_date, overview, poster_path, backdrop_path } = playlistMovie.movie;
 
-    const posterUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${movie.tmdb_id}/${poster_path}`;
-    const backdropUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${movie.tmdb_id}/${backdrop_path}`;
+    const posterUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${playlistMovie.movie.tmdb_id}/${poster_path}`;
+    const backdropUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${playlistMovie.movie.tmdb_id}/${backdrop_path}`;
 
     return (
-        <div
-            className={styles.backdropContainer}
-            style={{ '--backdrop': `url(${backdropUrl})` }}
-        >
-            <button className={styles.backButton} onClick={() => navigate(-1)}>
-                ← Back
-            </button>
-            <div className={styles.content}>
-                <Link
-                    to="/player"
-                    state={{ movie }}
-                    className={styles.posterWrapper}
-                >
-                    <img className={styles.poster} src={posterUrl} alt={title} />
-                    <div className={styles.playButton}>▶</div>
-                </Link>
-                <div className={styles.text}>
-                    <h1>{title}</h1>
-                    <p><strong></strong> {release_date}</p>
-                    <p>{overview}</p>
+        <ProtectedRoute>
+            <div
+                className={styles.backdropContainer}
+                style={{ '--backdrop': `url(${backdropUrl})` }}
+            >
+                <button className={styles.backButton} onClick={() => navigate(-1)}>
+                    ← Back
+                </button>
+                <div className={styles.content}>
+                    <Link
+                        to="/player"
+                        state={{ playlistMovie }}
+                        className={styles.posterWrapper}
+                    >
+                        <img className={styles.poster} src={posterUrl} alt={title} />
+                        <div className={styles.playButton}>▶</div>
+                    </Link>
+                    <div className={styles.text}>
+                        <h1>{title}</h1>
+                        <p><strong></strong> {release_date}</p>
+                        <p>{overview}</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </ProtectedRoute>
     );
 }
 

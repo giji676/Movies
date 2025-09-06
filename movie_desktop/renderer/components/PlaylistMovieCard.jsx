@@ -32,7 +32,8 @@ function PlaylistMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
 
     useEffect(() => {
         if (playlistMovie.completed) {
-            setProgress(100);
+            //setProgress(100);
+            setProgress((playlistMovie.time_stamp / movie.duration) * 100);
         } else if (playlistMovie.time_stamp && movie.duration) {
             setProgress((playlistMovie.time_stamp / movie.duration) * 100);
         } else {
@@ -96,7 +97,7 @@ function PlaylistMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
     return (
         <Link
             to="/movie"
-            state={{ movie }}
+            state={{ playlistMovie }}
             style={{ textDecoration: 'none', color: 'inherit' }}
         >
             <div className={styles.movie_card}

@@ -3,6 +3,7 @@ import Hls from 'hls.js';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Player.module.css';
 import api from "../main/api";
+import ProtectedRoute from './components/ProtectedRoute';
 
 function Player() {
     const location = useLocation();
@@ -11,17 +12,18 @@ function Player() {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
 
-    const { movie } = location.state || {};
-    const { tmdb_id, title, backdrop_path } = movie || {};
+    const { playlistMovie } = location.state || {};
+    const { tmdb_id, title, backdrop_path } = playlistMovie.movie || {};
 
     const videoRef = useRef(null);
     const hlsRef = useRef(null);
     const updateInterval = useRef(null);
+    const hasSeeked = useRef(false);
     const [videoPath, setVideoPath] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
 
-    const backdropUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${tmdb_id}/${movie.backdrop_path}`;
+    const backdropUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${tmdb_id}/${playlistMovie.movie.backdrop_path}`;
 
     const getMoviePath = async () => {
         if (isLoading) return;
@@ -102,20 +104,14 @@ function Player() {
             hlsRef.current.destroy();
         }
 
+        const resumeTime = playlistMovie?.time_stamp || 0;
+        videoRef.current.currentTime = resumeTime;
+
         if (Hls.isSupported()) {
             const hls = new Hls();
-            hlsRef.current = hls;
+
             hls.loadSource(videoPath);
             hls.attachMedia(videoRef.current);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                videoRef.current.play().catch(() => console.warn("Autoplay blocked"));
-            });
-            hls.on(Hls.Events.ERROR, (event, data) => {
-                console.error("HLS.js error:", data);
-            });
-        } else if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
-            videoRef.current.src = videoPath;
-            videoRef.current.play().catch(() => console.warn("Autoplay blocked"));
         }
 
         return () => {
@@ -144,33 +140,35 @@ function Player() {
     };
 
     return (
-        <div
-            className={styles.playerContainer}
-            style={{ backgroundImage: videoPath ? "none" : `url(${backdropUrl})` }}
-        >
-            {videoPath ? (
-                <div className={styles.videoContainer}>
-                    <video
-                        ref={videoRef}
-                        className={styles.video}
-                        controls
-                        crossOrigin="anonymous"
-                        autoPlay
-                    />
-                    <button className={styles.backButton} onClick={() => navigate(-1)}>
-                        ← Back
-                    </button>
-                </div>
-            ) : (
-                    <div className={styles.loading}>
+        <ProtectedRoute>
+            <div
+                className={styles.playerContainer}
+                style={{ backgroundImage: videoPath ? "none" : `url(${backdropUrl})` }}
+            >
+                {videoPath ? (
+                    <div className={styles.videoContainer}>
+                        <video
+                            ref={videoRef}
+                            className={styles.video}
+                            controls
+                            crossOrigin="anonymous"
+                            autoPlay
+                        />
                         <button className={styles.backButton} onClick={() => navigate(-1)}>
                             ← Back
                         </button>
-                        <h1>Video Not Available</h1>
-                        <p>Sorry, this movie cannot be played at the moment.</p>
                     </div>
-                )}
-        </div>
+                ) : (
+                        <div className={styles.loading}>
+                            <button className={styles.backButton} onClick={() => navigate(-1)}>
+                                ← Back
+                            </button>
+                            <h1>Video Not Available</h1>
+                            <p>Sorry, this movie cannot be played at the moment.</p>
+                        </div>
+                    )}
+            </div>
+        </ProtectedRoute>
     );
 }
 
