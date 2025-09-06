@@ -93,19 +93,12 @@ class PlaylistMovieModify(generics.UpdateAPIView):
         }, status=status_code)
 
 class UpdateTimeStamp(generics.UpdateAPIView):
-    queryset = PlaylistMovie.objects.all()
     serializer_class = PlaylistMovieSerializer
     permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        tmdb_id = self.kwargs.get("tmdb_id")
-        try:
-            return PlaylistMovie.objects.get(author=self.request.user, tmdb_id=tmdb_id)
-        except PlaylistMovie.DoesNotExist:
-            raise NotFound("PlaylistMovie not found.")
+    lookup_field = "tmdb_id"
 
     def patch(self, request, *args, **kwargs):
-        playlist_movie = self.get_object()
+        tmdb_id = self.kwargs.get("tmdb_id")
         time_stamp = request.data.get("time_stamp")
 
         if time_stamp is None:
@@ -119,8 +112,26 @@ class UpdateTimeStamp(generics.UpdateAPIView):
         if time_stamp < 0:
             raise ValidationError({"time_stamp": "This field must be a positive integer."})
 
-        playlist_movie.update_time_stamp(time_stamp)
-        return Response({"message": "Time stamp updated"})
+        movie = get_object_or_404(Movie, tmdb_id=tmdb_id)
+
+        playlist_movie, created = PlaylistMovie.objects.get_or_create(
+            author=request.user,
+            tmdb=movie,
+            defaults={"time_stamp": time_stamp}
+        )
+
+        if not created:
+            playlist_movie.time_stamp = time_stamp
+            playlist_movie.save()
+
+        serializer = self.get_serializer(playlist_movie)
+        status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+
+        return Response({
+            "message": "Time stamp updated." if not created else "PlaylistMovie created with time stamp.",
+            "created": created,
+            "data": serializer.data
+        }, status=status_code)
 
 class PlaylistMovieCreate(generics.ListCreateAPIView):
     """ deprecated - playlist movie automatically created if it doesn't exist from modify endpoint """
@@ -130,7 +141,7 @@ class PlaylistMovieCreate(generics.ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
         return PlaylistMovie.objects.filter(author=user)
-    
+
     def perform_create(self, serializer):
         tmdb_id = self.request.data.get('tmdb_id')
         # validate movie exists with that tmdb id
@@ -138,7 +149,7 @@ class PlaylistMovieCreate(generics.ListCreateAPIView):
             movie = Movie.objects.get(tmdb_id=tmdb_id)
         except Movie.DoesNotExist:
             raise ValidationError({"tmdb_id": "Movie with this TMDB ID does not exist."})
-            
+
         user = self.request.user
         # check for duplicate
         if PlaylistMovie.objects.filter(author=user, tmdb=movie).exists():

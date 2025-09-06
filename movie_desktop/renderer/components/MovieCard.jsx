@@ -4,7 +4,7 @@ import styles from './PlaylistMovieCard.module.css';
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import api from "../../main/api";
 
-function MovieCard({ movie, playlist, onChangePlaylist }) {
+function MovieCard({ movie, playlist, onPlaylistUpdate }) {
     const { title, release_date, overview, download_path, poster_path } = movie;
 
     const [hovered, setHovered] = useState(false);
@@ -29,34 +29,44 @@ function MovieCard({ movie, playlist, onChangePlaylist }) {
     const saveToWatchLater = (e) => {
         e.preventDefault();
         api
-            .post("/playlist-movie-create/", {tmdb_id: movie.tmdb_id})
+            .patch(`/playlist-movie/modify/${movie.tmdb_id}/`, {
+                modify_field: "watch_later",
+                value: true
+            })
             .then((res) => {
-                if (res.status === 201) {
+                if (res.status === 200 || res.status === 201) {
                     setIsSaved(true);
-                    onChangePlaylist(res.data, "add");
-                }
-                else {
+                    onPlaylistUpdate(res.data.data, "add");
+                } else {
                     console.log("Failed to add movie");
                 }
-            }).catch((err) => console.log(err));
-    }
+            })
+            .catch((err) => console.log(err));
+    };
 
     const deleteFromWatchLater = (e) => {
         e.preventDefault();
         api
-            .delete(`/playlist-movie/delete/${movie.tmdb_id}/`)
+            .patch(`/playlist-movie/modify/${movie.tmdb_id}/`, {
+                modify_field: "watch_later",
+                value: false
+            })
             .then((res) => {
-                if (res.status === 204 || res.status === 200) {
+                if (res.status === 200) {
                     setIsSaved(false);
-                    onChangePlaylist(playlistMovie, "delete");
-                } else if (res.status === 404) { // Not found in the database (probably already deleted)
-                    setIsSaved(false);
-                    onChangePlaylist(playlistMovie, "delete");
+                    onPlaylistUpdate(playlistMovie, "delete");
                 } else {
-                    console.log("Failed to delete movie");
+                    console.log("Unexpected response:", res.status);
                 }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                if (err.response && err.response.status === 404) {
+                    setIsSaved(false);
+                    onPlaylistUpdate(playlistMovie, "delete");
+                } else {
+                    console.log("Failed to update playlist:", err);
+                }
+            });
     };
 
 

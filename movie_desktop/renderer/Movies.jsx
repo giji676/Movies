@@ -36,13 +36,13 @@ function Movies({ moviesList }) {
 
     const fetchWatchLaterMovies = async () => {
         api
-            .get("/playlist-movie-create/")
+            .get("/playlist-movies/", { params: { watch_later: true } })
             .then((res) => res.data)
             .then((data) => {setWatchLaterPlaylist(data)})
             .catch((err) => console.log("Failed to fetch watch later movies", err));
     }
 
-    const onChangePlaylist = (movie, action) => {
+    const onPlaylistUpdate = (movie, action) => {
         setWatchLaterPlaylist((watchLaterPlaylist) => {
             if (action === "add") {
                 if (watchLaterPlaylist.some((m) => m.movie.tmdb_id === movie.movie.tmdb_id)) {
@@ -91,7 +91,7 @@ function Movies({ moviesList }) {
                     key={index} 
                     movie={movie} 
                     playlist={watchLaterPlaylist} 
-                    onChangePlaylist={onChangePlaylist}
+                    onPlaylistUpdate={onPlaylistUpdate}
                 />
             ))}
             {hasMore && <div ref={loader} style={{ height: "20px" }} />}
