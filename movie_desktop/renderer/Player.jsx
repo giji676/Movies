@@ -12,8 +12,11 @@ function Player() {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
 
-    const { playlistMovie } = location.state || {};
-    const { tmdb_id, title, backdrop_path } = playlistMovie.movie || {};
+    const { movie, playlistMovie: initialPlaylistMovie } = location.state || {};
+    const [playlistMovie, setPlaylistMovie] = useState(initialPlaylistMovie);
+
+    const movieData = playlistMovie?.movie || movie || {};
+    const { tmdb_id, title, backdrop_path } = movieData;
 
     const videoRef = useRef(null);
     const hlsRef = useRef(null);
@@ -23,7 +26,30 @@ function Player() {
     const [isLoading, setIsLoading] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
 
-    const backdropUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${tmdb_id}/${playlistMovie.movie.backdrop_path}`;
+    const backdropUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${tmdb_id}/${movieData.backdrop_path}`;
+
+    useEffect(() => {
+        if (!playlistMovie) {
+            api
+                .patch(`/playlist-movie/modify/${movie.tmdb_id}/`, {
+                    modify_field: "watch_history",
+                    value: true
+                })
+                .then((res) => {
+                    if (res.status === 200) {
+                        setPlaylistMovie(res.data.data);
+                    } else {
+                        console.log("Unexpected response:", res.status);
+                    }
+                })
+                .catch((err) => {
+                    if (err.response && err.response.status === 404) {
+                    } else {
+                        console.log("Failed to update playlist:", err);
+                    }
+                });
+            }
+    }, [movie]);
 
     const getMoviePath = async () => {
         if (isLoading) return;
@@ -42,6 +68,7 @@ function Player() {
             setIsLoading(false);
         }
     };
+
     const updateTimeStamp = async () => {
         if (!videoRef.current) return;
 
@@ -98,13 +125,13 @@ function Player() {
     }, [tmdb_id]);
 
     useEffect(() => {
-        if (!videoPath || !videoRef.current) return;
+        if (!videoPath || !videoRef.current || !playlistMovie) return;
 
         if (hlsRef.current) {
             hlsRef.current.destroy();
         }
 
-        const resumeTime = playlistMovie?.time_stamp || 0;
+        const resumeTime = playlistMovie.time_stamp || 0;
         videoRef.current.currentTime = resumeTime;
 
         if (Hls.isSupported()) {
@@ -120,7 +147,7 @@ function Player() {
                 hlsRef.current = null;
             }
         };
-    }, [videoPath]);
+    }, [videoPath, playlistMovie]);
 
     useEffect(() => {
         if (!videoRef.current) return;

@@ -24,7 +24,7 @@ function MovieCard({ movie, playlist, onPlaylistUpdate }) {
         } else {
             setIsSaved(false);
         }
-    }, [playlist, isSaved]);
+    }, [playlist]);
 
     const saveToWatchLater = (e) => {
         e.preventDefault();
@@ -82,7 +82,10 @@ function MovieCard({ movie, playlist, onPlaylistUpdate }) {
     return (
         <Link
             to="/movie"
-            state={{ movie }}
+            state={{ 
+                fallbackMovie: movie,
+                playlistMovie: playlistMovie || null
+            }}
             style={{ textDecoration: 'none', color: 'inherit' }}
         >
             <div className={styles.movie_card}

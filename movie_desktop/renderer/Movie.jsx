@@ -10,16 +10,17 @@ function Movie() {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
 
-    const { playlistMovie } = location.state || {};
+    const { playlistMovie, fallbackMovie } = location.state || {};
+    const movie = playlistMovie?.movie || fallbackMovie;
 
-    if (!playlistMovie ) {
+    if (!movie) {
         return <p>Movie data not found.</p>;
     }
 
-    const { title, release_date, overview, poster_path, backdrop_path } = playlistMovie.movie;
+    const { title, release_date, overview, poster_path, backdrop_path } = movie;
 
-    const posterUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${playlistMovie.movie.tmdb_id}/${poster_path}`;
-    const backdropUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${playlistMovie.movie.tmdb_id}/${backdrop_path}`;
+    const posterUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${movie.tmdb_id}/${poster_path}`;
+    const backdropUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${movie.tmdb_id}/${backdrop_path}`;
 
     return (
         <ProtectedRoute>
@@ -33,7 +34,7 @@ function Movie() {
                 <div className={styles.content}>
                     <Link
                         to="/player"
-                        state={{ playlistMovie }}
+                        state={{ movie, playlistMovie }}
                         className={styles.posterWrapper}
                     >
                         <img className={styles.poster} src={posterUrl} alt={title} />
