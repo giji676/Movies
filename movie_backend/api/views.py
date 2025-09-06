@@ -121,8 +121,7 @@ class UpdateTimeStamp(generics.UpdateAPIView):
         )
 
         if not created:
-            playlist_movie.time_stamp = time_stamp
-            playlist_movie.save()
+            playlist_movie.update_time_stamp(time_stamp)
 
         serializer = self.get_serializer(playlist_movie)
         status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK

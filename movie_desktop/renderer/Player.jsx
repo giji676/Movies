@@ -67,9 +67,14 @@ function Player() {
         const video = videoRef.current;
         if (!video) return;
 
+        const onSeek = () => {
+            updateTimeStamp();
+        };
+
         video.addEventListener("play", startTracking);
         video.addEventListener("pause", stopTracking);
         video.addEventListener("ended", stopTracking);
+        video.addEventListener("seeked", onSeek);
 
         if (!videoRef.current.paused) {
             startTracking();
@@ -80,6 +85,7 @@ function Player() {
             video.removeEventListener("play", startTracking);
             video.removeEventListener("pause", stopTracking);
             video.removeEventListener("ended", stopTracking);
+            video.removeEventListener("seeked", onSeek);
         };
     };
 
@@ -120,6 +126,12 @@ function Player() {
         };
     }, [videoPath]);
 
+    useEffect(() => {
+        if (!videoRef.current) return;
+        const cleanup = setupTrackingListeners();
+        return cleanup;
+    }, [videoPath]);
+
     const togglePlay = () => {
         if (!videoRef.current) return;
         if (videoRef.current.paused) {
@@ -144,7 +156,6 @@ function Player() {
                         controls
                         crossOrigin="anonymous"
                         autoPlay
-                        onLoadedMetadata={() => setupTrackingListeners()}
                     />
                     <button className={styles.backButton} onClick={() => navigate(-1)}>
                         ← Back

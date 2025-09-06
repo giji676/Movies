@@ -12,6 +12,8 @@ from api.movieSearch import MovieSearch, TMDB
 
 logger = logging.getLogger("movies")
 
+""" TODO: set duration after download automatically """
+
 class Command(BaseCommand):
     help = 'Fetches and populates movie data from TMDB IDs'
     DOWNLOAD_PATH = "/var/www/media/downloads"

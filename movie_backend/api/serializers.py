@@ -26,4 +26,4 @@ class PlaylistMovieSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PlaylistMovie
-        fields = ["id", "time_stamp", "last_watched", "movie"]
+        fields = ["id", "time_stamp", "last_watched", "movie", "watch_later", "watch_history", "completed"]
