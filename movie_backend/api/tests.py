@@ -110,6 +110,17 @@ class TimeStampTests(APITestCase):
         self.playlist_movie.refresh_from_db()
         self.assertTrue(self.playlist_movie.last_watched >= before)
 
+    def test_create_and_update(self):
+        # Try updating a non-existant playlist-movie
+        # It should be created and then updated
+        movie2 = Movie.objects.create(title="Test Movie2", tmdb_id=2, duration=60)
+        update_url2 = reverse("playlist-update-progress", kwargs={"tmdb_id": movie2.tmdb_id})
+        response = self.client.patch(update_url2, {"time_stamp": 20})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        playlist_movie = PlaylistMovie.objects.get(author=self.user, tmdb=movie2)
+        self.assertEqual(playlist_movie.time_stamp, 20)
+
+
 class PlaylistTests(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
