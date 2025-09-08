@@ -15,6 +15,7 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
     const [hovered, setHovered] = useState(false);
     const [isWatchHistory, setIsWatchHistory] = useState(null);
     const [progress, setProgress] = useState(0);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
@@ -93,9 +94,12 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
         }
     };
 
+    const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+
+    const remove = () => {console.log("remove");};
+
     return (
-        <div className={styles.movie_card}
-        >
+        <div className={styles.movieCard}>
             <Link
                 to="/movie"
                 state={{ playlistMovie }}
@@ -112,14 +116,35 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                             alt={movie.title}
                             className={styles.poster}
                         />
-                        <div className={styles.progress_bar_container}>
-                            <div className={styles.progress_bar} style={{ width: `${progress}%` }} />
-                        </div>
+                        {!dropdownOpen ? (
+                            <div className={styles.progressBarContainer}>
+                                <div className={styles.progressBar} style={{ width: `${progress}%` }} />
+                            </div>
+                        ) : (
+                                <div className={`${styles.dropdownContainer} ${dropdownOpen ? styles.open : ''}`}>
+                                    <Link
+                                        to="/player"
+                                        state={{ movie, playlistMovie }}
+                                        className={styles.posterWrapper}
+                                    >
+                                        Resume
+                                    </Link>
+                                    <Link
+                                        to="/movie"
+                                        state={{ playlistMovie }}
+                                        className={styles.posterWrapper}
+                                    >
+                                        Details
+                                    </Link>
+                                    <p onClick={remove}>Remove</p>
+                                </div>
+                        )}
                     </div>
                 )}
             </Link>
-            <div className={styles.ctrlBar}>
-                <FaEllipsisV className={styles.ctrlButton} />
+            <div className={styles.bottomBar}>
+                <p>{movie.title}</p>
+                <FaEllipsisV className={styles.detailsButton} onClick={toggleDropdown} />
             </div>
         </div>
     );
