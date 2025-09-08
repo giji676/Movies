@@ -104,9 +104,15 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                 to="/movie"
                 state={{ playlistMovie }}
                 style={{ textDecoration: 'none', color: 'inherit' }}
+                onClick={(e) => {
+                    if (dropdownOpen) {
+                        e.preventDefault(); // prevent link navigation
+                    }
+                }}
             >
                 {posterUrl && (
-                    <div className={styles.imageWrapper}
+                    <div
+                        className={`${styles.imageWrapper} ${dropdownOpen ? styles.noHover : ''}`}
                         onMouseEnter={() => setHovered(true)}
                         onMouseLeave={() => setHovered(false)}
                     >
