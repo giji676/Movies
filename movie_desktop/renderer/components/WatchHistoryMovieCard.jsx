@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './WatchHistoryMovieCard.module.css';
-import { FaBookmark, FaRegBookmark, FaEllipsisV } from "react-icons/fa";
+import { FaBookmark, FaRegBookmark, FaEllipsisV, FaPlus, FaPlay, FaMinus, FaInfo } from "react-icons/fa";
 import api from "../../main/api";
 
 function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
@@ -97,6 +97,7 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
     const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
     const remove = () => {console.log("remove");};
+    const toggleWatchLater = () => {console.log("watch later");};
 
     return (
         <div className={styles.movieCard}>
@@ -131,20 +132,29 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                                     <Link
                                         to="/player"
                                         state={{ movie, playlistMovie }}
-                                        className={styles.posterWrapper}
+                                        className={styles.dropdownItem}
                                     >
                                         Resume
+                                        <FaPlay className={styles.dropdownIcon} />
                                     </Link>
                                     <Link
                                         to="/movie"
                                         state={{ playlistMovie }}
-                                        className={styles.posterWrapper}
+                                        className={styles.dropdownItem}
                                     >
                                         Details
+                                        <FaInfo className={styles.dropdownIcon} />
                                     </Link>
-                                    <p onClick={remove}>Remove</p>
+                                    <p onClick={remove} className={styles.dropdownItem}>
+                                        Remove
+                                        <FaMinus className={styles.dropdownIcon} />
+                                    </p>
+                                    <p onClick={toggleSave} className={styles.dropdownItem}>
+                                        Watch Later
+                                        <FaPlus className={styles.dropdownIcon} />
+                                    </p>
                                 </div>
-                        )}
+                            )}
                     </div>
                 )}
             </Link>

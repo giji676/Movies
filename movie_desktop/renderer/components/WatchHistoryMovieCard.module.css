@@ -83,15 +83,26 @@
   filter: brightness(0.6);
 }
 
-.dropdownContainer * {
+.dropdownItem {
+    display: flex;
+    align-items: center;
     background-color: transparent;
     padding: 0.75rem;
     font-size: 1rem;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
-.dropdownContainer *:hover {
-    background-color: rgba(255,255,255,0.1);
+.dropdownItem:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdownIcon {
+    margin-left: auto;
+    font-size: 1.2rem;
+    background-color: transparent;
 }
 
 .bottomBar {
