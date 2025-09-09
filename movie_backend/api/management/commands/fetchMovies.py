@@ -9,6 +9,7 @@ import logging
 from django.core.management.base import BaseCommand
 from api.models import Movie
 from api.movieSearch import MovieSearch, TMDB
+from utils.convertToHLS import ConvertToHLS
 
 logger = logging.getLogger("movies")
 
@@ -83,9 +84,9 @@ class Command(BaseCommand):
                     movie_info = self.get_movie_info(movie_path)
                     movie_obj.duration = movie_info["duration"]
                     movie_obj.save(update_fields=["duration"])
-                    # Start HLS conversion in a new thread
-                    #threading.Thread(target=self.convert_to_hls, args=(movie_obj,), daemon=True).start()
-                    pass
+
+                    converter = ConvertToHLS(tmdb_id=tmdb_id) # TODO: redundant call of get_movie_info in here and above. Remove 1
+                    converter.start()
 
             logger.info("page %s done", page)
             page += 1
@@ -105,59 +106,6 @@ class Command(BaseCommand):
                         selected_file = file_path
 
         return selected_file
-
-    def convert_to_hls(self, movie):
-        torrent_path = os.path.join(movie.download_path, "torrent")
-        movie_path = self.get_movie_file(torrent_path)
-        if not movie_path:
-            logger.info("Couldn't locate movie file for HLS conversion (%s", movie.tmdb_id)
-            return
-
-        HLS_PATH = os.path.join(movie.download_path, "hls")
-        os.makedirs(HLS_PATH, exist_ok=True)
-
-        safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in movie.title)
-        m3u8_path = os.path.join(HLS_PATH, f"{safe_title}.m3u8")
-        segment_pattern = os.path.join(HLS_PATH, f"{safe_title}_%d.ts")
-
-        ffmpeg_copy_cmd = [
-            "ffmpeg",
-            "-i", movie_path,
-            "-c", "copy",
-            "-map", "0:v:0",
-            "-map", "0:a:0",
-            "-loglevel", "panic",
-            "-f", "hls",
-            "-hls_time", "10",
-            "-hls_playlist_type", "vod",
-            "-hls_segment_filename", segment_pattern,
-            m3u8_path
-        ]
-
-        logger.info("Attempting fast HLS conversion (copy) for %s", movie.title)
-        try:
-            subprocess.run(ffmpeg_copy_cmd, check=True, stdout=subprocess.DEVNULL)
-            logger.info("Attempting fast HLS conversion (copy) for %s", movie.title)
-        except subprocess.CalledProcessError:
-            logger.info("Copy failed, falling back to re-encoding for %s", movie.title)
-            ffmpeg_reencode_cmd = [
-                "ffmpeg",
-                "-i", movie_path,
-                "-c:v", "libx264",
-                "-c:a", "aac",
-                "-loglevel", "panic",
-                "-f", "hls",
-                "-hls_time", "10",
-                "-hls_playlist_type", "vod",
-                "-hls_segment_filename", segment_pattern,
-                m3u8_path
-            ]
-            subprocess.run(ffmpeg_reencode_cmd, check=True, stdout=subprocess.DEVNULL)
-            logger.info("HLS conversion (re-encode) finished for %s", movie.title)
-
-        movie.hls_available = True
-        movie.save(update_fields=["hls_available"])
-        logger.info("HLS conversion finished for %s", movie.title)
 
     def download_image(self, url, path):
         try:
