@@ -10,6 +10,7 @@ import Register from './Register';
 import Sidebar from './Sidebar';
 import NotFound from './NotFound';
 import WatchLater from './WatchLater';
+import WatchHistory from './WatchHistory';
 import ProtectedRoute from './components/ProtectedRoute';
 import styles from './App.module.css';
 import './Colors.module.css';
@@ -21,17 +22,14 @@ function Logout() {
 
 function App() {
     const [moviesList, setMoviesList] = useState(null);
-    const [moviesTmdbConfig, setMoviesTmdbConfig] = useState(null);
     const [user, setUser] = useState(null);
 
-    const setMovieListData = (movies, tmdbConfig) => {
+    const setMovieListData = (movies) => {
         setMoviesList(movies);
-        setMoviesTmdbConfig(tmdbConfig);
     };
 
     const resetMovieListData = () => {
         setMoviesList(null);
-        setMoviesTmdbConfig(null);
     };
 
     const handleLogout = () => {
@@ -65,8 +63,6 @@ function App() {
 
                                         <Movies 
                                             moviesList={moviesList} 
-                                            moviesTmdbConfig={moviesTmdbConfig} 
-                                            resetMovieListData={resetMovieListData}
                                         />
                                     </div>
                                 </div>
@@ -100,6 +96,14 @@ function App() {
                             <Sidebar resetMovieListData={resetMovieListData} />
                             <div className={styles.mainContent}>
                                 <WatchLater resetMovieListData={resetMovieListData} />
+                            </div>
+                        </div>
+                    } />
+                    <Route path="/watch-history" element={
+                        <div className={styles.body}>
+                            <Sidebar resetMovieListData={resetMovieListData} />
+                            <div className={styles.mainContent}>
+                                <WatchHistory resetMovieListData={resetMovieListData} />
                             </div>
                         </div>
                     } />

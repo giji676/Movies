@@ -1,0 +1,27 @@
+.movie_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+    justify-items: center;
+}
+
+/* For small screens (phones) */
+@media (max-width: 600px) {
+    .movie_grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    }
+}
+
+/* For medium and up (tablets, desktops) */
+@media (min-width: 601px) and (max-width: 1024px) {
+    .movie_grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+}
+
+/* For large screens (desktops) */
+@media (min-width: 1025px) {
+    .movie_grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+}

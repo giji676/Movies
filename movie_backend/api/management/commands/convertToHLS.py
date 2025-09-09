@@ -22,7 +22,11 @@ class Command(BaseCommand):
         parser.add_argument(
             "--force",
             action="store_true",
+<<<<<<< HEAD
             help="Force re-conversion even if already converted",
+=======
+            help="Force conversion even if already converted",
+>>>>>>> main
         )
 
     def handle(self, *args, **options):

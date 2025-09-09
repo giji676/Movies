@@ -16,7 +16,7 @@ function Sidebar({ resetMovieListData }) {
                 <FaDesktop className={styles.btnIcon}/>
             </NavLink>
             <NavLink 
-                to="/history" 
+                to="/watch-history" 
                 className={({ isActive }) =>
                     `${styles.button} ${isActive ? styles.active : ''}`
                 }>

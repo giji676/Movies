@@ -5,7 +5,9 @@ from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.exceptions import ValidationError, NotFound
 from django.contrib.postgres.search import TrigramSimilarity
+from django.shortcuts import get_object_or_404
 
 from .serializers import MovieSerializer, PlaylistMovieSerializer
 from .models import Movie, PlaylistMovie
@@ -15,30 +17,143 @@ from .utils import serialize_movie_cached
 logger = logging.getLogger("movies")
 tmdb = TMDB()
 
-class PlaylistMovieCreate(generics.ListCreateAPIView):
+class PlaylistMovieList(generics.ListAPIView):
+    """
+    Returns a list of playlist movies for the authenticated user.
+    Can filter by watch_later or watch_history using query params:
+        ?watch_later=true
+        ?watch_history=true
+    """
     serializer_class = PlaylistMovieSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        return PlaylistMovie.objects.filter(author=user)
-    
-    def perform_create(self, serializer):
-        tmdb_id = self.request.data.get('tmdb_id')
-        movie = Movie.objects.get(tmdb_id=tmdb_id)
-        serializer.save(
-            author=self.request.user,
-            tmdb_id=movie
-        )
+        queryset = PlaylistMovie.objects.filter(author=user).order_by("-added_at")
 
-class PlaylistMovieDelete(generics.DestroyAPIView):
+        watch_later = self.request.query_params.get("watch_later")
+        watch_history = self.request.query_params.get("watch_history")
+
+        filters = {}
+        if watch_later is not None:
+            filters["watch_later"] = watch_later.lower() == "true"
+        if watch_history is not None:
+            filters["watch_history"] = watch_history.lower() == "true"
+
+        if filters:
+            queryset = queryset.filter(**filters)
+
+        return queryset
+
+class PlaylistMovieModify(generics.UpdateAPIView):
     serializer_class = PlaylistMovieSerializer
     permission_classes = [IsAuthenticated]
     lookup_field = "tmdb_id"
 
+    def patch(self, request, *args, **kwargs):
+        tmdb_id = self.kwargs.get("tmdb_id")
+        modify_field = request.data.get("modify_field")
+        value = request.data.get("value")
+
+        if modify_field not in ["watch_later", "watch_history"]:
+            raise ValidationError({"modify_field": "Must be 'watch_later' or 'watch_history'."})
+
+        if value is None:
+            raise ValidationError({"value": "This field is required and should be true or false."})
+
+        if isinstance(value, str):
+            if value.lower() == "true":
+                value = True
+            elif value.lower() == "false":
+                value = False
+            else:
+                raise ValidationError({"value": "Must be true or false."})
+        else:
+            value = bool(value)
+
+        movie = get_object_or_404(Movie, tmdb_id=tmdb_id)
+
+        playlist_movie, created = PlaylistMovie.objects.get_or_create(
+            author=request.user,
+            tmdb=movie,
+            defaults={modify_field: value}
+        )
+
+        if not created:
+            setattr(playlist_movie, modify_field, value)
+            playlist_movie.save()
+
+        serializer = self.get_serializer(playlist_movie)
+        status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+
+        return Response({
+            "message": f"{modify_field} set to {value}.",
+            "created": created,
+            "data": serializer.data
+        }, status=status_code)
+
+class UpdateTimeStamp(generics.UpdateAPIView):
+    serializer_class = PlaylistMovieSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "tmdb_id"
+
+    def patch(self, request, *args, **kwargs):
+        tmdb_id = self.kwargs.get("tmdb_id")
+        time_stamp = request.data.get("time_stamp")
+
+        if time_stamp is None:
+            raise ValidationError({"time_stamp": "This field is required."})
+
+        try:
+            time_stamp = int(time_stamp)
+        except ValueError:
+            raise ValidationError({"time_stamp": "This field must be a positive integer."})
+
+        if time_stamp < 0:
+            raise ValidationError({"time_stamp": "This field must be a positive integer."})
+
+        movie = get_object_or_404(Movie, tmdb_id=tmdb_id)
+
+        playlist_movie, created = PlaylistMovie.objects.get_or_create(
+            author=request.user,
+            tmdb=movie,
+            defaults={"time_stamp": time_stamp}
+        )
+
+        if not created:
+            playlist_movie.update_time_stamp(time_stamp)
+
+        serializer = self.get_serializer(playlist_movie)
+        status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+
+        return Response({
+            "message": "Time stamp updated." if not created else "PlaylistMovie created with time stamp.",
+            "created": created,
+            "data": serializer.data
+        }, status=status_code)
+
+class PlaylistMovieCreate(generics.ListCreateAPIView):
+    """ deprecated - playlist movie automatically created if it doesn't exist from modify endpoint """
+    serializer_class = PlaylistMovieSerializer
+    permission_classes = [IsAuthenticated]
+
     def get_queryset(self):
         user = self.request.user
         return PlaylistMovie.objects.filter(author=user)
+
+    def perform_create(self, serializer):
+        tmdb_id = self.request.data.get('tmdb_id')
+        # validate movie exists with that tmdb id
+        try:
+            movie = Movie.objects.get(tmdb_id=tmdb_id)
+        except Movie.DoesNotExist:
+            raise ValidationError({"tmdb_id": "Movie with this TMDB ID does not exist."})
+
+        user = self.request.user
+        # check for duplicate
+        if PlaylistMovie.objects.filter(author=user, tmdb=movie).exists():
+            raise ValidationError({"detail": "This movie is already in your playlist."})
+        serializer.save(author=user, tmdb=movie)
 
 class StreamToClient(APIView):
     permission_classes = [AllowAny]

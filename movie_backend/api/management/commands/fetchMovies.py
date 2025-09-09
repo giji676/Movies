@@ -1,6 +1,8 @@
 import os
+import json
 import asyncio
 import subprocess
+import requests
 import threading
 import logging
 
@@ -9,6 +11,8 @@ from api.models import Movie
 from api.movieSearch import MovieSearch, TMDB
 
 logger = logging.getLogger("movies")
+
+""" TODO: set duration after download automatically """
 
 class Command(BaseCommand):
     help = 'Fetches and populates movie data from TMDB IDs'
@@ -38,10 +42,7 @@ class Command(BaseCommand):
                         "release_date": movie["release_date"],
                         "backdrop_path": "",
                         "poster_path": "",
-                        "seeders": int(tpb_data["seeders"]),
                         "imdb": tpb_data["imdb"],
-                        "leechers": int(tpb_data["leechers"]),
-                        "info_hash": tpb_data["info_hash"],
                         "category": tpb_data["category"],
                         "download_path": movie_path,
                         "hls_available": False,
@@ -60,12 +61,12 @@ class Command(BaseCommand):
                 try:
                     # Download poster
                     if movie["poster_path"] and not os.path.isfile(poster_file):
-                        poster_url = self.tmdb.buildImageURL(movie["poster_path"], "poster")
+                        poster_url = self.tmdb.buildImageURL(tmdb_id, "poster")
                         self.download_image(poster_url, poster_file)
                         logger.info("Downloaded poster for %s", movie["title"])
                     # Download backdrop
                     if movie["backdrop_path"] and not os.path.isfile(backdrop_file):
-                        backdrop_url = self.tmdb.buildImageURL(movie["backdrop_path"], "backdrop")
+                        backdrop_url = self.tmdb.buildImageURL(tmdb_id, "backdrop")
                         self.download_image(backdrop_url, backdrop_file)
                         logger.info("Downloaded backdrop for %s", movie["title"])
 
@@ -76,6 +77,12 @@ class Command(BaseCommand):
                 except Exception as e:
                     logger.warning("Image download failed for %s (%s): %s", movie["title"], tmdb_id, e)
                 if created:
+                    torrent_path = os.path.join(movie_obj.download_path, "torrent")
+                    movie_path = self.get_movie_file(torrent_path)
+                    movie_path = os.path.join(torrent_path, movie_path)
+                    movie_info = self.get_movie_info(movie_path)
+                    movie_obj.duration = movie_info["duration"]
+                    movie_obj.save(update_fields=["duration"])
                     # Start HLS conversion in a new thread
                     #threading.Thread(target=self.convert_to_hls, args=(movie_obj,), daemon=True).start()
                     pass
@@ -195,3 +202,48 @@ class Command(BaseCommand):
             asyncio.run(m_search.download(magnet_link, path=movie_path))
             return movie_match
         return None
+
+    def get_movie_info(self, path):
+        cmd = [
+            "ffprobe",
+            "-v", "error",
+            "-show_entries",
+            "format=format_name,duration:stream=codec_type,codec_name,bit_rate",
+            "-of", "json",
+            path
+        ]
+
+        try:
+            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+            data = json.loads(result.stdout)
+
+            # Format (container type)
+            container_format = data.get("format", {}).get("format_name", "Unknown")
+            duration = float(data.get("format", {}).get("duration", 0))
+
+            # Codecs and bitrates
+            video_codec = None
+            audio_codec = None
+            video_bitrate = None
+            audio_bitrate = None
+
+            for stream in data.get("streams", []):
+                if stream.get("codec_type") == "video" and not video_codec:
+                    video_codec = stream.get("codec_name")
+                    video_bitrate = int(stream.get("bit_rate", 0)) if stream.get("bit_rate") else None
+                elif stream.get("codec_type") == "audio" and not audio_codec:
+                    audio_codec = stream.get("codec_name")
+                    audio_bitrate = int(stream.get("bit_rate", 0)) if stream.get("bit_rate") else None
+
+            return {
+                "container": container_format,
+                "duration": duration,
+                "video_codec": video_codec or "None",
+                "video_bitrate": video_bitrate,
+                "audio_codec": audio_codec or "None",
+                "audio_bitrate": audio_bitrate
+            }
+
+        except subprocess.CalledProcessError as e:
+            print("Error running ffprobe:", e.stderr)
+            return None

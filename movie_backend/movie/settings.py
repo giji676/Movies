@@ -196,6 +196,11 @@ LOGGING = {
             'level': 'INFO',  # ignore DEBUG messages from autoreload
             'propagate': False,
         },
+        'django.request': {
+            'handlers': ['console_info', 'console_error', 'file'],
+            'level': 'ERROR',  # change from WARNING to ERROR
+            'propagate': False,
+        },
         'movies': {
             'handlers': ['console_info', 'console_error', 'file'],
             'level': 'DEBUG',

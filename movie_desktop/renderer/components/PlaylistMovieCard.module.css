@@ -1,0 +1,94 @@
+:root {
+    --button-bg: 20, 20, 20;
+}
+
+.movie_card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    padding: 12px 0;
+    width: 180px;
+    box-sizing: border-box;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.imageWrapper {
+    position: relative;
+    width: 100%;
+    height: 270px;
+}
+
+.poster {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    display: block;
+    flex-shrink: 0;
+    margin: 0;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.progress_bar_container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background-color: rgb(var(--neon-blue));
+    overflow: hidden;
+    background-color: #222;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    overflow: hidden;
+}
+
+.progress_bar {
+    height: 100%;
+    background-color: rgb(var(--neon-blue));
+}
+
+.movie_card:hover .imageWrapper{
+    transform: scale(0.95);
+}
+
+.movie_card:hover .poster {
+    filter: brightness(0.6);
+}
+
+.save_button {
+    position: absolute;
+    bottom: 8%;
+    right: 5%;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(var(--button-bg), 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(1);
+    transition: opacity 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+}
+
+.movie_card:hover .save_button {
+    opacity: 1;
+}
+
+.save_button:hover {
+    background-color: rgba(var(--button-bg), 1);
+    transform: scale(1.18);
+}
+
+.btn_icon {
+    background-color: transparent;
+}

@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import api from "../main/api";
 import style from "./WatchLater.module.css";
-import PlaylistMovieCard from './components/PlaylistMovieCard';
+import WatchHistoryMovieCard from './components/WatchHistoryMovieCard';
 import ProtectedRoute from './components/ProtectedRoute';
 
-function WatchLater({ resetMovieListData }) {
+function WatchHistoryLater({ resetMovieListData }) {
     const [movies, setMovies] = useState([]);
  
-    const getWatchLater = () => {
+    const getWatchHistory = () => {
         api
-            .get("/playlist-movies/", { params: { watch_later: true } })
+            .get("/playlist-movies/", { params: { watch_history: true } })
             .then((res) => res.data)
             .then((data) => {setMovies(data)})
             .catch((err) => console.log(err));
@@ -32,14 +32,14 @@ function WatchLater({ resetMovieListData }) {
 
     useEffect(() => {
         resetMovieListData();
-        getWatchLater();
+        getWatchHistory();
     }, []);
 
     return (
         <ProtectedRoute>
             <div className={style.movie_grid}>
                 {movies.map((movie, index) => (
-                    <PlaylistMovieCard 
+                    <WatchHistoryMovieCard  
                         key={index} 
                         playlistMovie={movie} 
                         playlist={movies} 
@@ -51,4 +51,4 @@ function WatchLater({ resetMovieListData }) {
     );
 }
 
-export default WatchLater;
+export default WatchHistoryLater;
