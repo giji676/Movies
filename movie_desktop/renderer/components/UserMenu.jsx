@@ -1,3 +1,4 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaRegUser } from "react-icons/fa";
@@ -20,7 +21,10 @@ function UserMenu({ user }) {
     };
 
     const handleSettings = async () => {
-        navigate("/settings");
+        <Route
+            path="/settings"
+            element={<Settings user={user} />}
+        />
     };
 
 
