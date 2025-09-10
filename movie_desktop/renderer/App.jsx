@@ -12,6 +12,7 @@ import NotFound from './NotFound';
 import WatchLater from './WatchLater';
 import WatchHistory from './WatchHistory';
 import ProtectedRoute from './components/ProtectedRoute';
+import Settings from './Settings';
 import styles from './App.module.css';
 import './Colors.module.css';
 import api from "../main/api";
@@ -112,6 +113,14 @@ function App() {
                     <Route path="/logout" element={<Logout />} />
                     <Route path="/movie" element={<Movie />} />
                     <Route path="/player" element={<Player />} />
+                    <Route path="/settings" element={
+                        <div className={styles.body}>
+                            <Sidebar resetMovieListData={resetMovieListData} />
+                            <div className={styles.mainContent}>
+                                <Settings />
+                            </div>
+                        </div>
+                    } />
                     <Route path="/watch-later" element={
                         <div className={styles.body}>
                             <Sidebar resetMovieListData={resetMovieListData} />

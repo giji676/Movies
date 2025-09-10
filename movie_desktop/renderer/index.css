@@ -1,9 +1,12 @@
 * {
     margin: 0;
     padding: 0;
+    color: #e0ecff;
+}
+
+body {
     font-family: Monospace;
     background-color: rgb(var(--oxford-blue));
-    color: #e0ecff;
 }
 
 /* Scrollbar width */

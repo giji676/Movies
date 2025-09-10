@@ -19,6 +19,11 @@ function UserMenu({ user }) {
         navigate("/login");
     };
 
+    const handleSettings = async () => {
+        navigate("/settings");
+    };
+
+
     return (
         <div className={styles.container} onClick={toggleDropdown}>
             {user ? (
@@ -39,10 +44,8 @@ function UserMenu({ user }) {
                     {user ? (
                         <>
                             <div className={styles.item}>Profile</div>
-                            <div className={styles.item}>Settings</div>
-                            <div className={styles.item} onClick={handleLogout}>
-                                Logout
-                            </div>
+                            <div className={styles.item} onClick={handleSettings}>Settings</div>
+                            <div className={styles.item} onClick={handleLogout}>Logout</div>
                         </>
                     ) : (
                             <div className={styles.item} onClick={handleLogin}>

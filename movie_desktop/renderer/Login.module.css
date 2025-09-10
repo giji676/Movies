@@ -47,6 +47,7 @@ h1 {
     border: 1px solid #ccc;
     border-radius: 6px;
     transition: border-color 0.2s ease-in-out;
+    background-color: transparent;
 }
 
 .input:focus {
