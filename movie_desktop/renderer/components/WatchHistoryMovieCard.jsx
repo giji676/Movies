@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './WatchHistoryMovieCard.module.css';
 import { FaBookmark, FaRegBookmark, FaEllipsisV, FaPlus, FaPlay, FaMinus, FaInfo } from "react-icons/fa";
@@ -16,6 +16,11 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
     const [isWatchHistory, setIsWatchHistory] = useState(null);
     const [progress, setProgress] = useState(0);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const titleRef = useRef(null);
+    const wrapperRef = useRef(null);
+    const [scrollDistance, setScrollDistance] = useState(0);
+    const [shouldScroll, setShouldScroll] = useState(false);
 
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
@@ -94,6 +99,21 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
         }
     };
 
+    useEffect(() => {
+        if (titleRef.current && wrapperRef.current) {
+            const textWidth = titleRef.current.scrollWidth;
+            const containerWidth = wrapperRef.current.offsetWidth;
+
+            const overflow = textWidth - containerWidth;
+            if (overflow > 0) {
+                setScrollDistance(overflow);
+                setShouldScroll(true);
+            } else {
+                setShouldScroll(false);
+            }
+        }
+    }, [movie.title]);
+
     const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
     const remove = () => {console.log("remove");};
@@ -159,7 +179,20 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                 )}
             </Link>
             <div className={styles.bottomBar}>
-                <p>{movie.title}</p>
+                <p
+                    className={styles.titleWrapper}
+                    ref={wrapperRef}
+                    style={
+                        shouldScroll ? { "--scroll-distance": `${scrollDistance}px` } : {}
+                    }
+                >
+                    <span
+                        className={styles.scrollText}
+                        ref={titleRef}
+                    >
+                        {movie.title}
+                    </span>
+                </p>
                 <FaEllipsisV className={styles.detailsButton} onClick={toggleDropdown} />
             </div>
         </div>
