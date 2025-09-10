@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Search from './Search';
 import Movie from './Movie';
 import Movies from './Movies';
@@ -14,6 +14,7 @@ import WatchHistory from './WatchHistory';
 import ProtectedRoute from './components/ProtectedRoute';
 import styles from './App.module.css';
 import './Colors.module.css';
+import api from "../main/api";
 
 function Logout() {
     localStorage.clear();
@@ -36,6 +37,25 @@ function App() {
         localStorage.clear();
         setUser(null);
     };
+
+    const getUser = () => {
+        api
+            .get("/api/user/profile/")
+            .then((res) => {
+                setUser(res.data);
+            })
+            .catch((err) => {
+                if (err.response && err.response.status !== 200) {
+                    setUser(null);
+                } else {
+                    console.log("Failed to get user profile:", err);
+                }
+            });
+    };
+
+    useEffect(() => {
+        getUser();
+    }, []);
 
     return (
         <Router>
