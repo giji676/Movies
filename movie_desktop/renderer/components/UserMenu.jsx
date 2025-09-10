@@ -15,6 +15,8 @@ function UserMenu({ user }) {
     };
 
     const handleLogout = async () => {
+        localStorage.clear();
+        navigate("/login");
     };
 
     return (

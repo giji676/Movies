@@ -4,7 +4,7 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "../main/constants";
 import styles from './Login.module.css';
 import api from "../main/api";
 
-function Login() {
+function Login({ onLoginSuccess }) {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -20,6 +20,7 @@ function Login() {
             const res = await api.post("/api/user/token/", { email, password });
             localStorage.setItem(ACCESS_TOKEN, res.data.access);
             localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+            if (onLoginSuccess) onLoginSuccess();
             navigate("/");
         } catch (err) {
             if (err.response && err.response.data.detail) {

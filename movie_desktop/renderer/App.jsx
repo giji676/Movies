@@ -95,7 +95,7 @@ function App() {
                         <div className={styles.body}>
                             <Sidebar resetMovieListData={resetMovieListData} />
                             <div className={styles.mainContent}>
-                                <Login />
+                                <Login onLoginSuccess={getUser} />
                             </div>
                         </div>
                     } />
