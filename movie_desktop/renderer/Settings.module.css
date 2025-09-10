@@ -1,6 +1,9 @@
 .settingsBody {
     padding: 1rem 10%;
     background-color: #225;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
 
 .userContainer {

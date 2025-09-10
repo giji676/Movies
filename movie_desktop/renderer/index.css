@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     color: #e0ecff;
+    box-sizing: border-box;
 }
 
 body {
