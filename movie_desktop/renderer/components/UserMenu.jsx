@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaRegUser } from "react-icons/fa";
 import styles from './UserMenu.module.css';
 
 function UserMenu({ user }) {
@@ -20,7 +21,11 @@ function UserMenu({ user }) {
         <div className={styles.container} onClick={toggleDropdown}>
             {user ? (
                 <>
-                    <img src={user.avatar} alt="Profile" className={styles.avatar} />
+                    {user.avatar_url ? (
+                        <img src={user.avatar_url} alt="Profile" className={styles.avatar} />
+                    ) : (
+                        <FaRegUser />
+                    )}
                     <span>{user.username}</span>
                 </>
             ) : (
