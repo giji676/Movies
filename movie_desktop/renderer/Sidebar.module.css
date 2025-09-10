@@ -23,11 +23,9 @@
     font-weight: bold;
     color: #f0f0f0;
     margin-bottom: 2rem;
-    background: transparent;
 }
 
 .button {
-    background: transparent;
     border: none;
     color: var(--sidebar-icon);
     font-size: 1.3rem;
@@ -38,10 +36,6 @@
     height: 64px;
     border-radius: 8px;
     transition: background-color 0.2s, color 0.2s;
-}
-
-.btnIcon {
-    background: transparent;
 }
 
 .button:hover {

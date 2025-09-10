@@ -67,10 +67,6 @@
     cursor: not-allowed;
 }
 
-.searchIcon {
-    background-color: transparent;
-}
-
 .spinnerWrapper {
     display: flex;
     justify-content: center;
