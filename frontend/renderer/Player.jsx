@@ -31,7 +31,7 @@ function Player() {
     useEffect(() => {
         if (!playlistMovie) {
             api
-                .patch(`/playlist-movie/modify/${movie.tmdb_id}/`, {
+                .patch(`/api/playlist-movie/modify/${movie.tmdb_id}/`, {
                     modify_field: "watch_history",
                     value: true
                 })
@@ -55,7 +55,7 @@ function Player() {
         if (isLoading) return;
         try {
             setIsLoading(true);
-            const res = await api.get(`/movie/stream-to-client/?tmdb_id=${tmdb_id}`);
+            const res = await api.get(`/api/movie/stream-to-client/?tmdb_id=${tmdb_id}`);
             const data = res.data;
             if (data.file_path) {
                 setVideoPath(data.file_path);
@@ -74,7 +74,7 @@ function Player() {
 
         const currentTime = Math.floor(videoRef.current.currentTime); // seconds
         try {
-            await api.patch(`/playlist/${tmdb_id}/update-progress/`, { time_stamp: currentTime });
+            await api.patch(`/api/playlist/${tmdb_id}/update-progress/`, { time_stamp: currentTime });
         } catch (error) {
             console.error("Failed to update time stamp:", error.response?.data || error.message);
         }

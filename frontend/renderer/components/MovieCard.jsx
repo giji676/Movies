@@ -29,7 +29,7 @@ function MovieCard({ movie, playlist, onPlaylistUpdate }) {
     const saveToWatchLater = (e) => {
         e.preventDefault();
         api
-            .patch(`/playlist-movie/modify/${movie.tmdb_id}/`, {
+            .patch(`/api/playlist-movie/modify/${movie.tmdb_id}/`, {
                 modify_field: "watch_later",
                 value: true
             })
@@ -47,7 +47,7 @@ function MovieCard({ movie, playlist, onPlaylistUpdate }) {
     const deleteFromWatchLater = (e) => {
         e.preventDefault();
         api
-            .patch(`/playlist-movie/modify/${movie.tmdb_id}/`, {
+            .patch(`/api/playlist-movie/modify/${movie.tmdb_id}/`, {
                 modify_field: "watch_later",
                 value: false
             })

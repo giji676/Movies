@@ -9,7 +9,7 @@ function WatchHistoryLater({ resetMovieListData }) {
  
     const getWatchHistory = () => {
         api
-            .get("/playlist-movies/", { params: { watch_history: true } })
+            .get("/api/playlist-movies/", { params: { watch_history: true } })
             .then((res) => res.data)
             .then((data) => {setMovies(data)})
             .catch((err) => console.log(err));

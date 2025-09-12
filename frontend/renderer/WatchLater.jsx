@@ -9,7 +9,7 @@ function WatchLater({ resetMovieListData }) {
  
     const getWatchLater = () => {
         api
-            .get("/playlist-movies/", { params: { watch_later: true } })
+            .get("/api/playlist-movies/", { params: { watch_later: true } })
             .then((res) => res.data)
             .then((data) => {setMovies(data)})
             .catch((err) => console.log(err));
