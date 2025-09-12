@@ -14,7 +14,7 @@ import WatchHistory from './WatchHistory';
 import ProtectedRoute from './components/ProtectedRoute';
 import Settings from './Settings';
 import styles from './App.module.css';
-import './Colors.module.css';
+import './colors.css';
 import api from "../main/api";
 
 function Logout() {
