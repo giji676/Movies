@@ -35,7 +35,7 @@ async function refreshAccessToken() {
     if (!refreshToken) return null;
 
     try {
-        const res = await rawAxios.post("/api/user/token/refresh/", {
+        const res = await rawAxios.post("/user/token/refresh/", {
             refresh: refreshToken
         });
 

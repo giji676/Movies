@@ -50,7 +50,7 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
     const saveToWatchLater = (e) => {
         e.preventDefault();
         api
-            .patch(`/api/playlist-movie/modify/${movie.tmdb_id}/`, {
+            .patch(`/playlist-movie/modify/${movie.tmdb_id}/`, {
                 modify_field: "watch_later",
                 value: true
             })
@@ -68,7 +68,7 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
     const deleteFromWatchLater = (e) => {
         e.preventDefault();
         api
-            .patch(`/api/playlist-movie/modify/${movie.tmdb_id}/`, {
+            .patch(`/playlist-movie/modify/${movie.tmdb_id}/`, {
                 modify_field: "watch_later",
                 value: false
             })

@@ -17,7 +17,7 @@ function Movies({ moviesList }) {
     const fetchMoviesBatch = async (currentOffset) => {
         setIsFetching(true);
         try {
-            const res = await api.get(`/api/movie/?offset=${currentOffset}&limit=${BATCH_SIZE}`);
+            const res = await api.get(`/movie/?offset=${currentOffset}&limit=${BATCH_SIZE}`);
             const data = res.data;
 
             setMovies(prev => [...prev, ...data.movies]);
@@ -36,7 +36,7 @@ function Movies({ moviesList }) {
 
     const fetchWatchLaterMovies = async () => {
         api
-            .get("/api/playlist-movies/", { params: { watch_later: true } })
+            .get("/playlist-movies/", { params: { watch_later: true } })
             .then((res) => res.data)
             .then((data) => {setWatchLaterPlaylist(data)})
             .catch((err) => console.log("Failed to fetch watch later movies", err));

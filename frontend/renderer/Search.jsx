@@ -18,7 +18,7 @@ function Search({ onResults, resetMovieListData }) {
 
         setLoading(true);
         api
-            .get(`/api/movie/search/?query=${encodeURIComponent(query)}`)
+            .get(`/movie/search/?query=${encodeURIComponent(query)}`)
             .then((res) => res.data)
             .then((data) => onResults(data.movies, data.tmdb_config))
             .catch((err) => {

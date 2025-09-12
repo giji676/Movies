@@ -41,7 +41,7 @@ function App() {
 
     const getUser = () => {
         api
-            .get("/api/user/profile/")
+            .get("/user/profile/")
             .then((res) => {
                 console.log(res.data);
                 setUser(res.data);

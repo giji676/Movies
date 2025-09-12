@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaRegUser } from "react-icons/fa";
+import Settings from '../Settings';
 import styles from './UserMenu.module.css';
 
 function UserMenu({ user }) {
