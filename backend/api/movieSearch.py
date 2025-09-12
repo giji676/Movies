@@ -58,7 +58,7 @@ class MovieSearch:
 
 class TMDB:
     def __init__(self):
-        self.API_KEY = os.getenv('API_KEY')
+        self.API_KEY = os.getenv("TMDB_API_KEY")
         self.BASE_URL = "https://api.themoviedb.org/3"
         self.config = self._getConfig()
 
