@@ -9,8 +9,9 @@ services:
         ports:
             - 80:80
         volumes:
-            - static_volume:/app/backend/movie/static
+            - static_volume:/app/backend/movie/static/
             - ./docker/nginx/development:/etc/nginx/conf.d
+            - /var/www/media/downloads:/var/www/media/downloads
         depends_on: 
             - backend
 
@@ -23,7 +24,8 @@ services:
         env_file:
             - ./backend/.env.production
         volumes:
-            - static_volume:/app/backend/movie/static
+            - static_volume:/app/backend/movie/static/
+            - /var/www/media/downloads:/var/www/media/downloads
         expose:
             - 8000        
         depends_on:

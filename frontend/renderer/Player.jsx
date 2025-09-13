@@ -26,7 +26,7 @@ function Player() {
     const [isLoading, setIsLoading] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
 
-    const backdropUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${tmdb_id}/${movieData.backdrop_path}`;
+    const backdropUrl = `${MEDIA_DOWNLOADS}/${tmdb_id}/${movieData.backdrop_path}`;
 
     useEffect(() => {
         if (!playlistMovie) {

@@ -25,7 +25,7 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
 
-    const posterUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${tmdb_id}/${movie.poster_path}`;
+    const posterUrl = `${MEDIA_DOWNLOADS}/${tmdb_id}/${movie.poster_path}`;
 
     useEffect(() => {
         const match = playlist.find(m => m.movie.tmdb_id === tmdb_id);

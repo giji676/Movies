@@ -14,7 +14,7 @@ function MovieCard({ movie, playlist, onPlaylistUpdate }) {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
 
-    const posterUrl = `${BASE_URL}/${MEDIA_DOWNLOADS}/${movie.tmdb_id}/${poster_path}`;
+    const posterUrl = `${MEDIA_DOWNLOADS}/${movie.tmdb_id}/${poster_path}`;
 
     useEffect(() => {
         const match = playlist.find(m => m.movie.tmdb_id === movie.tmdb_id);

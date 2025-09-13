@@ -2,7 +2,11 @@
 FROM python:3.13-slim
 
 WORKDIR /app
+
 COPY backend/requirements.txt ./backend/
+
+RUN apt-get update && \
+    apt-get install -y ffmpeg
 
 COPY backend/ ./backend/
 COPY docker/ ./docker/
