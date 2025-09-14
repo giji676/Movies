@@ -2,8 +2,7 @@
     width: 100%;
     max-width: 400px;
     margin: 80px auto;
-    padding: 2rem;
-    border: 1px solid #e0e0e0;
+    padding: 2rem; border: 1px solid #e0e0e0;
     border-radius: 10px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
     text-align: center;
@@ -88,4 +87,45 @@ h1 {
 .link:hover {
     color: #357abd;
     text-decoration: underline;
+}
+
+@media only screen 
+  and (min-device-width: 375px) 
+  and (max-device-width: 812px) 
+  and (-webkit-min-device-pixel-ratio: 3)
+  and (orientation: portrait) { 
+
+    .container {
+        width: 90%;
+        max-width: 90%;
+        padding: 2rem;
+        border-radius: 1rem;
+        border: 2px solid #eee;
+    }
+
+    h1 {
+        font-size: 4rem;
+    }
+
+    .input {
+        padding: 2rem;
+        font-size: 3.5rem;
+        border: 2px solid #eee;
+        border-radius: 6px;
+        transition: border-color 0.2s ease-in-out;
+        border-radius: 1rem;
+    }
+
+    .button {
+        font-size: 3.5rem;
+        border-radius: 1rem;
+    }
+
+    .text {
+        font-size: 2.5rem;
+    }
+
+    .link {
+        font-size: 2.5rem;
+    }
 }
