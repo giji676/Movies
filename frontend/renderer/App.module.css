@@ -32,4 +32,10 @@
     .body {
         flex-direction: column;
     }
+
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 }
