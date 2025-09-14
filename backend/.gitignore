@@ -1,5 +1,5 @@
-*.production
-*.local
+.env
+.env.*
 db.sqlite3
 .venv
 __pycache__
