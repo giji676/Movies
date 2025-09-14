@@ -23,8 +23,13 @@
     color: #e6effc;
 }
 
-.searchWrapper {
-}
+@media (max-width: 768px) {
+    .body {
+        flex-direction: column;
+    }
 
-.userWrapper {
+    .mainContent {
+        flex-grow: 1;
+        overflow-y: auto;
+    }
 }
