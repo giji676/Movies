@@ -33,7 +33,6 @@ h1 {
     font-size: 0.95rem;
 }
 
-
 .form {
     display: flex;
     flex-direction: column;
@@ -107,11 +106,24 @@ h1 {
         font-size: 5rem;
     }
 
+    .error {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        font-size: 3.5rem;
+        border-radius: 1rem;
+    }
+
+    .message {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        font-size: 3.5rem;
+        border-radius: 1rem;
+    }
+
     .input {
         padding: 2rem;
         font-size: 3.5rem;
         border: 2px solid #eee;
-        border-radius: 6px;
         transition: border-color 0.2s ease-in-out;
         border-radius: 1rem;
     }
