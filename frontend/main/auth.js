@@ -8,7 +8,10 @@ const rawAxios = axios.create({
 
 export async function checkAuth() {
     const accessToken = localStorage.getItem(ACCESS_TOKEN);
-    if (!accessToken) return null;
+    if (!accessToken) {
+        localStorage.removeItem(REFRESH_TOKEN);
+        return null;
+    }
 
     try {
         const decoded = jwtDecode(accessToken);
@@ -18,6 +21,8 @@ export async function checkAuth() {
         if (tokenExpiration < now) {
             const newToken = await refreshAccessToken();
             if (!newToken) {
+                localStorage.removeItem(ACCESS_TOKEN);
+                localStorage.removeItem(REFRESH_TOKEN);
                 throw new Error("Token refresh failed");
             }
             return newToken;
@@ -25,6 +30,8 @@ export async function checkAuth() {
 
         return accessToken;
     } catch (error) {
+        localStorage.removeItem(ACCESS_TOKEN);
+        localStorage.removeItem(REFRESH_TOKEN);
         console.error("Auth check failed:", error);
         throw error; // important
     }
@@ -41,6 +48,7 @@ async function refreshAccessToken() {
 
         if (res.status === 200) {
             localStorage.setItem(ACCESS_TOKEN, res.data.access);
+            localStorage.setItem(RFRESH_TOKEN, res.data.refresh);
             return res.data.access;
         }
 
