@@ -1,5 +1,4 @@
-
-ersion: '2'
+version: '2'
 
 services:
     nginx: 
@@ -49,7 +48,7 @@ services:
         container_name: certbot
         volumes:
             - certs:/etc/letsencrypt
-            - ./docker/nginx/development:/var/www/html
+            - ./docker/nginx/html:/var/www/html
         entrypoint: /bin/sh -c
         command: "trap exit TERM; while :; do sleep 12h & wait $${!}; certbot renew --webroot -w /var/www/html; done"
 
