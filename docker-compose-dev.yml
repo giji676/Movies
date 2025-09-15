@@ -1,4 +1,5 @@
-version: '2'
+
+ersion: '2'
 
 services:
     nginx: 
@@ -10,9 +11,8 @@ services:
             - 80:80
             - 443:443
         volumes:
-            - ./docker/nginx/development:/etc/nginx/conf.d
-            - ./docker/nginx/html:/var/www/html
             - static_volume:/app/backend/movie/static/
+            - ./docker/nginx/development:/etc/nginx/conf.d
             - /media/downloads:/media/downloads
             - certs:/etc/letsencrypt
         depends_on: 
@@ -56,4 +56,4 @@ services:
 volumes:
     static_volume: {}
     postgres_data: {}
-
+    certs: {}
