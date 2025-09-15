@@ -100,7 +100,7 @@ function PlaylistMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
             state={{ playlistMovie }}
             style={{ textDecoration: 'none', color: 'inherit' }}
         >
-            <div className={styles.movie_card}
+            <div className={styles.movieCard}
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
             >
@@ -112,18 +112,18 @@ function PlaylistMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                             alt={movie.title}
                             className={styles.poster}
                         />
-                        <div className={styles.progress_bar_container}>
-                            <div className={styles.progress_bar} style={{ width: `${progress}%` }} />
+                        <div className={styles.progressBarContainer}>
+                            <div className={styles.progressBar} style={{ width: `${progress}%` }} />
                         </div>
                         {(hovered || isSaved) && (
                             <button
-                                className={styles.save_button}
+                                className={styles.saveButton}
                                 onClick={toggleSave}
                                 style={{ opacity: (hovered || isSaved) ? 1 : 0 }}
                             >
                                 {isSaved ? 
-                                    <FaBookmark className={styles.btn_icon} /> 
-                                    : <FaRegBookmark className={styles.btn_icon} />}
+                                    <FaBookmark className={styles.btnIcon} /> 
+                                    : <FaRegBookmark className={styles.btnIcon} />}
                             </button>
                         )}
                     </div>

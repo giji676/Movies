@@ -88,7 +88,7 @@ function MovieCard({ movie, playlist, onPlaylistUpdate }) {
             }}
             style={{ textDecoration: 'none', color: 'inherit' }}
         >
-            <div className={styles.movie_card}
+            <div className={styles.movieCard}
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
             >
@@ -102,13 +102,13 @@ function MovieCard({ movie, playlist, onPlaylistUpdate }) {
                         />
                         {(hovered || isSaved) && (
                             <button
-                                className={styles.save_button}
+                                className={styles.saveButton}
                                 onClick={toggleSave}
                                 style={{ opacity: (hovered || isSaved) ? 1 : 0 }}
                             >
                                 {isSaved ? 
-                                    <FaBookmark className={styles.btn_icon} /> 
-                                    : <FaRegBookmark className={styles.btn_icon} />}
+                                    <FaBookmark className={styles.btnIcon} /> 
+                                    : <FaRegBookmark className={styles.btnIcon} />}
                             </button>
                         )}
                     </div>
