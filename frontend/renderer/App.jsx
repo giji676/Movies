@@ -43,7 +43,6 @@ function App() {
         api
             .get("/user/profile/")
             .then((res) => {
-                console.log(res.data);
                 setUser(res.data);
             })
             .catch((err) => {
