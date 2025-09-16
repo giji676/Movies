@@ -48,7 +48,7 @@ async function refreshAccessToken() {
 
         if (res.status === 200) {
             localStorage.setItem(ACCESS_TOKEN, res.data.access);
-            localStorage.setItem(RFRESH_TOKEN, res.data.refresh);
+            localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
             return res.data.access;
         }
 
