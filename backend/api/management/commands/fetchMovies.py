@@ -17,7 +17,7 @@ logger = logging.getLogger("movies")
 
 class Command(BaseCommand):
     help = 'Fetches and populates movie data from TMDB IDs'
-    DOWNLOAD_PATH = "/var/www/media/downloads"
+    DOWNLOAD_PATH = "/media/downloads"
 
     def handle(self, *args, **kwargs):
         self.tmdb = TMDB()
