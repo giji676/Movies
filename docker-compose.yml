@@ -11,7 +11,7 @@ services:
         volumes:
             - static_volume:/app/backend/movie/static/
             - ./docker/nginx/development:/etc/nginx/conf.d
-            - /var/www/media/downloads:/var/www/media/downloads
+            - /media/downloads:/media/downloads
         depends_on: 
             - backend
 
@@ -25,7 +25,7 @@ services:
             - ./backend/.env.production
         volumes:
             - static_volume:/app/backend/movie/static/
-            - /var/www/media/downloads:/var/www/media/downloads
+            - /media/downloads:/media/downloads
         expose:
             - 8000        
         depends_on:
