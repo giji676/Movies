@@ -16,9 +16,11 @@ A **modern movie streaming platform** built with **React**, **Django REST Framew
   - Movie metadata (posters, backdrops) is fetched from TMDb and stored on the local server.  
   - Movies are downloaded to a local server, converted to **HLS format** using ffmpeg, and streamed.
 
-- **Watchlist Management**  
+- **Watch Later and Watch History**  
   - Add movies to a "Watch Later" playlist.  
-  - Delete movies from your playlist.  
+  - Delete movies from your playlist.
+  - If you have started watching a movie, progress will be tracked,
+    and pick up from where you left of next time you watch it.
 
 - **Electron-ready**  
   - Can be packaged as a desktop app for cross-platform usage.
@@ -27,8 +29,8 @@ A **modern movie streaming platform** built with **React**, **Django REST Framew
 
 ## 🏗 Backend Architecture
 
-- **Django REST Framework** handles all API endpoints.  
-- **PostgreSQL** stores user data, playlists, and movie metadata.  
+- **Django REST Framework:** Handles all API endpoints.  
+- **PostgreSQL:** Stores user data, playlists, and movie metadata.  
 - **Movies:** Downloaded torrents are saved locally.  
 - **Media Conversion:** Movies are converted to **HLS** for streaming.  
 - **Images:** Posters, backdrops, and other media assets are cached locally from TMDb.  
@@ -44,15 +46,17 @@ A **modern movie streaming platform** built with **React**, **Django REST Framew
   - The backend automatically downloads, processes, and converts the movie to HLS format.  
   - Once the movie is ready for streaming, the user receives a notification via email.  
   - This allows users to access new content even with limited server storage.
+- **Subscription Model** - Monthly subscription for premium features.
+- **Email Verification** - On register, email user to confirm email.
 
 ---
 
 ## 🛠 Tech Stack
 
-- **Frontend:** React, React Router, Axios, HLS.js  
+- **Frontend:** React, HLS.js, Electron  
 - **Backend:** Django, Django REST Framework, PostgreSQL  
 - **Authentication:** JWT (JSON Web Tokens)  
-- **Other:** CORS headers, environment variable support, Electron compatibility  
+- **Other:** Docker, nginx
 
 ---
 
