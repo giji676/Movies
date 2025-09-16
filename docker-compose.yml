@@ -10,11 +10,10 @@ services:
             - 80:80
             - 443:443
         volumes:
-            - ./docker/nginx/development:/etc/nginx/conf.d
-            - ./docker/nginx/html:/var/www/html
             - static_volume:/app/backend/movie/static/
+            - ./docker/nginx/development:/etc/nginx/conf.d
             - /media/downloads:/media/downloads
-            - certs:/etc/letsencrypt
+            - /etc/letsencrypt:/etc/letsencrypt:ro
         depends_on: 
             - backend
 
@@ -44,16 +43,6 @@ services:
         env_file:
             - ./backend/.env.production
 
-    certbot:
-        image: certbot/certbot
-        container_name: certbot
-        volumes:
-            - certs:/etc/letsencrypt
-            - ./docker/nginx/html:/var/www/html
-        entrypoint: /bin/sh -c
-        command: "trap exit TERM; while :; do sleep 12h & wait $${!}; certbot renew --webroot -w /var/www/html; done"
-
 volumes:
     static_volume: {}
     postgres_data: {}
-    certs: {}
