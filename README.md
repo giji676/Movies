@@ -6,6 +6,13 @@ A **modern movie streaming platform** built with **React**, **Django REST Framew
 
 ---
 
+**DEMO Website:** https://www.tstreams.co.uk
+  - Can't actually stream movies due to limited storage.
+  - Filter will be added to show movies which have clips available to stream.
+  - It will be just for demonstration of streaming and progress tracking capabilities.
+
+---
+
 ## 🚀 Features
 
 - **User Authentication**  
