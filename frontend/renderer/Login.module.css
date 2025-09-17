@@ -88,11 +88,7 @@ h1 {
     text-decoration: underline;
 }
 
-@media only screen 
-  and (min-device-width: 375px) 
-  and (max-device-width: 812px) 
-  and (-webkit-min-device-pixel-ratio: 3)
-  and (orientation: portrait) { 
+@media only screen and (max-device-width: 430px) {
 
     .container {
         width: 90%;
