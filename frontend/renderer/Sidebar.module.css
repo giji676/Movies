@@ -43,45 +43,27 @@
     color: var(--sidebar-icon-active);
 }
 
-/* Highlight active link */
 .button.active {
     background-color: var(--sidebar-active);
     color: var(--sidebar-icon-active);
 }
 
-@media only screen and (max-device-width: 430px) {
-
+@media only screen and (max-width: 430px) {
     .sidebar {
-        width: 100%;
-        height: 10%;
-        padding: 0.5rem 0;
         flex-direction: row;
         justify-content: space-around;
-        align-items: center;
-        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        height: 10%;
         position: fixed;
         bottom: 0;
         left: 0;
+        padding: 0;
+        z-index: 10;
         background-color: rgb(var(--oxford-blue));
-        z-index: 1000;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3);
     }
 
     .logo {
         display: none;
-    }
-
-    .button {
-        width: 100%;
-        height: 100%;
-        aspect-ratio: 1 / 1;
-        align-items: center;
-        justify-content: center;
-        border-radius: 1.5rem;
-        transition: background-color 0.2s, color 0.2s;
-    }
-
-    .button * {
-        width: 30%;
-        height: 30%;
     }
 }

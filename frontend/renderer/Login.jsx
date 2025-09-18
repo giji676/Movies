@@ -34,34 +34,36 @@ function Login({ onLoginSuccess }) {
     };
 
     return (
-        <div className={styles.container}>
-            <h1>Login</h1>
-            {error && <div className={styles.error}>{error}</div>}
-            <form className={styles.form} onSubmit={handleSubmit}>
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    className={styles.input}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    className={styles.input}
-                    required
-                />
-                <button type="submit" className={styles.button} disabled={loading}>
-                    Login
-                </button>
-            </form>
-            <p className={styles.text}>Don't have an account?</p>
-            <p className={styles.link} onClick={() => navigate("/register")}>
-                Register here
-            </p>
+        <div className={styles.body}>
+            <div className={styles.container}>
+                <h1>Login</h1>
+                {error && <div className={styles.error}>{error}</div>}
+                <form className={styles.form} onSubmit={handleSubmit}>
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        className={styles.input}
+                        required
+                    />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        className={styles.input}
+                        required
+                    />
+                    <button type="submit" className={styles.button} disabled={loading}>
+                        Login
+                    </button>
+                </form>
+                <p className={styles.text}>Don't have an account?</p>
+                <p className={styles.link} onClick={() => navigate("/register")}>
+                    Register here
+                </p>
+            </div>
         </div>
     );
 }

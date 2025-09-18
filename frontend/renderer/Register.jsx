@@ -42,42 +42,44 @@ function Register() {
     };
 
     return (
-        <div className={styles.container}>
-            <h1>Register</h1>
-            {error && <div className={styles.error}>{error}</div>}
-            {message && <div className={styles.message}>{message}</div>}
-            <form className={styles.form} onSubmit={handleSubmit}>
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={styles.input}
-                    required
-                />
-                <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className={styles.input}
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className={styles.input}
-                    required
-                />
-                <button type="submit" className={styles.button} disabled={loading}>
-                    {loading ? "Registering..." : "Register"}
-                </button>
-            </form>
-            <p className={styles.text}>Already have an account?</p>
-            <p className={styles.link} onClick={() => navigate("/login")}>
-                Login here
-            </p>
+        <div className={styles.body}>
+            <div className={styles.container}>
+                <h1>Register</h1>
+                {error && <div className={styles.error}>{error}</div>}
+                {message && <div className={styles.message}>{message}</div>}
+                <form className={styles.form} onSubmit={handleSubmit}>
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className={styles.input}
+                        required
+                    />
+                    <input
+                        type="text"
+                        placeholder="Username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className={styles.input}
+                    />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className={styles.input}
+                        required
+                    />
+                    <button type="submit" className={styles.button} disabled={loading}>
+                        {loading ? "Registering..." : "Register"}
+                    </button>
+                </form>
+                <p className={styles.text}>Already have an account?</p>
+                <p className={styles.link} onClick={() => navigate("/login")}>
+                    Login here
+                </p>
+            </div>
         </div>
     );
 }
