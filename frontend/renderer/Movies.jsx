@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import MovieCard from "./components/MovieCard";
+import ProtectedRoute from './components/ProtectedRoute';
 import style from "./Movies.module.css";
 import api from "../main/api";
 
@@ -24,8 +25,7 @@ function Movies({ moviesList }) {
 
             if (data.movies.length < BATCH_SIZE) {
                 setHasMore(false);
-            } else {
-                setOffset(prev => prev + BATCH_SIZE);
+            } else { setOffset(prev => prev + BATCH_SIZE);
             }
         } catch (err) {
             console.error("Failed to fetch movies batch", err);
@@ -85,17 +85,19 @@ function Movies({ moviesList }) {
     }, [loader.current, hasMore, isFetching]);
 
     return (
-        <div className={style.movie_grid}>
-            {movies.map((movie, index) => (
-                <MovieCard 
-                    key={index} 
-                    movie={movie} 
-                    playlist={watchLaterPlaylist} 
-                    onPlaylistUpdate={onPlaylistUpdate}
-                />
-            ))}
-            {hasMore && <div ref={loader} style={{ height: "20px" }} />}
-        </div>
+        <ProtectedRoute>
+            <div className={style.movie_grid}>
+                {movies.map((movie, index) => (
+                    <MovieCard 
+                        key={index} 
+                        movie={movie} 
+                        playlist={watchLaterPlaylist} 
+                        onPlaylistUpdate={onPlaylistUpdate}
+                    />
+                ))}
+                {hasMore && <div ref={loader} style={{ height: "20px" }} />}
+            </div>
+        </ProtectedRoute>
     );
 }
 

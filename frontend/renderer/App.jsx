@@ -1,10 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import Search from './Search';
 import Movie from './Movie';
 import Movies from './Movies';
 import Player from './Player';
-import UserMenu from './components/UserMenu';
 import Login from './Login';
 import Register from './Register';
 import Sidebar from './Sidebar';
@@ -12,6 +10,7 @@ import NotFound from './NotFound';
 import WatchLater from './WatchLater';
 import WatchHistory from './WatchHistory';
 import ProtectedRoute from './components/ProtectedRoute';
+import TopBar from './components/TopBar';
 import Settings from './Settings';
 import styles from './App.module.css';
 import './colors.css';
@@ -25,7 +24,6 @@ function Logout() {
 function App() {
     const [moviesList, setMoviesList] = useState(null);
     const [user, setUser] = useState(null);
-    const [showSearchInput, setShowSearchInput] = useState(false);
 
     const setMovieListData = (movies) => {
         setMoviesList(movies);
@@ -63,40 +61,22 @@ function App() {
         <Router>
             <div>
                 <Routes>
-                    <Route 
-                        path="/" 
-                        element={
-                            <ProtectedRoute>
-                                <div className={styles.body}>
-                                    <Sidebar resetMovieListData={resetMovieListData} />
-                                    <div className={styles.mainContent}>
-                                        <div className={styles.topBar}>
-                                            {(!showSearchInput || window.innerWidth > 430) && (
-                                                <div className={styles.logo}>Movies</div>
-                                            )}
-                                            <div className={styles.searchWrapper}>
-                                                <Search 
-                                                    onResults={setMovieListData}
-                                                    resetMovieListData={resetMovieListData}
-                                                    showSearchInput={showSearchInput}
-                                                    setShowSearchInput={setShowSearchInput}
-                                                />
-                                            </div>
-                                            {(!showSearchInput || window.innerWidth > 430) && (
-                                                <div className={styles.userWrapper}>
-                                                    <UserMenu user={user} onLogout={handleLogout} />
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <Movies 
-                                            moviesList={moviesList} 
-                                        />
-                                    </div>
-                                </div>
-                            </ProtectedRoute>
-                        } 
-                    />
+                    <Route path="/" element={
+                        <div className={styles.body}>
+                            <Sidebar resetMovieListData={resetMovieListData} />
+                            <div className={styles.mainContent}>
+                                <TopBar 
+                                    setMovieListData={setMovieListData}
+                                    resetMovieListData={resetMovieListData }
+                                    handleLogout={handleLogout }
+                                    user={user}
+                                />
+                                <Movies 
+                                    moviesList={moviesList} 
+                                />
+                            </div>
+                        </div>
+                    } />
 
                     <Route path="/login" element={
                         <div className={styles.body}>
@@ -123,6 +103,12 @@ function App() {
                         <div className={styles.body}>
                             <Sidebar resetMovieListData={resetMovieListData} />
                             <div className={styles.mainContent}>
+                                <TopBar 
+                                    setMovieListData={setMovieListData}
+                                    resetMovieListData={resetMovieListData }
+                                    handleLogout={handleLogout }
+                                    user={user}
+                                />
                                 <Settings user={user} />
                             </div>
                         </div>
@@ -131,6 +117,12 @@ function App() {
                         <div className={styles.body}>
                             <Sidebar resetMovieListData={resetMovieListData} />
                             <div className={styles.mainContent}>
+                                <TopBar 
+                                    setMovieListData={setMovieListData}
+                                    resetMovieListData={resetMovieListData }
+                                    handleLogout={handleLogout }
+                                    user={user}
+                                />
                                 <WatchLater resetMovieListData={resetMovieListData} />
                             </div>
                         </div>
@@ -139,6 +131,12 @@ function App() {
                         <div className={styles.body}>
                             <Sidebar resetMovieListData={resetMovieListData} />
                             <div className={styles.mainContent}>
+                                <TopBar 
+                                    setMovieListData={setMovieListData}
+                                    resetMovieListData={resetMovieListData }
+                                    handleLogout={handleLogout }
+                                    user={user}
+                                />
                                 <WatchHistory resetMovieListData={resetMovieListData} />
                             </div>
                         </div>
