@@ -105,12 +105,6 @@ function App() {
                         <div className={styles.body}>
                             <Sidebar resetMovieListData={resetMovieListData} />
                             <div className={styles.mainContent}>
-                                <TopBar 
-                                    setMovieListData={setMovieListData}
-                                    resetMovieListData={resetMovieListData }
-                                    handleLogout={handleLogout }
-                                    user={user}
-                                />
                                 <Settings user={user} />
                             </div>
                         </div>
