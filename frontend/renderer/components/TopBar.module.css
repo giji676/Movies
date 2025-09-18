@@ -7,16 +7,12 @@
     top: 0;
     z-index: 10;
     background-color: rgb(var(--oxford-blue));
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .logo {
     font-size: 1.5rem;
     font-weight: bold;
     color: #e6effc;
-}
-
-@media only screen and (max-width: 850px) {
 }
 
 @media only screen and (max-width: 600px) {

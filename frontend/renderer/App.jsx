@@ -71,9 +71,11 @@ function App() {
                                     handleLogout={handleLogout }
                                     user={user}
                                 />
-                                <Movies 
-                                    moviesList={moviesList} 
-                                />
+                                <div className={styles.moviesContainer}>
+                                    <Movies 
+                                        moviesList={moviesList} 
+                                    />
+                                </div>
                             </div>
                         </div>
                     } />
@@ -123,7 +125,11 @@ function App() {
                                     handleLogout={handleLogout }
                                     user={user}
                                 />
-                                <WatchLater resetMovieListData={resetMovieListData} />
+                                <div className={styles.moviesContainer}>
+                                    <WatchLater 
+                                        resetMovieListData={resetMovieListData}
+                                    />
+                                </div>
                             </div>
                         </div>
                     } />
@@ -133,11 +139,15 @@ function App() {
                             <div className={styles.mainContent}>
                                 <TopBar 
                                     setMovieListData={setMovieListData}
-                                    resetMovieListData={resetMovieListData }
-                                    handleLogout={handleLogout }
+                                    resetMovieListData={resetMovieListData}
+                                    handleLogout={handleLogout}
                                     user={user}
                                 />
-                                <WatchHistory resetMovieListData={resetMovieListData} />
+                                <div className={styles.moviesContainer}>
+                                    <WatchHistory 
+                                        resetMovieListData={resetMovieListData}
+                                    />
+                                </div>
                             </div>
                         </div>
                     } />

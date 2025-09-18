@@ -86,7 +86,7 @@ function Movies({ moviesList }) {
 
     return (
         <ProtectedRoute>
-            <div className={style.movie_grid}>
+            <div className={style.movieGrid}>
                 {movies.map((movie, index) => (
                     <MovieCard 
                         key={index} 
