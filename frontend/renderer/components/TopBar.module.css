@@ -16,7 +16,10 @@
     color: #e6effc;
 }
 
-@media only screen and (max-width: 430px) {
+@media only screen and (max-width: 850px) {
+}
+
+@media only screen and (max-width: 600px) {
     .logo {
         margin-right: auto;
     }
