@@ -25,6 +25,7 @@ function Logout() {
 function App() {
     const [moviesList, setMoviesList] = useState(null);
     const [user, setUser] = useState(null);
+    const [showSearchInput, setShowSearchInput] = useState(false);
 
     const setMovieListData = (movies) => {
         setMoviesList(movies);
@@ -70,16 +71,22 @@ function App() {
                                     <Sidebar resetMovieListData={resetMovieListData} />
                                     <div className={styles.mainContent}>
                                         <div className={styles.topBar}>
-                                            <div className={styles.logo}>Movies</div>
+                                            {(!showSearchInput || window.innerWidth > 430) && (
+                                                <div className={styles.logo}>Movies</div>
+                                            )}
                                             <div className={styles.searchWrapper}>
                                                 <Search 
                                                     onResults={setMovieListData}
                                                     resetMovieListData={resetMovieListData}
+                                                    showSearchInput={showSearchInput}
+                                                    setShowSearchInput={setShowSearchInput}
                                                 />
                                             </div>
-                                            <div className={styles.userWrapper}>
-                                                <UserMenu user={user} onLogout={handleLogout} />
-                                            </div>
+                                            {(!showSearchInput || window.innerWidth > 430) && (
+                                                <div className={styles.userWrapper}>
+                                                    <UserMenu user={user} onLogout={handleLogout} />
+                                                </div>
+                                            )}
                                         </div>
 
                                         <Movies 

@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FaSearch, FaCircleNotch  } from  "react-icons/fa";
 import styles from './Search.module.css';
 import api from "../main/api";
 
-function Search({ onResults, resetMovieListData }) {
+function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchInput }) {
     const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(false);
+    const formRef = useRef(null);
 
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -30,15 +31,43 @@ function Search({ onResults, resetMovieListData }) {
             });
     };
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                formRef.current &&
+                    !formRef.current.contains(event.target) &&
+                    window.innerWidth <= 430
+            ) {
+                setShowSearchInput(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
         <div>
-            <form onSubmit={handleSearch} className={styles.form}>
+            <form
+                ref={formRef}
+                onSubmit={(e) => {
+                    if (window.innerWidth <= 430 && !showSearchInput) {
+                        e.preventDefault(); // don't submit if just expanding
+                        setShowSearchInput(true);
+                    } else {
+                        handleSearch(e);
+                    }
+                }}
+                className={`${styles.form} ${showSearchInput ? styles.expanded : ''}`}
+            >
                 <input
                     type="text"
                     placeholder="Search movie..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className={styles.input}
+                    className={`${styles.input} ${styles.mobileOnlyToggle}`}
                 />
                 <button type="submit" className={styles.button} disabled={loading}>
                     <FaSearch className={styles.searchIcon} />

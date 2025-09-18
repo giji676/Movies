@@ -27,4 +27,12 @@
     .body {
         flex-direction: column;
     }
+
+    .logo {
+        margin-right: auto;
+    }
+
+    .searchWrapper {
+        margin-left: auto;
+    }
 }

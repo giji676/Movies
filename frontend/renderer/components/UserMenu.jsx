@@ -38,7 +38,7 @@ function UserMenu({ user }) {
                     ) : (
                         <FaRegUser />
                     )}
-                    <span>{user.username}</span>
+                    <span className={styles.username}>{user.username}</span>
                 </>
             ) : (
                     'Login'
