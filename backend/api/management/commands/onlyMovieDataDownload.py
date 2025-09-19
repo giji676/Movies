@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 ENV_FILE = os.environ.get("DJANGO_ENV_FILE", ".env.production")
 load_dotenv(ENV_FILE)
-DOWNLOAD_PATH  = os.environ.get("DJANGO_SECRET_KEY")
+DOWNLOAD_PATH  = os.environ.get("DOWNLOAD_PATH", "/media/downloads")
 
 logger = logging.getLogger("movies")
 
@@ -58,6 +58,7 @@ class Command(BaseCommand):
 
                 if Movie.objects.filter(tmdb_id=tmdb_id).exists() and not force:
                     logger.info(f"Already exists, skipping")
+                    count += 1
                     continue
 
                 movie_path = os.path.join(DOWNLOAD_PATH, str(movie["id"]))
