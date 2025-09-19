@@ -2,10 +2,17 @@ import os
 import shutil
 
 # Path to your downloads folder
-DOWNLOADS_DIR = "/var/www/media/downloads"
+from dotenv import load_dotenv
 
-for entry in os.listdir(DOWNLOADS_DIR):
-    id_path = os.path.join(DOWNLOADS_DIR, entry)
+ENV_FILE = os.environ.get("DJANGO_ENV_FILE", ".env.production")
+load_dotenv(ENV_FILE)
+DOWNLOAD_PATH  = os.environ.get("DJANGO_SECRET_KEY")
+if not DOWNLOAD_PATH:
+    print("no download path")
+    exit()
+
+for entry in os.listdir(DOWNLOAD_PATH):
+    id_path = os.path.join(DOWNLOAD_PATH, entry)
     if not os.path.isdir(id_path):
         continue  # skip non-folder files
 

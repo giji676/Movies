@@ -10,14 +10,16 @@ from django.core.management.base import BaseCommand
 from api.models import Movie
 from api.movieSearch import MovieSearch, TMDB
 from utils.convertToHLS import ConvertToHLS
+from dotenv import load_dotenv
+
+ENV_FILE = os.environ.get("DJANGO_ENV_FILE", ".env.production")
+load_dotenv(ENV_FILE)
+DOWNLOAD_PATH  = os.environ.get("DJANGO_SECRET_KEY")
 
 logger = logging.getLogger("movies")
 
-""" TODO: set duration after download automatically """
-
 class Command(BaseCommand):
     help = 'Fetches and populates movie data from TMDB IDs'
-    DOWNLOAD_PATH = "/media/downloads"
 
     def handle(self, *args, **kwargs):
         self.tmdb = TMDB()
@@ -34,7 +36,7 @@ class Command(BaseCommand):
                 if not tpb_data:
                     logger.info("No TPB results found for %s", movie["title"])
                     continue
-                movie_path = os.path.join(self.DOWNLOAD_PATH, str(movie["id"]))
+                movie_path = os.path.join(DOWNLOAD_PATH, str(movie["id"]))
                 movie_obj, created = Movie.objects.update_or_create(
                     tmdb_id=tmdb_id,
                     defaults={
@@ -141,7 +143,7 @@ class Command(BaseCommand):
                 return None
 
             magnet_link = m_search.getMagnetLink(movie_match)
-            movie_path = os.path.join(self.DOWNLOAD_PATH, str(tmdb_json["id"]))
+            movie_path = os.path.join(DOWNLOAD_PATH, str(tmdb_json["id"]))
             os.makedirs(movie_path, exist_ok=True)
 
             movie_path = os.path.join(movie_path, "torrent")
