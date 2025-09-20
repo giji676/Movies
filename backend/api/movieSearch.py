@@ -134,13 +134,16 @@ class TMDB:
     def buildImageURL(self, movie_id, type="poster"):
         movie = self.getMovieByTMDBID(movie_id)
         image_path = ""
+        # poser_sizes go from smallest -> biggest. Last one (-1) index is the original size (very big)
+        # -2 index is biggest, thats not the original size (much smaller, around 780px)
+        poster_size_index = -2
         if type == "poster":
-            size = self.config["images"]["poster_sizes"][-1]  # largest poster size
+            size = self.config["images"]["poster_sizes"][poster_size_index]
             image_path = movie["poster_path"]
         elif type == "backdrop":
-            size = self.config["images"]["backdrop_sizes"][-1]  # largest backdrop size
+            size = self.config["images"]["backdrop_sizes"][poster_size_index]
             image_path = movie["backdrop_path"]
         else:
-            size = self.config["images"]["poster_sizes"][-1]  # largest poster size
+            size = self.config["images"]["poster_sizes"][poster_size_index]
             image_path = movie["poster_path"]
         return f"{self.config["images"]["secure_base_url"]}{size}{image_path}"
