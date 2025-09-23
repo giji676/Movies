@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
 import styles from './Movie.module.css';
 import ProtectedRoute from './components/ProtectedRoute';
+import { FaBookmark, FaRegBookmark, FaEllipsisV, FaPlus, FaPlay, FaMinus, FaInfo } from "react-icons/fa";
 
 function Movie() {
     const location = useLocation();
@@ -26,7 +27,7 @@ function Movie() {
 
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth < 430);
+            setIsMobile(window.innerWidth <= 430);
         };
 
         window.addEventListener("resize", handleResize);
@@ -51,8 +52,26 @@ function Movie() {
                     )}
 
                 <div className={styles.content}>
-                    <h1>{title}</h1>
-                    <p>{release_date}</p>
+                    <div className={styles.overviewSide}>
+                        <h1>{title}</h1>
+                        <p>{release_date}</p>
+                        <p>{overview}</p>
+                    </div>
+                    <div className={styles.posterSide}>
+                        <div className={styles.posterSideContent}>
+                            <img className={styles.poster} src={posterUrl} alt="Poster" />
+                        </div>
+                        <div className={styles.buttonsContainer}>
+                            <div className={styles.button}>
+                                <FaRegBookmark />
+                                Watch Later
+                            </div>
+                            <div className={styles.button}>
+                                <FaRegBookmark />
+                                Watch Later
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </ProtectedRoute>
