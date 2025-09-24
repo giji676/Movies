@@ -29,10 +29,11 @@ jobs:
       - name: Build & push backend image
         uses: docker/build-push-action@v5
         with:
-          context: ./docker/backend
+          context: .
           file: ./docker/backend/Dockerfile
           push: true
-          tags: ghcr.io/movies/backend:latest
+          tags: ghcr.io/giji676/movies/backend:latest
+          no-cache: true
 
       - name: Build & push nginx image
         uses: docker/build-push-action@v5
