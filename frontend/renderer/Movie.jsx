@@ -72,9 +72,13 @@ function Movie() {
                                     <p>Watch Later</p>
                                 </div>
                             </div>
-                            <div className={styles.mobilePlayButton}>
+                            <Link
+                                to="/player"
+                                state={{ movie, playlistMovie }}
+                                className={styles.mobilePlayButton}
+                            >
                                 ▶ <p>play</p>
-                            </div>
+                            </Link>
                         </>
                     )}
                     <div className={styles.overviewSide}>
@@ -84,10 +88,14 @@ function Movie() {
                     </div>
                     <div className={styles.posterSide}>
                         <div className={styles.posterSideContent}>
-                            <div className={styles.posterWrapper}>
+                            <Link
+                                to="/player"
+                                state={{ movie, playlistMovie }}
+                                className={styles.posterWrapper}
+                            >
                                 <img className={styles.poster} src={posterUrl} alt="Poster" />
                                 <div className={styles.playButton}>▶</div>
-                            </div>
+                            </Link>
                         </div>
                         {!isMobile && (
                             <div className={styles.buttonsContainer}>
