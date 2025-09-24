@@ -52,6 +52,31 @@ function Movie() {
                     )}
 
                 <div className={styles.content}>
+                    {isMobile && (
+                        <>
+                            <div className={styles.buttonsContainer}>
+                                <div className={styles.button}>
+                                    <FaRegBookmark />
+                                    <p>Watch Later</p>
+                                </div>
+                                <div className={styles.button}>
+                                    <FaRegBookmark />
+                                    <p>Watch Later</p>
+                                </div>
+                                <div className={styles.button}>
+                                    <FaRegBookmark />
+                                    <p>Watch Later</p>
+                                </div>
+                                <div className={styles.button}>
+                                    <FaRegBookmark />
+                                    <p>Watch Later</p>
+                                </div>
+                            </div>
+                            <div className={styles.mobilePlayButton}>
+                                ▶ <p>play</p>
+                            </div>
+                        </>
+                    )}
                     <div className={styles.overviewSide}>
                         <h1>{title}</h1>
                         <p>{release_date}</p>
@@ -59,18 +84,23 @@ function Movie() {
                     </div>
                     <div className={styles.posterSide}>
                         <div className={styles.posterSideContent}>
-                            <img className={styles.poster} src={posterUrl} alt="Poster" />
-                        </div>
-                        <div className={styles.buttonsContainer}>
-                            <div className={styles.button}>
-                                <FaRegBookmark />
-                                Watch Later
-                            </div>
-                            <div className={styles.button}>
-                                <FaRegBookmark />
-                                Watch Later
+                            <div className={styles.posterWrapper}>
+                                <img className={styles.poster} src={posterUrl} alt="Poster" />
+                                <div className={styles.playButton}>▶</div>
                             </div>
                         </div>
+                        {!isMobile && (
+                            <div className={styles.buttonsContainer}>
+                                <div className={styles.button}>
+                                    <FaRegBookmark />
+                                    <p>Watch Later</p>
+                                </div>
+                                <div className={styles.button}>
+                                    <FaRegBookmark />
+                                    <p>Watch Later</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

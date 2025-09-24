@@ -67,6 +67,22 @@
     gap: 1rem;
 }
 
+.mobilePlayButton {
+    background-color: white;
+    color: rgb(var(--oxford-blue));
+    border-radius: 0.5rem;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    gap: 1rem;
+}
+
+.mobilePlayButton p {
+    color: rgb(var(--oxford-blue));
+}
+
 .overviewSide {
     flex: 1;
 }
@@ -90,6 +106,13 @@
     min-height: 0;
 }
 
+.posterWrapper {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    cursor: pointer;
+}
+
 .poster {
     max-width: 100%;
     max-height: 100%;
@@ -98,15 +121,42 @@
     object-fit: contain;
     border-radius: 1rem;
     display: block;
+    transition: filter 0.3s ease;
+}
+
+.posterWrapper:hover .poster {
+    filter: brightness(60%);
+}
+
+.playButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.posterWrapper:hover .playButton {
+    opacity: 1;
 }
 
 .buttonsContainer {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     justify-content: flex-end;
     gap: 0.5rem;
     margin-top: 1rem;
+    scrollbar-width: none;
+}
+
+.buttonsContainer::-webkit-scrollbar {
+    display: none;
 }
 
 .button  {
@@ -121,6 +171,12 @@
 
 .button * {
     margin: 0.3rem;
+}
+
+@media only screen and (max-width: 720px) {
+    .button p {
+        display: none
+    }
 }
 
 @media only screen and (max-width: 430px) {
@@ -144,6 +200,16 @@
     }
 
     .poster {
+        display: none;
+    }
+
+    .buttonsContainer {
+        justify-content: center;
+    }
+}
+
+@media only screen and (max-width: 175px) {
+    .mobilePlayButton p {
         display: none;
     }
 }
