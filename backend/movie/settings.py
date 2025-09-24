@@ -14,7 +14,11 @@ import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
-ENV_FILE = os.environ.get("DJANGO_ENV_FILE", ".env.production")
+
+if os.environ.get("ENV") == "test":
+    ENV_FILE = dotenv_path=os.path.join(Path(__file__).resolve().parent.parent, ".env.test")
+else:
+    ENV_FILE = os.environ.get("DJANGO_ENV_FILE", ".env.production")
 load_dotenv(ENV_FILE)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
