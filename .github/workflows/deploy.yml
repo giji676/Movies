@@ -38,10 +38,10 @@ jobs:
       - name: Build & push nginx image
         uses: docker/build-push-action@v5
         with:
-          context: ./docker/nginx
+          context: .
           file: ./docker/nginx/Dockerfile
           push: true
-          tags: ghcr.io/movies/nginx:latest
+          tags: ghcr.io/giji676/movies/nginx:latest
 
       - name: SSH and deploy on VPS
         uses: appleboy/ssh-action@v1.0.0
@@ -50,7 +50,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /path/to/project
+            cd /root/movies
             docker-compose pull
             docker-compose up -d
             docker-compose exec backend python manage.py migrate
