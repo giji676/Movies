@@ -2,7 +2,7 @@ import axios from "axios";
 import { REFRESH_TOKEN, ACCESS_TOKEN } from "./constants";
 import { jwtDecode } from "jwt-decode";
 
-const rawAxios = axios.create({
+export const rawAxios = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
 });
 

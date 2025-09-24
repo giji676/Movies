@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import api from "../../main/api";
+import { rawAxios } from "../../main/auth";
 import { REFRESH_TOKEN, ACCESS_TOKEN } from "../../main/constants";
 import { useState, useEffect } from "react";
 
@@ -14,7 +14,7 @@ function ProtectedRoute({children}) {
     const refreshToken = async () => {
         const refreshToken = localStorage.getItem(REFRESH_TOKEN);
         try {
-            const res = await api.post("/user/token/refresh/", {
+            const res = await rawAxios.post("/user/token/refresh/", {
                 refresh: refreshToken
             });
             if (res.status === 200) {
@@ -25,7 +25,7 @@ function ProtectedRoute({children}) {
             }
         } catch (error) {
             setIsAuthorised(false);
-            console.log(error);
+            console.error("Token refresh failed:", error);
         }
     }
 
