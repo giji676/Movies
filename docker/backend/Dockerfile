@@ -3,16 +3,20 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
+# Install system dependencies
+COPY backend/requirements.txt ./backend/
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+
+# Copy only requirements first
 COPY backend/requirements.txt ./backend/
 
-RUN apt-get update && \
-    apt-get install -y ffmpeg
+RUN pip install --upgrade pip && pip install gunicorn && pip install -r backend/requirements.txt
 
+# Copy the rest of the code
 COPY backend/ ./backend/
 COPY docker/ ./docker/
 
-RUN pip install --upgrade pip
-RUN pip install gunicorn
-RUN pip install -r backend/requirements.txt
-
 WORKDIR /app/backend
+
+# Use entrypoint for migrations & gunicorn
+ENTRYPOINT ["sh", "/app/docker/backend/wsgi-entrypoint.sh"]

@@ -1,48 +1,43 @@
-version: '2'
+version: '3.8'
 
 services:
-    nginx: 
-        restart: unless-stopped
-        build:
-            context: .
-            dockerfile: ./docker/nginx/Dockerfile
-        ports:
-            - 80:80
-            - 443:443
-        volumes:
-            - static_volume:/app/backend/movie/static/
-            - ./docker/nginx/development:/etc/nginx/conf.d
-            - /media/downloads:/media/downloads
-            - /etc/letsencrypt:/etc/letsencrypt:ro
-        depends_on: 
-            - backend
+  nginx:
+    image: ghcr.io/giji676/movies/nginx:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static_volume:/app/backend/movie/static/
+      - ./docker/nginx/development:/etc/nginx/conf.d
+      - /media/downloads:/media/downloads
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - backend
 
-    backend:
-        restart: unless-stopped
-        build:
-            context: .
-            dockerfile: ./docker/backend/Dockerfile
-        entrypoint: /app/docker/backend/wsgi-entrypoint.sh
-        env_file:
-            - ./backend/.env.production
-        volumes:
-            - static_volume:/app/backend/movie/static/
-            - /media/downloads:/media/downloads
-        expose:
-            - 8000        
-        depends_on:
-            - db
+  backend:
+    image: ghcr.io/giji676/movies/backend:latest
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.production
+    volumes:
+      - static_volume:/app/backend/movie/static/
+      - /media/downloads:/media/downloads
+    expose:
+      - 8000
+    depends_on:
+      - db
 
-    db:
-        image: postgres:15
-        ports:
-            - "5432:5432"
-        volumes:
-            - postgres_data:/var/lib/postgresql/data
-            - ./docker/postgres:/docker-entrypoint-initdb.d
-        env_file:
-            - ./backend/.env.production
+  db:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres:/docker-entrypoint-initdb.d
+    env_file:
+      - ./backend/.env.production
 
 volumes:
-    static_volume: {}
-    postgres_data: {}
+  static_volume: {}
+  postgres_data: {}

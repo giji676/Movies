@@ -1,16 +1,15 @@
-# The first stage
-# Build React static files
+# Stage 1: Build React static files
 FROM node:20-alpine AS build
 
 WORKDIR /app/frontend
-COPY ./frontend/package.json ./
-COPY ./frontend/package-lock.json ./
+COPY ./frontend/package.json ./frontend/package-lock.json ./
 RUN npm install --silent
 COPY ./frontend/ ./
 RUN npm run build
 
-# The second stage
-# Copy React static files and start nginx
+# Stage 2: Serve with nginx
 FROM nginx:stable-alpine
 COPY --from=build /app/frontend/dist /usr/share/nginx/html
+COPY ./docker/nginx/development /etc/nginx/conf.d
+EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
