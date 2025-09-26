@@ -19,7 +19,7 @@ function Register() {
         setMessage("");
 
         try {
-            const res = await api.post("/user/register/", { email, username, password });
+            await api.register(email, username, password);
             setMessage("Registered successfully! Redirecting to login...");
             navigate("/login");
         } catch (err) {

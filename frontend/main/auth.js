@@ -3,9 +3,27 @@ import { REFRESH_TOKEN, ACCESS_TOKEN } from "./constants";
 import { jwtDecode } from "jwt-decode";
 import { toast } from 'react-toastify';
 
-export const rawAxios = axios.create({
+export const authAxios = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
 });
+
+export async function register(email, username, password) {
+    try {
+        await authAxios.post("/user/register/", { email, username, password });
+    } catch {
+        throw new Error("Login failed");
+    }
+}
+
+export async function login(email, password) {
+    try {
+        const res = await authAxios.post("/user/token/", { email, password });
+        localStorage.setItem(ACCESS_TOKEN, res.data.access);
+        localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+    } catch {
+        throw new Error("Login failed");
+    }
+}
 
 export async function checkAuth() {
     const accessToken = localStorage.getItem(ACCESS_TOKEN);
@@ -43,7 +61,7 @@ async function refreshAccessToken() {
     if (!refreshToken) return null;
 
     try {
-        const res = await rawAxios.post("/user/token/refresh/", {
+        const res = await authAxios.post("/user/token/refresh/", {
             refresh: refreshToken
         });
 

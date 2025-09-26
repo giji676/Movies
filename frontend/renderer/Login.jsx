@@ -17,9 +17,7 @@ function Login({ onLoginSuccess }) {
         setError("");
 
         try {
-            const res = await api.post("/user/token/", { email, password });
-            localStorage.setItem(ACCESS_TOKEN, res.data.access);
-            localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+            await api.login(email, password);
             if (onLoginSuccess) onLoginSuccess();
             navigate("/");
         } catch (err) {
