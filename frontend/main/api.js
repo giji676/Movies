@@ -1,5 +1,4 @@
 import axios from "axios";
-import { ACCESS_TOKEN } from "./constants";
 import * as auth from "./auth";
 
 const api = axios.create({
@@ -18,7 +17,7 @@ api.interceptors.request.use(
     (error) => {
         return Promise.reject(error);
     }
-);
+)
 
 api.login = async (email, password) => {
     return await auth.login(email, password);

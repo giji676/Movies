@@ -12,6 +12,7 @@ import NotFound from './NotFound';
 import WatchLater from './WatchLater';
 import WatchHistory from './WatchHistory';
 import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './components/AuthContext';
 import TopBar from './components/TopBar';
 import Settings from './Settings';
 import styles from './App.module.css';
@@ -19,13 +20,12 @@ import './colors.css';
 import api from "../main/api";
 
 function Logout() {
-    localStorage.clear();
+    logout();
     return <Navigate to="/login" />;
 }
 
 function App() {
     const [moviesList, setMoviesList] = useState(null);
-    const [user, setUser] = useState(null);
 
     const setMovieListData = (movies) => {
         setMoviesList(movies);
@@ -36,128 +36,107 @@ function App() {
     };
 
     const handleLogout = () => {
-        localStorage.clear();
-        setUser(null);
+        logout();
     };
-
-    const getUser = () => {
-        api
-            .get("/user/profile/")
-            .then((res) => {
-                setUser(res.data);
-            })
-            .catch((err) => {
-                if (err.response && err.response.status !== 200) {
-                    setUser(null);
-                } else {
-                    toast.error("Failed to get user profile");
-                }
-            });
-    };
-
-    useEffect(() => {
-        getUser();
-    }, []);
 
     return (
         <Router>
-            <div>
-                <Routes>
-                    <Route path="/" element={
-                        <div className={styles.body}>
-                            <Sidebar resetMovieListData={resetMovieListData} />
-                            <div className={styles.mainContent}>
-                                <TopBar 
-                                    setMovieListData={setMovieListData}
-                                    resetMovieListData={resetMovieListData }
-                                    handleLogout={handleLogout }
-                                    user={user}
-                                />
-                                <div className={styles.moviesContainer}>
-                                    <Movies 
-                                        moviesList={moviesList} 
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    } />
-
-                    <Route path="/login" element={
-                        <div className={styles.body}>
-                            <Sidebar resetMovieListData={resetMovieListData} />
-                            <div className={styles.mainContent}>
-                                <Login onLoginSuccess={getUser} />
-                            </div>
-                        </div>
-                    } />
-
-                    <Route path="/register" element={
-                        <div className={styles.body}>
-                            <Sidebar resetMovieListData={resetMovieListData} />
-                            <div className={styles.mainContent}>
-                                <Register />
-                            </div>
-                        </div>
-                    } />
-
-                    <Route path="/logout" element={<Logout />} />
-                    <Route path="/movie" element={<Movie />} />
-                    <Route path="/player" element={<Player />} />
-                    <Route path="/settings" element={
-                        <div className={styles.body}>
-                            <Sidebar resetMovieListData={resetMovieListData} />
-                            <div className={styles.mainContent}>
-                                <Settings user={user} />
-                            </div>
-                        </div>
-                    } />
-                    <Route path="/watch-later" element={
-                        <div className={styles.body}>
-                            <Sidebar resetMovieListData={resetMovieListData} />
-                            <div className={styles.mainContent}>
-                                <TopBar 
-                                    setMovieListData={setMovieListData}
-                                    resetMovieListData={resetMovieListData }
-                                    handleLogout={handleLogout }
-                                    user={user}
-                                />
-                                <div className={styles.moviesContainer}>
-                                    <WatchLater 
+            <AuthProvider>
+                <div>
+                    <Routes>
+                        <Route path="/" element={
+                            <div className={styles.body}>
+                                <Sidebar resetMovieListData={resetMovieListData} />
+                                <div className={styles.mainContent}>
+                                    <TopBar 
+                                        setMovieListData={setMovieListData}
                                         resetMovieListData={resetMovieListData}
+                                        handleLogout={handleLogout}
                                     />
+                                    <div className={styles.moviesContainer}>
+                                        <Movies 
+                                            moviesList={moviesList} 
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    } />
-                    <Route path="/watch-history" element={
-                        <div className={styles.body}>
-                            <Sidebar resetMovieListData={resetMovieListData} />
-                            <div className={styles.mainContent}>
-                                <TopBar 
-                                    setMovieListData={setMovieListData}
-                                    resetMovieListData={resetMovieListData}
-                                    handleLogout={handleLogout}
-                                    user={user}
-                                />
-                                <div className={styles.moviesContainer}>
-                                    <WatchHistory 
+                        } />
+
+                        <Route path="/login" element={
+                            <div className={styles.body}>
+                                <Sidebar resetMovieListData={resetMovieListData} />
+                                <div className={styles.mainContent}>
+                                    <Login />
+                                </div>
+                            </div>
+                        } />
+
+                        <Route path="/register" element={
+                            <div className={styles.body}>
+                                <Sidebar resetMovieListData={resetMovieListData} />
+                                <div className={styles.mainContent}>
+                                    <Register />
+                                </div>
+                            </div>
+                        } />
+
+                        <Route path="/logout" element={<Logout />} />
+                        <Route path="/movie" element={<Movie />} />
+                        <Route path="/player" element={<Player />} />
+                        <Route path="/settings" element={
+                            <div className={styles.body}>
+                                <Sidebar resetMovieListData={resetMovieListData} />
+                                <div className={styles.mainContent}>
+                                    <Settings />
+                                </div>
+                            </div>
+                        } />
+                        <Route path="/watch-later" element={
+                            <div className={styles.body}>
+                                <Sidebar resetMovieListData={resetMovieListData} />
+                                <div className={styles.mainContent}>
+                                    <TopBar 
+                                        setMovieListData={setMovieListData}
                                         resetMovieListData={resetMovieListData}
+                                        handleLogout={handleLogout}
                                     />
+                                    <div className={styles.moviesContainer}>
+                                        <WatchLater 
+                                            resetMovieListData={resetMovieListData}
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    } />
-                    <Route path="*" element={
-                        <div className={styles.body}>
-                            <Sidebar resetMovieListData={resetMovieListData} />
-                            <div className={styles.mainContent}>
-                                <NotFound />
+                        } />
+                        <Route path="/watch-history" element={
+                            <div className={styles.body}>
+                                <Sidebar resetMovieListData={resetMovieListData} />
+                                <div className={styles.mainContent}>
+                                    <TopBar 
+                                        setMovieListData={setMovieListData}
+                                        resetMovieListData={resetMovieListData}
+                                        handleLogout={handleLogout}
+                                    />
+                                    <div className={styles.moviesContainer}>
+                                        <WatchHistory 
+                                            resetMovieListData={resetMovieListData}
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    } />
-                </Routes>
-            </div>
-            <ToastContainer /> 
+                        } />
+                        <Route path="*" element={
+                            <div className={styles.body}>
+                                <Sidebar resetMovieListData={resetMovieListData} />
+                                <div className={styles.mainContent}>
+                                    <NotFound />
+                                </div>
+                            </div>
+                        } />
+                    </Routes>
+                </div>
+                <ToastContainer /> 
+            </AuthProvider>
         </Router>
     );
 }

@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import Search from '../Search';
 import UserMenu from './UserMenu';
 import styles from './TopBar.module.css';
+import { useAuth } from './AuthContext';
 
-function TopBar({ setMovieListData, resetMovieListData, handleLogout, user }) {
+function TopBar({ setMovieListData, resetMovieListData, handleLogout }) {
     const [showSearchInput, setShowSearchInput] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 850);
+    const { user, logout } = useAuth();
 
     useEffect(() => {
         const handleResize = () => {

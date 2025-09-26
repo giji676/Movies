@@ -9,7 +9,9 @@ export const authAxios = axios.create({
 
 export async function register(email, username, password) {
     try {
-        await authAxios.post("/user/register/", { email, username, password });
+        const res = await authAxios.post("/user/register/", { email, username, password });
+        localStorage.setItem(ACCESS_TOKEN, res.data.access);
+        localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
     } catch {
         throw new Error("Login failed");
     }

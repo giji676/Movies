@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../main/constants";
 import styles from './Login.module.css';
 import api from "../main/api";
+import { useAuth } from './components/AuthContext';
 
-function Login({ onLoginSuccess }) {
+function Login() {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const { user, setUser, logout } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,9 +18,12 @@ function Login({ onLoginSuccess }) {
         setError("");
 
         try {
-            await api.login(email, password);
-            if (onLoginSuccess) onLoginSuccess();
-            navigate("/");
+            await api.login(email, password); // sets cookies / tokens
+            // fetch user info after login
+            const res = await api.get("/user/profile/");
+            setUser(res.data); // update AuthContext user state
+
+            navigate("/"); // redirect
         } catch (err) {
             if (err.response && err.response.data.detail) {
                 setError(err.response.data.detail);
