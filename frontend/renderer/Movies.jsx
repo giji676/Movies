@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { toast } from 'react-toastify';
 import MovieCard from "./components/MovieCard";
 import ProtectedRoute from './components/ProtectedRoute';
 import style from "./Movies.module.css";
@@ -28,7 +29,7 @@ function Movies({ moviesList }) {
             } else { setOffset(prev => prev + BATCH_SIZE);
             }
         } catch (err) {
-            console.error("Failed to fetch movies batch", err);
+            toast.error("Failed to fetch movies");
         } finally {
             setIsFetching(false);
         }
@@ -39,7 +40,7 @@ function Movies({ moviesList }) {
             .get("/playlist-movies/", { params: { watch_later: true } })
             .then((res) => res.data)
             .then((data) => {setWatchLaterPlaylist(data)})
-            .catch((err) => console.log("Failed to fetch watch later movies", err));
+            .catch((err) => toast.error("Failed to fetch watch later movies"));
     }
 
     const onPlaylistUpdate = (movie, action) => {

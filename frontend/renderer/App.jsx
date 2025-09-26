@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Movie from './Movie';
 import Movies from './Movies';
 import Player from './Player';
@@ -48,7 +50,7 @@ function App() {
                 if (err.response && err.response.status !== 200) {
                     setUser(null);
                 } else {
-                    console.log("Failed to get user profile:", err);
+                    toast.error("Failed to get user profile");
                 }
             });
     };
@@ -155,6 +157,7 @@ function App() {
                     } />
                 </Routes>
             </div>
+            <ToastContainer /> 
         </Router>
     );
 }

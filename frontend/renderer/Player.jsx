@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Player.module.css';
 import api from "../main/api";
 import ProtectedRoute from './components/ProtectedRoute';
+import { toast } from 'react-toastify';
 
 function Player() {
     const location = useLocation();
@@ -39,13 +40,13 @@ function Player() {
                     if (res.status === 200) {
                         setPlaylistMovie(res.data.data);
                     } else {
-                        console.log("Unexpected response:", res.status);
+                        toast.error("Unexpected response:", res.status);
                     }
                 })
                 .catch((err) => {
                     if (err.response && err.response.status === 404) {
                     } else {
-                        console.log("Failed to update playlist:", err);
+                        toast.error("Failed to update playlist:", err);
                     }
                 });
             }
@@ -60,10 +61,10 @@ function Player() {
             if (data.file_path) {
                 setVideoPath(data.file_path);
             } else {
-                console.error("No file_path returned for movie:", tmdb_id);
+                toast.error("No file_path returned for movie:", tmdb_id);
             }
         } catch (err) {
-            console.error("Failed to fetch movie path", err);
+            toast.error("Failed to fetch movie path", err);
         } finally {
             setIsLoading(false);
         }
@@ -76,7 +77,7 @@ function Player() {
         try {
             await api.patch(`/playlist/${tmdb_id}/update-progress/`, { time_stamp: currentTime });
         } catch (error) {
-            console.error("Failed to update time stamp:", error.response?.data || error.message);
+            toast.error("Failed to update time stamp:", error.response?.data || error.message);
         }
     };
 
@@ -158,7 +159,7 @@ function Player() {
     const togglePlay = () => {
         if (!videoRef.current) return;
         if (videoRef.current.paused) {
-            videoRef.current.play().catch(() => console.warn("Autoplay blocked"));
+            videoRef.current.play().catch(() => toast.warn("Autoplay blocked"));
             setIsPlaying(true);
         } else {
             videoRef.current.pause();

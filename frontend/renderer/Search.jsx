@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { FaSearch, FaCircleNotch  } from  "react-icons/fa";
+import { toast } from 'react-toastify';
 import styles from './Search.module.css';
 import api from "../main/api";
 
@@ -23,7 +24,7 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
             .then((res) => res.data)
             .then((data) => onResults(data.movies, data.tmdb_config))
             .catch((err) => {
-                console.error('Search error:', err);
+                toast.error('Search error:', err);
                 onResults([], {});
             })
             .finally(() => {

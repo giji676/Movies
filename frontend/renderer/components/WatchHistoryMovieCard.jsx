@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import styles from './WatchHistoryMovieCard.module.css';
 import { FaBookmark, FaRegBookmark, FaEllipsisV, FaPlus, FaPlay, FaMinus, FaInfo } from "react-icons/fa";
 import api from "../../main/api";
+import { toast } from 'react-toastify';
 
 function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
     /*
@@ -59,10 +60,10 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                     setIsWatchHistory(true);
                     onPlaylistUpdate(res.data.data, "add");
                 } else {
-                    console.log("Failed to add movie");
+                    toast.error("Failed to add movie");
                 }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => toast.error(err));
     };
 
     const deleteFromWatchLater = (e) => {
@@ -77,7 +78,7 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                     setIsWatchHistory(false);
                     onPlaylistUpdate(playlistMovie, "delete");
                 } else {
-                    console.log("Unexpected response:", res.status);
+                    toast.error("Unexpected response:", res.status);
                 }
             })
             .catch((err) => {
@@ -85,7 +86,7 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                     setIsWatchHistory(false);
                     onPlaylistUpdate(playlistMovie, "delete");
                 } else {
-                    console.log("Failed to update playlist:", err);
+                    toast.error("Failed to update playlist:", err);
                 }
             });
     };

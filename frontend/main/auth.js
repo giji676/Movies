@@ -1,6 +1,7 @@
 import axios from "axios";
 import { REFRESH_TOKEN, ACCESS_TOKEN } from "./constants";
 import { jwtDecode } from "jwt-decode";
+import { toast } from 'react-toastify';
 
 export const rawAxios = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
@@ -32,8 +33,8 @@ export async function checkAuth() {
     } catch (error) {
         localStorage.removeItem(ACCESS_TOKEN);
         localStorage.removeItem(REFRESH_TOKEN);
-        console.error("Auth check failed:", error);
-        throw error; // important
+        toast.error("Auth check failed");
+        throw error;
     }
 }
 
@@ -54,7 +55,7 @@ async function refreshAccessToken() {
 
         return null;
     } catch (error) {
-        console.error("Failed to refresh token:", error);
+        toast.error("Failed to refresh token");
         return null;
     }
 }

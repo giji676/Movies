@@ -1,4 +1,5 @@
 import { Navigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 import { jwtDecode } from "jwt-decode";
 import { rawAxios } from "../../main/auth";
 import { REFRESH_TOKEN, ACCESS_TOKEN } from "../../main/constants";
@@ -25,7 +26,7 @@ function ProtectedRoute({children}) {
             }
         } catch (error) {
             setIsAuthorised(false);
-            console.error("Token refresh failed:", error);
+            toast.error("Token refresh failed");
         }
     }
 

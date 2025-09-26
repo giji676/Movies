@@ -3,6 +3,7 @@ import api from "../main/api";
 import style from "./WatchLater.module.css";
 import WatchHistoryMovieCard from './components/WatchHistoryMovieCard';
 import ProtectedRoute from './components/ProtectedRoute';
+import { toast } from 'react-toastify';
 
 function WatchHistoryLater({ resetMovieListData }) {
     const [movies, setMovies] = useState([]);
@@ -12,7 +13,7 @@ function WatchHistoryLater({ resetMovieListData }) {
             .get("/playlist-movies/", { params: { watch_history: true } })
             .then((res) => res.data)
             .then((data) => {setMovies(data)})
-            .catch((err) => console.log(err));
+            .catch((err) => toast.error(err));
     };
 
     const onPlaylistUpdate = (movie, action) => {

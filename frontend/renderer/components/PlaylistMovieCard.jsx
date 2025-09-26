@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import styles from './PlaylistMovieCard.module.css';
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import api from "../../main/api";
+import { toast } from 'react-toastify';
 
 function PlaylistMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
     /*
@@ -53,10 +54,10 @@ function PlaylistMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                     setIsSaved(true);
                     onPlaylistUpdate(res.data.data, "add");
                 } else {
-                    console.log("Failed to add movie");
+                    toast.error("Failed to add movie");
                 }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => toast.error(err));
     };
 
     const deleteFromWatchLater = (e) => {
@@ -71,7 +72,7 @@ function PlaylistMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                     setIsSaved(false);
                     onPlaylistUpdate(playlistMovie, "delete");
                 } else {
-                    console.log("Unexpected response:", res.status);
+                    toast.error("Unexpected response:", res.status);
                 }
             })
             .catch((err) => {
@@ -79,7 +80,7 @@ function PlaylistMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                     setIsSaved(false);
                     onPlaylistUpdate(playlistMovie, "delete");
                 } else {
-                    console.log("Failed to update playlist:", err);
+                    toast.error("Failed to update playlist:", err);
                 }
             });
     };
