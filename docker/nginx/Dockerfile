@@ -8,6 +8,7 @@ ENV BUILD_DATE=$BUILD_DATE
 WORKDIR /app/frontend
 COPY ./frontend/package.json ./
 COPY ./frontend/package-lock.json ./
+COPY ./frontend/.env.production ./frontend/.env.production
 RUN npm install --silent
 COPY ./frontend/ ./
 RUN npm run build

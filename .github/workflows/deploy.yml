@@ -29,6 +29,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
+      - name: Create env files
+        run: |
+          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> frontend/.env.production
+          echo "VITE_MEDIA_DOWNLOADS=${{ secrets.VITE_MEDIA_DOWNLOADS }}" >> frontend/.env.production
+          cat frontend/.env.production
+
       - name: Run Django tests in Docker
         run: |
           docker build -t test-backend -f ./docker/backend/Dockerfile .
@@ -69,6 +75,20 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /root/movies
+            echo IMAGE_TAG=${{ github.sha }} > .env
+            cat .env
+            docker login ghcr.io -u giji676 -p ${{ secrets.GHCR_PAT }}
+            
+            # Stop containers first
+            docker-compose down
+            
+            # Remove old images to force fresh pull
+            docker rmi ghcr.io/giji676/movies/backend:latest || true
+            docker rmi ghcr.io/giji676/movies/nginx:latest || true
+            
+            # Pull latest images
             docker-compose pull
+            
+            # Start with fresh containers
             docker-compose up -d --force-recreate --remove-orphans
             docker-compose exec backend python manage.py migrate
