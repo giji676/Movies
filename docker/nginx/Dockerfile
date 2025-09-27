@@ -2,6 +2,9 @@
 # Build React static files
 FROM node:20-alpine AS build
 
+ARG BUILD_DATE
+ENV BUILD_DATE=$BUILD_DATE
+
 WORKDIR /app/frontend
 COPY ./frontend/package.json ./
 COPY ./frontend/package-lock.json ./

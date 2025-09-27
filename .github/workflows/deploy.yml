@@ -45,7 +45,8 @@ jobs:
           tags: |
             ghcr.io/giji676/movies/backend:latest
             ghcr.io/giji676/movies/backend:${{ env.IMAGE_TAG }}
-
+          build-args: |
+            BUILD_DATE=${{ github.run_id }}
           no-cache: true
 
       - name: Build & push nginx image
@@ -57,6 +58,8 @@ jobs:
           tags: |
             ghcr.io/giji676/movies/nginx:latest
             ghcr.io/giji676/movies/nginx:${{ env.IMAGE_TAG }}
+          build-args: |
+            BUILD_DATE=${{ github.run_id }}
 
       - name: SSH and deploy on VPS
         uses: appleboy/ssh-action@v1.0.0
@@ -67,5 +70,5 @@ jobs:
           script: |
             cd /root/movies
             docker-compose pull
-            docker-compose up -d
+            docker-compose up -d --force-recreate --remove-orphans
             docker-compose exec backend python manage.py migrate

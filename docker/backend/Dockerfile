@@ -1,6 +1,9 @@
 # docker/backend/Dockerfile
 FROM python:3.13-slim
 
+ARG BUILD_DATE
+ENV BUILD_DATE=$BUILD_DATE
+
 WORKDIR /app
 
 # Install system dependencies
