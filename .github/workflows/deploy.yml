@@ -69,6 +69,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /root/movies
-            docker-compose pull
-            docker-compose up -d --force-recreate --remove-orphans
-            docker-compose exec backend python manage.py migrate
+            echo IMAGE_TAG=${{ github.sha }} > .env
+            docker login ghcr.io -u giji676 -p ${{ secrets.GHCR_PAT }}
+            docker-compose --env-file .env pull
+            docker-compose --env-file .env up -d --force-recreate --remove-orphans
+            docker-compose --env-file .env exec backend python manage.py migrate

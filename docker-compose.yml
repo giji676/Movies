@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   nginx:
-    image: ghcr.io/giji676/movies/nginx:latest
+    image: ghcr.io/giji676/movies/nginx:${IMAGE_TAG}
     restart: unless-stopped
     ports:
       - "80:80"
@@ -16,7 +16,7 @@ services:
       - backend
 
   backend:
-    image: ghcr.io/giji676/movies/backend:latest
+    image: ghcr.io/giji676/movies/backend:${IMAGE_TAG}
     restart: unless-stopped
     env_file:
       - ./backend/.env.production
