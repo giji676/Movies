@@ -8,22 +8,10 @@
     --placeholder-color: #89a1c1;
 }
 
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem;
-    max-width: 800px;
-    margin: 0 auto;
-    background-color: inherit;
-    color: var(--text-color);
-}
-
 .form {
     display: flex;
     width: 100%;
     max-width: 600px;
-    background-color: inherit;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -49,13 +37,16 @@
 }
 
 .button {
-    padding: 0 1.5rem;
+    padding: 0 1.25rem;
     background-color: var(--button-bg);
     color: inherit;
     font-weight: bold;
     border: none;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .button:hover {
@@ -75,9 +66,9 @@
 }
 
 .spinner {
-    font-size: 2rem; /* Adjust size here */
+    font-size: 2rem;
     animation: spin 1s linear infinite;
-    color: var(--button-bg); /* Optional: Use button color */
+    color: var(--button-bg);
 }
 
 @keyframes spin {
@@ -87,10 +78,8 @@
 }
 
 @media only screen and (max-width: 600px) {
-    .container {
-        position: absolute;
-        top: 0;
-        left: 0;
+    .form {
+        box-shadow: none;
     }
 
     .mobileOnlyToggle {
@@ -106,36 +95,11 @@
     }
 
     .button {
-        padding: 0.5rem;
-        border-radius: 9999px;
-        aspect-ratio: 1/1;
-        border: 2px solid white;
+        height: 100%;
+        padding: 0.70rem;
+        border-radius: 50%;
+        background-color: transparent;
+        font-size: 1.25rem;
     }
 }
 
-@media only screen and (max-width: 430px) {
-    .container {
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
-
-    .mobileOnlyToggle {
-        display: none;
-    }
-
-    .expanded .mobileOnlyToggle {
-        display: block;
-    }
-
-    .input {
-        display: none;
-    }
-
-    .button {
-        padding: 0.5rem;
-        border-radius: 9999px;
-        aspect-ratio: 1/1;
-        border: 2px solid white;
-    }
-}
