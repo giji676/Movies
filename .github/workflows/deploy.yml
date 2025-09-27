@@ -1,5 +1,8 @@
 name: CI/CD Pipeline
 
+env:
+  IMAGE_TAG: ${{ github.sha }}
+
 on:
   push:
     branches: [ main ]
@@ -39,7 +42,10 @@ jobs:
           context: .
           file: ./docker/backend/Dockerfile
           push: true
-          tags: ghcr.io/giji676/movies/backend:latest
+          tags: |
+            ghcr.io/giji676/movies/backend:latest
+            ghcr.io/giji676/movies/backend:${{ env.IMAGE_TAG }}
+
           no-cache: true
 
       - name: Build & push nginx image
@@ -48,7 +54,9 @@ jobs:
           context: .
           file: ./docker/nginx/Dockerfile
           push: true
-          tags: ghcr.io/giji676/movies/nginx:latest
+          tags: |
+            ghcr.io/giji676/movies/nginx:latest
+            ghcr.io/giji676/movies/nginx:${{ env.IMAGE_TAG }}
 
       - name: SSH and deploy on VPS
         uses: appleboy/ssh-action@v1.0.0
