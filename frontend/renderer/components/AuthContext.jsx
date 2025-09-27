@@ -3,15 +3,15 @@ import api from "../../main/api";
 
 const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
+function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const initAuth = async () => {
             try {
-                const res = await api.get("/user/profile/"); // protected endpoint
-                setUser(res.data); // store user info
+                const res = await api.get("/user/profile/");
+                setUser(res.data);
             } catch {
                 setUser(null);
             } finally {
@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
     }, []);
 
     const logout = () => {
-        // if you switch to cookies, you might also call /logout
+        // TODO: add logout to backend as well for future cookie auth
         setUser(null);
     };
 
@@ -32,6 +32,8 @@ export function AuthProvider({ children }) {
         </AuthContext.Provider>
     );
 }
+
+export default AuthProvider;
 
 export function useAuth() {
     return useContext(AuthContext);

@@ -12,7 +12,7 @@ import NotFound from './NotFound';
 import WatchLater from './WatchLater';
 import WatchHistory from './WatchHistory';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './components/AuthContext';
+import AuthProvider from './components/AuthContext';
 import TopBar from './components/TopBar';
 import Settings from './Settings';
 import styles from './App.module.css';
