@@ -37,7 +37,7 @@ function Player() {
                     value: true
                 })
                 .then((res) => {
-                    if (res.status === 200) {
+                    if (res.status === 200 || res.status === 201) {
                         setPlaylistMovie(res.data.data);
                     } else {
                         toast.error("Unexpected response:", res.status);

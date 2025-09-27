@@ -174,7 +174,7 @@ class StreamToClient(APIView):
         try:
             movie = Movie.objects.get(tmdb_id=tmdb_id)
         except Movie.DoesNotExist:
-            return Response({"error": "Movie not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Movie not found"}, status=status.HTTP_400_BAD_REQUEST)
 
         safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in movie.title)
         hls_dir = os.path.join(movie.download_path, "hls")
@@ -182,7 +182,7 @@ class StreamToClient(APIView):
         m3u8_path = os.path.join(hls_dir, m3u8_filename)
 
         if not os.path.isfile(m3u8_path):
-            return Response({"error": "HLS not available"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "HLS not available"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Convert filesystem path to URL served by Nginx
         media_root = "/var/www/media"
