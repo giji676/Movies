@@ -10,7 +10,9 @@ COPY ./frontend/package.json ./
 COPY ./frontend/package-lock.json ./
 COPY ./frontend/.env.production ./frontend/.env.production
 RUN npm install --silent
+COPY ./frontend/.env.production .env.production
 COPY ./frontend/ ./
+RUN cat .env.production
 RUN npm run build
 
 # The second stage

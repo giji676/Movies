@@ -1,13 +1,9 @@
 import axios from "axios";
 import * as auth from "./auth";
 
-console.log('VITE_BACKEND_URL:', import.meta.env.VITE_BACKEND_URL);
-
 const api = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
 });
-
-console.log('API baseURL:', api.defaults.baseURL);
 
 api.interceptors.request.use(
     async (config) => {
