@@ -17,7 +17,6 @@ function Movies({ moviesList }) {
     const loader = useRef(null);
 
     const fetchMoviesBatch = async (currentOffset) => {
-        alert("test");
         setIsFetching(true);
         try {
             const res = await api.get(`/movie/?offset=${currentOffset}&limit=${BATCH_SIZE}`);

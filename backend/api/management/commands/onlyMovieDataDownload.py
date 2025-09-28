@@ -56,14 +56,12 @@ class Command(BaseCommand):
                 tmdb_id = movie["id"]
                 logger.info(f"Processing {movie['title']} ({tmdb_id})")
 
-                movie_path = os.path.join(DOWNLOAD_PATH, str(movie["id"]))
-                os.makedirs(movie_path, exist_ok=True)
-
                 if Movie.objects.filter(tmdb_id=tmdb_id).exists() and not force:
                     logger.info(f"Already exists, skipping")
                     count += 1
                     continue
 
+                movie_path = os.path.join(DOWNLOAD_PATH, str(movie["id"]))
                 movie_obj, created = Movie.objects.update_or_create(
                     tmdb_id=tmdb_id,
                     defaults={
