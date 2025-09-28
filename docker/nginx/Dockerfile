@@ -6,7 +6,9 @@ WORKDIR /app/frontend
 COPY ./frontend/package.json ./
 COPY ./frontend/package-lock.json ./
 RUN npm install --silent
+COPY ./frontend/.env.production .env.production
 COPY ./frontend/ ./
+RUN cat .env.production
 RUN npm run build
 
 # The second stage

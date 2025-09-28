@@ -19,10 +19,12 @@ function Movies({ moviesList }) {
     const fetchMoviesBatch = async (currentOffset) => {
         setIsFetching(true);
         try {
+            console.log("fetching movies batch");
             const res = await api.get(`/movie/?offset=${currentOffset}&limit=${BATCH_SIZE}`);
             const data = res.data;
 
-            setMovies(prev => [...prev, ...data.movies]);
+            const moviesArray = Array.isArray(data.movies) ? data.movies : [];
+            setMovies(prev => [...prev, ...moviesArray]);
 
             if (data.movies.length < BATCH_SIZE) {
                 setHasMore(false);

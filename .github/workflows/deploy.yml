@@ -13,9 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: List files for debug
-        run: ls -R
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -25,6 +22,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
+
+      - name: Create env files
+        run: |
+          echo "VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL }}" >> frontend/.env.production
+          echo "VITE_MEDIA_DOWNLOADS=${{ secrets.VITE_MEDIA_DOWNLOADS }}" >> frontend/.env.production
+          cat frontend/.env.production
 
       - name: Run Django tests in Docker
         run: |
