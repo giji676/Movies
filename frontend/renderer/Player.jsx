@@ -64,7 +64,7 @@ function Player() {
                 toast.error("No file_path returned for movie:", tmdb_id);
             }
         } catch (err) {
-            toast.error("Failed to fetch movie path", err);
+            // toast.error("Failed to fetch movie path", err);
         } finally {
             setIsLoading(false);
         }

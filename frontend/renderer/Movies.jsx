@@ -30,7 +30,7 @@ function Movies({ moviesList }) {
             } else { setOffset(prev => prev + BATCH_SIZE);
             }
         } catch (err) {
-            toast.error("Failed to fetch movies");
+            //toast.error("Failed to fetch movies");
         } finally {
             setIsFetching(false);
         }
@@ -41,7 +41,9 @@ function Movies({ moviesList }) {
             .get("/playlist-movies/", { params: { watch_later: true } })
             .then((res) => res.data)
             .then((data) => {setWatchLaterPlaylist(data)})
-            .catch((err) => toast.error("Failed to fetch watch later movies"));
+            .catch((err) => {
+                // toast.error("Failed to fetch watch later movies")
+            });
     }
 
     const onPlaylistUpdate = (movie, action) => {
