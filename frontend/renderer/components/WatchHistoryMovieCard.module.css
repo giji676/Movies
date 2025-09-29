@@ -113,7 +113,7 @@
     white-space: nowrap;
     font-size: 1.0rem;
     padding: 0 0.8rem;
-    margin: 0.75rem 0.2rem;
+    margin: 0.5rem 0.2rem;
     margin-right: 0.5rem;
     max-width: 100%;
 }
@@ -135,6 +135,7 @@
     will-change: transform;
     padding-right: 15%;
     min-width: 0;
+    font-size: 0.9rem;
 }
 
 .titleWrapper:hover .scrollText {

@@ -91,15 +91,6 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
             });
     };
 
-    const toggleSave = (e) => {
-        e.preventDefault();
-        if (isWatchHistory) {
-            deleteFromWatchLater(e);
-        } else {
-            saveToWatchLater(e);
-        }
-    };
-
     useEffect(() => {
         if (titleRef.current && wrapperRef.current) {
             const textWidth = titleRef.current.scrollWidth;
@@ -117,8 +108,16 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
 
     const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
-    const remove = () => {console.log("remove");};
-    const toggleWatchLater = () => {console.log("watch later");};
+    const toggleSave = (e) => {
+        e.preventDefault();
+        if (isWatchHistory) {
+            deleteFromWatchLater(e);
+        } else {
+            saveToWatchLater(e);
+        }
+    };
+    const removeFromWatchHistory = () => {console.log("removeFromWatchHistory");};
+    const toggleWatchLater = () => {console.log("toggleWatchLater");};
 
     return (
         <div className={styles.movieCard}>
@@ -166,11 +165,11 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                                         Details
                                         <FaInfo className={styles.dropdownIcon} />
                                     </Link>
-                                    <p onClick={remove} className={styles.dropdownItem}>
+                                    <p onClick={removeFromWatchHistory} className={styles.dropdownItem}>
                                         Remove
                                         <FaMinus className={styles.dropdownIcon} />
                                     </p>
-                                    <p onClick={toggleSave} className={styles.dropdownItem}>
+                                    <p onClick={toggleWatchLater} className={styles.dropdownItem}>
                                         Watch Later
                                         <FaPlus className={styles.dropdownIcon} />
                                     </p>
