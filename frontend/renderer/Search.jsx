@@ -61,7 +61,7 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
                         handleSearch(e);
                     }
                 }}
-                className={`${styles.form} ${showSearchInput ? styles.expanded : ''}`}
+                className={`${styles.form} ${showSearchInput ? styles.expanded : styles.collapsed}`}
             >
                 <input
                     type="text"

@@ -82,6 +82,15 @@
         box-shadow: none;
     }
 
+    .form.expanded {
+        display: flex;
+        width: 100%;
+        max-width: 600px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
     .mobileOnlyToggle {
         display: none;
     }
@@ -100,6 +109,14 @@
         border-radius: 50%;
         background-color: transparent;
         font-size: 1.25rem;
+    }
+
+    .form.expanded .button {
+        height: auto;
+        font-size: auto;
+        border-radius: 0;
+        padding: 0 1.25rem;
+        background-color: var(--button-bg);
     }
 }
 
