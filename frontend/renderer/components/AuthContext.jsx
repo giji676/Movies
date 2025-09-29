@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import api from "../../main/api";
+import { REFRESH_TOKEN, ACCESS_TOKEN } from "../../main/constants";
 
 const AuthContext = createContext();
 
@@ -24,6 +25,8 @@ function AuthProvider({ children }) {
     const logout = () => {
         // TODO: add logout to backend as well for future cookie auth
         setUser(null);
+        localStorage.removeItem(ACCESS_TOKEN);
+        localStorage.removeItem(REFRESH_TOKEN);
     };
 
     return (

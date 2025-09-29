@@ -4,7 +4,7 @@ import UserMenu from './UserMenu';
 import styles from './TopBar.module.css';
 import { useAuth } from './AuthContext';
 
-function TopBar({ setMovieListData, resetMovieListData, handleLogout }) {
+function TopBar({ setMovieListData, resetMovieListData }) {
     const [showSearchInput, setShowSearchInput] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 850);
     const { user, logout } = useAuth();
@@ -33,7 +33,7 @@ function TopBar({ setMovieListData, resetMovieListData, handleLogout }) {
             </div>
             {(!showSearchInput || !isMobile) && (
                 <div className={styles.userWrapper}>
-                    <UserMenu user={user} onLogout={handleLogout} />
+                    <UserMenu />
                 </div>
             )}
         </div>

@@ -13,12 +13,12 @@ function UserMenu() {
 
     const toggleDropdown = () => setOpen(!open);
 
-    const handleLogin= () => {
+    const handleLogin = () => {
         navigate("/login");
     };
 
     const handleLogout = async () => {
-        localStorage.clear();
+        logout();
         navigate("/login");
     };
 

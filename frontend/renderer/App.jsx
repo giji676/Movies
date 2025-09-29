@@ -19,11 +19,6 @@ import styles from './App.module.css';
 import './colors.css';
 import api from "../main/api";
 
-function Logout() {
-    logout();
-    return <Navigate to="/login" />;
-}
-
 function App() {
     const [moviesList, setMoviesList] = useState(null);
 
@@ -33,10 +28,6 @@ function App() {
 
     const resetMovieListData = () => {
         setMoviesList(null);
-    };
-
-    const handleLogout = () => {
-        logout();
     };
 
     return (
@@ -51,7 +42,6 @@ function App() {
                                     <TopBar 
                                         setMovieListData={setMovieListData}
                                         resetMovieListData={resetMovieListData}
-                                        handleLogout={handleLogout}
                                     />
                                     <div className={styles.moviesContainer}>
                                         <Movies 
@@ -80,7 +70,6 @@ function App() {
                             </div>
                         } />
 
-                        <Route path="/logout" element={<Logout />} />
                         <Route path="/movie" element={<Movie />} />
                         <Route path="/player" element={<Player />} />
                         <Route path="/settings" element={
@@ -98,7 +87,6 @@ function App() {
                                     <TopBar 
                                         setMovieListData={setMovieListData}
                                         resetMovieListData={resetMovieListData}
-                                        handleLogout={handleLogout}
                                     />
                                     <div className={styles.moviesContainer}>
                                         <WatchLater 
@@ -115,7 +103,6 @@ function App() {
                                     <TopBar 
                                         setMovieListData={setMovieListData}
                                         resetMovieListData={resetMovieListData}
-                                        handleLogout={handleLogout}
                                     />
                                     <div className={styles.moviesContainer}>
                                         <WatchHistory 
