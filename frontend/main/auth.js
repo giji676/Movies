@@ -76,6 +76,9 @@ export async function refreshAccessToken() {
             localStorage.setItem(ACCESS_TOKEN, res.data.access);
             localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
             return res.data.access;
+        } else if (res.status === 401 && res.data?.code === "token_not_valid") {
+            // BOTH TOKENS EXPIRED LOGIN NEEDED
+            return null;
         }
 
         return null;
