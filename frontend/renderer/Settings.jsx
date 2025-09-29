@@ -1,7 +1,10 @@
 import { FaRegUser } from "react-icons/fa";
 import styles from './Settings.module.css';
+import { useAuth } from './components/AuthContext';
 
-function Settings({ user }) {
+function Settings() {
+    const { user, logout } = useAuth();
+
     return (
         <div className={styles.settingsBody}>
             <h1>SETTINGS</h1>
