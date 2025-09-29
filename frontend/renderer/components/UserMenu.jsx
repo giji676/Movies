@@ -15,7 +15,6 @@ function UserMenu() {
 
     const handleLogin= () => {
         navigate("/login");
-        setOpen(false);
     };
 
     const handleLogout = async () => {
@@ -24,12 +23,8 @@ function UserMenu() {
     };
 
     const handleSettings = async () => {
-        <Route
-            path="/settings"
-            element={<Settings user={user} />}
-        />
+        navigate("/settings");
     };
-
 
     return (
         <div className={styles.container} onClick={toggleDropdown}>
@@ -50,7 +45,6 @@ function UserMenu() {
                 <div className={styles.dropdown}>
                     {user ? (
                         <>
-                            <div className={styles.item}>Profile</div>
                             <div className={styles.item} onClick={handleSettings}>Settings</div>
                             <div className={styles.item} onClick={handleLogout}>Logout</div>
                         </>
