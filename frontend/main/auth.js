@@ -30,8 +30,13 @@ export async function login(email, password) {
 export async function checkAuth() {
     const accessToken = localStorage.getItem(ACCESS_TOKEN);
     if (!accessToken) {
-        localStorage.removeItem(REFRESH_TOKEN);
-        return null;
+        const newToken = await refreshAccessToken();
+        if (!newToken) {
+            localStorage.removeItem(ACCESS_TOKEN);
+            localStorage.removeItem(REFRESH_TOKEN);
+            throw new Error("Token refresh failed");
+        }
+        return newToken;
     }
 
     try {
@@ -58,7 +63,7 @@ export async function checkAuth() {
     }
 }
 
-async function refreshAccessToken() {
+export async function refreshAccessToken() {
     const refreshToken = localStorage.getItem(REFRESH_TOKEN);
     if (!refreshToken) return null;
 
