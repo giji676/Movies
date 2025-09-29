@@ -31,7 +31,7 @@ function TopBar({ setMovieListData, resetMovieListData, handleLogout }) {
                     setShowSearchInput={setShowSearchInput}
                 />
             </div>
-            {(!showSearchInput || !isMovile) && (
+            {(!showSearchInput || !isMobile) && (
                 <div className={styles.userWrapper}>
                     <UserMenu user={user} onLogout={handleLogout} />
                 </div>
