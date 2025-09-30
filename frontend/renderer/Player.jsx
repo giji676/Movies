@@ -5,6 +5,8 @@ import styles from './Player.module.css';
 import api from "../main/api";
 import ProtectedRoute from './components/ProtectedRoute';
 import { toast } from 'react-toastify';
+import backButtonStyle from "./components/BackButton.module.css";
+import { FaArrowLeft } from "react-icons/fa";
 
 function Player() {
     const location = useLocation();
@@ -182,14 +184,14 @@ function Player() {
                             crossOrigin="anonymous"
                             autoPlay
                         />
-                        <button className={styles.backButton} onClick={() => navigate(-1)}>
-                            ← Back
+                        <button className={backButtonStyle.backButton} onClick={() => navigate(-1)}>
+                            <FaArrowLeft />
                         </button>
                     </div>
                 ) : (
                         <div className={styles.loading}>
-                            <button className={styles.backButton} onClick={() => navigate(-1)}>
-                                ← Back
+                            <button className={backButtonStyle.backButton} onClick={() => navigate(-1)}>
+                                <FaArrowLeft />
                             </button>
                             <h1>Video Not Available</h1>
                             <p>Sorry, this movie cannot be played at the moment.</p>

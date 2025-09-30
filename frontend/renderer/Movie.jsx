@@ -2,8 +2,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
 import styles from './Movie.module.css';
+import backButtonStyle from "./components/BackButton.module.css";
 import ProtectedRoute from './components/ProtectedRoute';
-import { FaBookmark, FaRegBookmark, FaEllipsisV, FaPlus, FaPlay, FaMinus, FaInfo } from "react-icons/fa";
+import { FaArrowLeft, FaBookmark, FaRegBookmark, FaEllipsisV, FaPlus, FaPlay, FaMinus, FaInfo } from "react-icons/fa";
 
 function Movie() {
     const location = useLocation();
@@ -39,6 +40,9 @@ function Movie() {
     return (
         <ProtectedRoute>
             <div className={styles.body}>
+                <button className={backButtonStyle.backButton} onClick={() => navigate(-1)}>
+                    <FaArrowLeft />
+                </button>
                 {!isMobile ? (
                     <div
                         className={styles.backdropDesktop}
