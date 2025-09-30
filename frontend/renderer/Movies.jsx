@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import MovieCard from "./components/MovieCard";
 import ProtectedRoute from './components/ProtectedRoute';
-import style from "./Movies.module.css";
+import styles from "./Movies.module.css";
 import api from "../main/api";
 
 function Movies({ moviesList }) {
@@ -90,14 +90,18 @@ function Movies({ moviesList }) {
 
     return (
         <ProtectedRoute>
-            <div className={style.movieGrid}>
+            <div className={styles.movieGrid}>
                 {movies.map((movie, index) => (
-                    <MovieCard 
-                        key={index} 
-                        movie={movie} 
-                        playlist={watchLaterPlaylist} 
-                        onPlaylistUpdate={onPlaylistUpdate}
-                    />
+                    <div
+                        key={index}
+                        className={styles.card}
+                    >
+                        <MovieCard 
+                            movie={movie} 
+                            playlist={watchLaterPlaylist} 
+                            onPlaylistUpdate={onPlaylistUpdate}
+                        />
+                    </div>
                 ))}
                 {hasMore && <div ref={loader} style={{ height: "20px" }} />}
             </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from "../main/api";
-import style from "./WatchLater.module.css";
+import styles from "./Movies.module.css";
 import WatchHistoryMovieCard from './components/WatchHistoryMovieCard';
 import ProtectedRoute from './components/ProtectedRoute';
 import { toast } from 'react-toastify';
@@ -38,14 +38,19 @@ function WatchHistoryLater({ resetMovieListData }) {
 
     return (
         <ProtectedRoute>
-            <div className={style.movie_grid}>
+            <div className={styles.movieGrid}>
                 {movies.map((movie, index) => (
-                    <WatchHistoryMovieCard  
-                        key={index} 
-                        playlistMovie={movie} 
-                        playlist={movies} 
-                        onPlaylistUpdate={onPlaylistUpdate}
-                    />
+                    <div
+                        key={index}
+                        className={styles.card}
+                    >
+                        <WatchHistoryMovieCard  
+                            playlistMovie={movie} 
+                            playlist={movies} 
+                            onPlaylistUpdate={onPlaylistUpdate}
+                            className={styles.card}
+                        />
+                    </div>
                 ))}
             </div>
         </ProtectedRoute>
