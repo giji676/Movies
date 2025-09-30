@@ -20,6 +20,7 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
 
     const titleRef = useRef(null);
     const wrapperRef = useRef(null);
+    const dropdownRef = useRef(null);
     const [scrollDistance, setScrollDistance] = useState(0);
     const [shouldScroll, setShouldScroll] = useState(false);
 
@@ -106,6 +107,22 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
         }
     }, [movie.title]);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                dropdownRef.current &&
+                    !dropdownRef.current.contains(event.target)
+            ) {
+                setDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
     const toggleSave = (e) => {
@@ -149,7 +166,10 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                                 <div className={styles.progressBar} style={{ width: `${progress}%` }} />
                             </div>
                         ) : (
-                                <div className={`${styles.dropdownContainer} ${dropdownOpen ? styles.open : ''}`}>
+                                <div
+                                    ref={dropdownRef}
+                                    className={`${styles.dropdownContainer} ${dropdownOpen ? styles.open : ''}`}
+                                >
                                     <Link
                                         to="/player"
                                         state={{ movie, playlistMovie }}
