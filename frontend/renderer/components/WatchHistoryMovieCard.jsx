@@ -125,6 +125,7 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                 to="/movie"
                 state={{ playlistMovie }}
                 style={{ textDecoration: 'none', color: 'inherit' }}
+                className={styles.linkWrapper}
                 onClick={(e) => {
                     if (dropdownOpen) {
                         e.preventDefault(); // prevent link navigation
