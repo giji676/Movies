@@ -235,6 +235,26 @@ class SearchTPB(APIView):
         }
         return Response(limited_result, status=status.HTTP_200_OK)
 
+class SuggestMovies(APIView):
+    """Suggest movie titles based on partial query input."""
+
+    def get(self, request):
+        query = request.query_params.get("query")
+
+        if not query:
+            return Response([], status=status.HTTP_200_OK)
+
+        suggestions = (
+            Movie.objects.annotate(
+                similarity=TrigramSimilarity("title", query)
+            )
+            .filter(similarity__gt=0.2)
+            .order_by("-similarity")
+            .values("tmdb_id", "title", "release_date")[:10]
+        )
+
+        return Response(list(suggestions), status=status.HTTP_200_OK)
+
 class Search(APIView):
     """Search through local movies in the database with TMDB config included."""
 
