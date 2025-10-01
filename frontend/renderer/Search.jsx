@@ -16,6 +16,10 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
             return;
         }
 
+        if (query && !showSearchInput) {
+            setShowSearchInput(true);
+        }
+
         setLoading(true);
         api
             .get(`/movie/search/?query=${encodeURIComponent(query)}`)
