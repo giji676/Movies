@@ -7,7 +7,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-radius: 1rem;
+    border-radius: 0.5rem;
     box-sizing: border-box;
     overflow: hidden;
     cursor: default;

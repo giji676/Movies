@@ -9,8 +9,6 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
     const [loading, setLoading] = useState(false);
     const formRef = useRef(null);
 
-    const BASE_URL = import.meta.env.VITE_BACKEND_URL;
-
     const handleSearch = async (e) => {
         e.preventDefault();
         if (!query) {
@@ -33,11 +31,21 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
     };
 
     useEffect(() => {
+        const handleKey = (e) => {
+            if (e.key === 'Escape' && window.innerWidth <= 600) {
+                setShowSearchInput(false);
+            }
+        };
+        window.addEventListener('keydown', handleKey);
+        return () => window.removeEventListener('keydown', handleKey);
+    }, []);
+
+    useEffect(() => {
         const handleClickOutside = (event) => {
             if (
                 formRef.current &&
                     !formRef.current.contains(event.target) &&
-                    window.innerWidth <= 430
+                    window.innerWidth <= 600
             ) {
                 setShowSearchInput(false);
             }
@@ -54,21 +62,21 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
             <form
                 ref={formRef}
                 onSubmit={(e) => {
-                    if (window.innerWidth <= 430 && !showSearchInput) {
+                    if (window.innerWidth <= 600 && !showSearchInput) {
                         e.preventDefault(); // don't submit if just expanding
                         setShowSearchInput(true);
                     } else {
                         handleSearch(e);
                     }
                 }}
-                className={`${styles.form} ${showSearchInput ? styles.expanded : styles.collapsed}`}
+                className={`${styles.form} ${showSearchInput ? styles.expanded : ""}`}
             >
                 <input
                     type="text"
                     placeholder="Search movie..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className={`${styles.input} ${styles.mobileOnlyToggle}`}
+                    className={`${styles.input} ${showSearchInput ? styles.expanded : ""}`}
                 />
                 <button type="submit" className={styles.button} disabled={loading}>
                     <FaSearch className={styles.searchIcon} />

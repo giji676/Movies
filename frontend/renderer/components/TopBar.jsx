@@ -6,12 +6,12 @@ import { useAuth } from './AuthContext';
 
 function TopBar({ setMovieListData, resetMovieListData }) {
     const [showSearchInput, setShowSearchInput] = useState(false);
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 850);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
     const { user, logout } = useAuth();
 
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth <= 850);
+            setIsMobile(window.innerWidth <= 600);
         };
 
         window.addEventListener('resize', handleResize);
@@ -19,11 +19,11 @@ function TopBar({ setMovieListData, resetMovieListData }) {
     }, []);
 
     return (
-        <div className={styles.topBar}>
+        <div className={`${styles.topBar} ${(isMobile && showSearchInput) ? (styles.expandedSearchInput) : ""}`}>
             {(!showSearchInput || !isMobile) && (
                 <div className={styles.logo}>Movies</div>
             )}
-            <div className={styles.searchWrapper}>
+            <div className={`${styles.searchWrapper} ${(isMobile && showSearchInput) ? (styles.expandedSearchInput) : ""}`}>
                 <Search 
                     onResults={setMovieListData}
                     resetMovieListData={resetMovieListData}

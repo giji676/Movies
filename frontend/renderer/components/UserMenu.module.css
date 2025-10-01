@@ -46,11 +46,7 @@
     background-color: rgba(0,0,0,0.05);
 }
 
-@media only screen and (max-width: 680px) {
-    .container {
-        margin-left: 1rem;
-    }
-
+@media only screen and (max-width: 650px) {
     .username {
         display: none;
     }
@@ -58,18 +54,6 @@
 
 @media only screen and (max-width: 600px) {
     .container {
-        margin-left: 1rem;
-    }
-    .username {
-        display: none;
-    }
-}
-
-@media only screen and (max-width: 430px) {
-    .container {
-        margin-left: 1rem;
-    }
-    .username {
-        display: none;
+        margin-left:  1rem;
     }
 }
