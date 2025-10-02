@@ -8,7 +8,7 @@ from api.models import Movie, PlaylistMovie
 from unittest.mock import Mock
 from django.utils import timezone
 
-class PlaylistMovieListTests(APITestCase):
+class MovieSearchTests(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
             email="user@example.com", password="password123"
@@ -16,6 +16,48 @@ class PlaylistMovieListTests(APITestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
+        self.movie1 = Movie.objects.create(title="Movie 1", tmdb_id=1)
+        self.movie2 = Movie.objects.create(title="Movie 2", tmdb_id=2)
+        self.movie3 = Movie.objects.create(title="Movie 3", tmdb_id=3)
+
+        self.search_url = reverse("search")
+        self.search_suggest_url = reverse("search-suggest")
+
+    def test_empty_search(self):
+        response = self.client.get(self.search_url, {"query": ""})
+        self.assertEqual(response.status_code, 400);
+
+    def test_search(self):
+        response = self.client.get(self.search_url, {"query": "Movie"})
+        self.assertEqual(response.status_code, 200);
+        self.assertEqual(len(response.data), 3);
+
+    def test_non_existant_search(self):
+        response = self.client.get(self.search_url, {"query": "this title should not exist"})
+        self.assertEqual(response.status_code, 200);
+        self.assertEqual(len(response.data), 0);
+
+    def test_empty_search_suggest(self):
+        response = self.client.get(self.search_suggest_url, {"query": ""})
+        self.assertEqual(response.status_code, 200);
+
+    def test_search_suggest(self):
+        response = self.client.get(self.search_suggest_url, {"query": "Movie"})
+        self.assertEqual(response.status_code, 200);
+        self.assertEqual(len(response.data), 3);
+
+    def test_non_existant_search_suggest(self):
+        response = self.client.get(self.search_suggest_url, {"query": "this title should not exist"})
+        self.assertEqual(response.status_code, 200);
+        self.assertEqual(len(response.data), 0);
+
+class PlaylistMovieListTests(APITestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email="user@example.com", password="password123"
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
         self.movie1 = Movie.objects.create(title="Movie 1", tmdb_id=1)
         self.movie2 = Movie.objects.create(title="Movie 2", tmdb_id=2)
         self.movie3 = Movie.objects.create(title="Movie 3", tmdb_id=3)
@@ -119,7 +161,6 @@ class TimeStampTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         playlist_movie = PlaylistMovie.objects.get(author=self.user, tmdb=movie2)
         self.assertEqual(playlist_movie.time_stamp, 20)
-
 
 class PlaylistTests(APITestCase):
     def setUp(self):
