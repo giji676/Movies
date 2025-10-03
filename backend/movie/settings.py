@@ -37,7 +37,7 @@ DEBUG  = os.environ.get("DEBUG", False)
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOST", "localhost").split(",")
 
 MEDIA_URL = os.environ.get("MEDIA_URL", "/media/")
-MEDIA_ROOT = os.environ.get("MEDIA_ROOT ", "/var/www/media/")
+MEDIA_ROOT = os.environ.get("MEDIA_ROOT", "/var/www/media/")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
