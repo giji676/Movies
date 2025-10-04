@@ -16,10 +16,15 @@ from dotenv import load_dotenv
 from datetime import timedelta
 
 
-if os.environ.get("ENV") == "test":
-    ENV_FILE = dotenv_path=os.path.join(Path(__file__).resolve().parent.parent, ".env.test")
-else:
-    ENV_FILE = os.environ.get("DJANGO_ENV_FILE", ".env.production")
+match os.environ.get("ENV"):
+    case "test":
+        ENV_FILE = dotenv_path=os.path.join(Path(__file__).resolve().parent.parent, ".env.test")
+    case "dev":
+        ENV_FILE = dotenv_path=os.path.join(Path(__file__).resolve().parent.parent, ".env.dev")
+    case "prod":
+        ENV_FILE = dotenv_path=os.path.join(Path(__file__).resolve().parent.parent, ".env.production")
+    case _:
+        ENV_FILE = dotenv_path=os.path.join(Path(__file__).resolve().parent.parent, ".env.production")
 load_dotenv(ENV_FILE)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -167,12 +172,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-if 'test' in sys.argv:
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    }
 
 LOGGING = {
     'version': 1,

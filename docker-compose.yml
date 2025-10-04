@@ -1,5 +1,3 @@
-version: '3.8' 
-
 services:
   nginx:
     image: ghcr.io/giji676/movies/nginx:${IMAGE_TAG}
