@@ -270,14 +270,7 @@ class Search(APIView):
         # Use cached serialization
         serialized_movies = [serialize_movie_cached(m) for m in movies]
 
-        tmdb_config = tmdb.config
-
-        result = {
-            "tmdb_config": tmdb_config,
-            "movies": serialized_movies
-        }
-
-        return Response(result, status=status.HTTP_200_OK)
+        return Response(serialized_movies, status=status.HTTP_200_OK)
 
 class MoviePopulars(APIView):
     """ returns a json of popular movies currently """

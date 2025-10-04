@@ -139,7 +139,6 @@ DATABASES = {
     }
 }
 
-
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # Password validation
