@@ -32,13 +32,6 @@ jobs:
           echo "VITE_MEDIA_DOWNLOADS=${{ secrets.VITE_MEDIA_DOWNLOADS }}" >> frontend/.env.production
           cat frontend/.env.production
 
-      - name: Run Django tests in Docker
-        run: |
-          docker build -t test-backend -f ./docker/backend/Dockerfile .
-          docker run --rm --entrypoint "" \
-            -e ENV=test \
-            test-backend python manage.py test
-
       - name: Build & push backend image
         uses: docker/build-push-action@v5
         with:

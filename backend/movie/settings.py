@@ -132,8 +132,13 @@ DATABASES = {
         'PASSWORD': os.environ.get("POSTGRES_PASSWORD", "2004"),
         'HOST': os.environ.get("POSTGRES_HOST", "db"),
         'PORT': os.environ.get("POSTGRES_PORT", 5432),
+        'TEST': {
+            'NAME': os.environ.get("POSTGRES_DB", "moviedatabase"),
+            'HOST': os.environ.get("POSTGRES_HOST", "db"),
+        }
     }
 }
+
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
