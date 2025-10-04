@@ -22,10 +22,9 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
                 .then((res) => res.data)
                 .then((data) => {
                     setSuggestedMovies(data);
-                    console.log(data);
                 })
                 .catch((err) => {
-                    toast.error('Search suggest error:', err);
+                    // toast.error('Search suggest error:', err);
                 });
         }, 200); // debounce
 
@@ -85,12 +84,12 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
     }, []);
 
     return (
-        <div>
+        <div className={styles.searchContainer}>
             <form
                 ref={formRef}
                 onSubmit={(e) => {
                     if (window.innerWidth <= 600 && !showSearchInput) {
-                        e.preventDefault(); // don't submit if just expanding
+                        e.preventDefault();
                         setShowSearchInput(true);
                     } else {
                         handleSearch(e);
@@ -109,6 +108,20 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
                     <FaSearch className={styles.searchIcon} />
                 </button>
             </form>
+
+            {suggestedMovies.length > 0 && (
+                <div className={styles.suggestions}>
+                    {suggestedMovies.map((movie) => (
+                        <div key={movie.tmdb_id} className={styles.suggestionItem}>
+                            <span className={styles.movieTitle}>{movie.title}</span>
+                            {movie.release_date && (
+                                <span className={styles.movieDate}>{movie.release_date.slice(0, 4)}</span>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+
             {loading && (
                 <div className={styles.spinnerWrapper}>
                     <FaCircleNotch className={styles.spinner} />
