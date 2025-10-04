@@ -4,21 +4,25 @@ import { toast } from 'react-toastify';
 import styles from './Search.module.css';
 import api from "../main/api";
 
-function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchInput }) {
+function Search({ onResults, resetMovieListData, isMobile, showSearchInput, setShowSearchInput }) {
     const [query, setQuery] = useState('');
+    const [lastQuery, setLastQuery] = useState('');
     const [suggestedMovies, setSuggestedMovies] = useState([]);
     const [loading, setLoading] = useState(false);
     const formRef = useRef(null);
 
     useEffect(() => {
-        if (!query) {
+        const trimmedQuery = query.trim();
+        if (trimmedQuery === lastQuery) return;
+        setLastQuery(trimmedQuery);
+        if (!trimmedQuery) {
             setSuggestedMovies([]);
             return;
         }
 
         const handler = setTimeout(() => {
             api
-                .get(`/movie/search-suggest/?query=${encodeURIComponent(query)}`)
+                .get(`/movie/search-suggest/?query=${encodeURIComponent(trimmedQuery)}`)
                 .then((res) => res.data)
                 .then((data) => {
                     setSuggestedMovies(data);
@@ -58,7 +62,7 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
 
     useEffect(() => {
         const handleKey = (e) => {
-            if (e.key === 'Escape' && window.innerWidth <= 600) {
+            if (e.key === 'Escape' && isMobile) {
                 setShowSearchInput(false);
             }
         };
@@ -71,7 +75,7 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
             if (
                 formRef.current &&
                     !formRef.current.contains(event.target) &&
-                    window.innerWidth <= 600
+                    isMobile
             ) {
                 setShowSearchInput(false);
             }
@@ -88,7 +92,7 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
             <form
                 ref={formRef}
                 onSubmit={(e) => {
-                    if (window.innerWidth <= 600 && !showSearchInput) {
+                    if (isMobile && !showSearchInput) {
                         e.preventDefault();
                         setShowSearchInput(true);
                     } else {
@@ -109,7 +113,7 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
                 </button>
             </form>
 
-            {suggestedMovies.length > 0 && showSearchInput && (
+            {suggestedMovies.length > 0 && (!isMobile || showSearchInput) && (
                 <div className={styles.suggestions}>
                     {suggestedMovies.map((movie) => (
                         <div key={movie.tmdb_id} className={styles.suggestionItem}>

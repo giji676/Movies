@@ -27,6 +27,7 @@ function TopBar({ setMovieListData, resetMovieListData }) {
                 <Search 
                     onResults={setMovieListData}
                     resetMovieListData={resetMovieListData}
+                    isMobile={isMobile}
                     showSearchInput={showSearchInput}
                     setShowSearchInput={setShowSearchInput}
                 />
