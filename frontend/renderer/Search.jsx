@@ -6,8 +6,31 @@ import api from "../main/api";
 
 function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchInput }) {
     const [query, setQuery] = useState('');
+    const [suggestedMovies, setSuggestedMovies] = useState([]);
     const [loading, setLoading] = useState(false);
     const formRef = useRef(null);
+
+    useEffect(() => {
+        if (!query) {
+            setSuggestedMovies([]);
+            return;
+        }
+
+        const handler = setTimeout(() => {
+            api
+                .get(`/movie/search-suggest/?query=${encodeURIComponent(query)}`)
+                .then((res) => res.data)
+                .then((data) => {
+                    setSuggestedMovies(data);
+                    console.log(data);
+                })
+                .catch((err) => {
+                    toast.error('Search suggest error:', err);
+                });
+        }, 200); // debounce
+
+        return () => clearTimeout(handler);
+    }, [query]);
 
     const handleSearch = async (e) => {
         e.preventDefault();

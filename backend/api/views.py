@@ -248,7 +248,7 @@ class SuggestMovies(APIView):
             Movie.objects.annotate(
                 similarity=TrigramSimilarity("title", query)
             )
-            .filter(similarity__gt=0.2)
+            .filter(similarity__gt=0.10)
             .order_by("-similarity")
             .values("tmdb_id", "title", "release_date")[:10]
         )
@@ -265,7 +265,7 @@ class Search(APIView):
 
         movies = Movie.objects.annotate(
             similarity=TrigramSimilarity('title', query)
-        ).filter(similarity__gt=0.15).order_by('-similarity')
+        ).filter(similarity__gt=0.10).order_by('-similarity')
 
         # Use cached serialization
         serialized_movies = [serialize_movie_cached(m) for m in movies]
