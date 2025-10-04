@@ -109,7 +109,7 @@ function Search({ onResults, resetMovieListData, showSearchInput, setShowSearchI
                 </button>
             </form>
 
-            {suggestedMovies.length > 0 && (
+            {suggestedMovies.length > 0 && showSearchInput && (
                 <div className={styles.suggestions}>
                     {suggestedMovies.map((movie) => (
                         <div key={movie.tmdb_id} className={styles.suggestionItem}>
