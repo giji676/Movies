@@ -10,7 +10,7 @@ function Search({ onResults, resetMovieListData, isMobile, showSearchInput, setS
     const [suggestedMovies, setSuggestedMovies] = useState([]);
     const [showSuggestedMovies, setShowSuggestedMovies] = useState(null);
     const [loading, setLoading] = useState(false);
-    const formRef = useRef(null);
+    const searchContainerRef = useRef(null);
 
     useEffect(() => {
         const trimmedQuery = query.trim();
@@ -69,6 +69,7 @@ function Search({ onResults, resetMovieListData, isMobile, showSearchInput, setS
             .finally(() => {
                 setLoading(false);
             });
+        setShowSearchInput(false);
         setShowSuggestedMovies(false);
     };
 
@@ -86,25 +87,35 @@ function Search({ onResults, resetMovieListData, isMobile, showSearchInput, setS
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
-                formRef.current &&
-                    !formRef.current.contains(event.target) &&
+                searchContainerRef.current &&
+                    !searchContainerRef.current.contains(event.target) &&
                     isMobile
             ) {
                 setShowSearchInput(false);
+            }
+            if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
                 setShowSuggestedMovies(false);
             }
         };
 
+        const handleClickInside = (event) => {
+            if (showSuggestedMovies) return;
+            if (searchContainerRef.current && searchContainerRef.current.contains(event.target)) {
+                setShowSuggestedMovies(true);
+            }
+        };
+
         document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('mousedown', handleClickInside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('mousedown', handleClickInside);
         };
     }, []);
 
     return (
-        <div className={styles.searchContainer}>
+        <div className={styles.searchContainer} ref={searchContainerRef}>
             <form
-                ref={formRef}
                 onSubmit={(e) => {
                     if (isMobile && !showSearchInput) {
                         e.preventDefault();
