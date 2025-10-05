@@ -1,8 +1,12 @@
-import { useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import api from "../main/api";
+import styles from "./Rooms.module.css";
 
 function Rooms() {
+    const [res, setRes] = useState(null);
+    const [playing, setPlaying] = useState(null);
     const url = `ws://localhost:8000/ws/socket-server/`;
+    const socketRef = useRef();
 
     useEffect(() => {
         api
@@ -10,13 +14,49 @@ function Rooms() {
             .then((res) => res.data)
             .then((data) => console.log(data));
 
-        const roomSocket = new WebSocket(url);
+        const socket = new WebSocket(url);
+        socketRef.current = socket;
 
-        roomSocket.onmessage = (e) => {
+        socket.onopen = () => {
+            console.log("WebSocket connected");
+        };
+
+        socket.onmessage = (e) => {
             let data = JSON.parse(e.data);
-            console.log(data);
+            if (data.action) {
+                setRes(data.res);
+            }
         }
+
+        return () => {
+            socket.close();
+        };
     }, []);
+
+    const handleSubmit = () => {
+        setPlaying(!playing);
+    };
+
+    useEffect(() => {
+        if (socketRef.current?.readyState !== WebSocket.OPEN) return;
+        socketRef.current.send(JSON.stringify({
+            "action": playing,
+        }));
+    }, [playing]);
+
+    return (
+        <div>
+            <button 
+                className={styles.button} 
+                onClick={() => handleSubmit()}
+            >
+                {playing ? "PAUSE" : "PLAY"}
+            </button>
+            <div>
+                {res}
+            </div>
+        </div>
+    );
 }
 
 export default Rooms;

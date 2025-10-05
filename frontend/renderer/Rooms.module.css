@@ -1,0 +1,15 @@
+:root {
+    --input-bg: #001930;
+    --input-bg-focus: #002b55;
+    --button-bg: #0061ff;
+    --button-bg-hover: #004acc;
+    --button-bg-disabled: #44556e;
+    --text-color: #e0ecff;
+    --placeholder-color: #89a1c1;
+}
+
+.button {
+    background-color: var(--button-bg);
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
