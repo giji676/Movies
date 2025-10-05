@@ -3,8 +3,7 @@ import api from "../main/api";
 import styles from "./Rooms.module.css";
 
 function Rooms() {
-    const [res, setRes] = useState(null);
-    const [playing, setPlaying] = useState(null);
+    const [playing, setPlaying] = useState(false);
     const url = `ws://localhost:8000/ws/socket-server/`;
     const socketRef = useRef();
 
@@ -12,19 +11,15 @@ function Rooms() {
         api
             .get("room/")
             .then((res) => res.data)
-            .then((data) => console.log(data));
+            .then((data) => ()=>{});
 
         const socket = new WebSocket(url);
         socketRef.current = socket;
 
-        socket.onopen = () => {
-            console.log("WebSocket connected");
-        };
-
         socket.onmessage = (e) => {
             let data = JSON.parse(e.data);
-            if (data.action) {
-                setRes(data.res);
+            if (data.action === "playing") {
+                setPlaying(data.action_state);
             }
         }
 
@@ -40,7 +35,9 @@ function Rooms() {
     useEffect(() => {
         if (socketRef.current?.readyState !== WebSocket.OPEN) return;
         socketRef.current.send(JSON.stringify({
-            "action": playing,
+            "type": "room_action",
+            "action": "playing",
+            "action_state": playing,
         }));
     }, [playing]);
 
@@ -52,9 +49,6 @@ function Rooms() {
             >
                 {playing ? "PAUSE" : "PLAY"}
             </button>
-            <div>
-                {res}
-            </div>
         </div>
     );
 }

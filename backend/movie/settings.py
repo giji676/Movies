@@ -122,6 +122,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'movie.wsgi.application'
 ASGI_APPLICATION = "movie.asgi.application"
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
