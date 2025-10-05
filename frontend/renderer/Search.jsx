@@ -8,6 +8,7 @@ function Search({ onResults, resetMovieListData, isMobile, showSearchInput, setS
     const [query, setQuery] = useState('');
     const [lastQuery, setLastQuery] = useState('');
     const [suggestedMovies, setSuggestedMovies] = useState([]);
+    const [showSuggestedMovies, setShowSuggestedMovies] = useState(null);
     const [loading, setLoading] = useState(false);
     const formRef = useRef(null);
 
@@ -17,8 +18,10 @@ function Search({ onResults, resetMovieListData, isMobile, showSearchInput, setS
         setLastQuery(trimmedQuery);
         if (!trimmedQuery) {
             setSuggestedMovies([]);
+            setShowSuggestedMovies(false);
             return;
         }
+        setShowSuggestedMovies(true);
 
         const handler = setTimeout(() => {
             api
@@ -35,20 +38,28 @@ function Search({ onResults, resetMovieListData, isMobile, showSearchInput, setS
         return () => clearTimeout(handler);
     }, [query]);
 
-    const handleSearch = async (e) => {
+    const handleSearch = async (e, explicitQuery) => {
+        // If explicitQuery is provided, query with that
+        // Otherwise query with the normal (useState) query
         e.preventDefault();
-        if (!query) {
+        if (!explicitQuery && !query) {
             resetMovieListData();
             return;
         }
+        var chosenQuery; 
+        if (explicitQuery) {
+            chosenQuery = explicitQuery;
+        } else {
+            chosenQuery = query;
+        }
 
-        if (query && !showSearchInput) {
+        if (chosenQuery && !showSearchInput) {
             setShowSearchInput(true);
         }
 
         setLoading(true);
         api
-            .get(`/movie/search/?query=${encodeURIComponent(query)}`)
+            .get(`/movie/search/?query=${encodeURIComponent(chosenQuery)}`)
             .then((res) => res.data)
             .then((data) => onResults(data.movies, data.tmdb_config))
             .catch((err) => {
@@ -58,12 +69,14 @@ function Search({ onResults, resetMovieListData, isMobile, showSearchInput, setS
             .finally(() => {
                 setLoading(false);
             });
+        setShowSuggestedMovies(false);
     };
 
     useEffect(() => {
         const handleKey = (e) => {
             if (e.key === 'Escape' && isMobile) {
                 setShowSearchInput(false);
+                setShowSuggestedMovies(false);
             }
         };
         window.addEventListener('keydown', handleKey);
@@ -78,6 +91,7 @@ function Search({ onResults, resetMovieListData, isMobile, showSearchInput, setS
                     isMobile
             ) {
                 setShowSearchInput(false);
+                setShowSuggestedMovies(false);
             }
         };
 
@@ -113,10 +127,19 @@ function Search({ onResults, resetMovieListData, isMobile, showSearchInput, setS
                 </button>
             </form>
 
-            {suggestedMovies.length > 0 && (!isMobile || showSearchInput) && (
+            {suggestedMovies.length > 0 && 
+                (!isMobile || showSearchInput) && 
+                showSuggestedMovies &&
+                (
                 <div className={styles.suggestions}>
                     {suggestedMovies.map((movie) => (
-                        <div key={movie.tmdb_id} className={styles.suggestionItem}>
+                        <div
+                            onClick={(e) => {
+                                handleSearch(e, movie.title);
+                            }}
+                            key={movie.tmdb_id}
+                            className={styles.suggestionItem}
+                        >
                             <span className={styles.movieTitle}>{movie.title}</span>
                             {movie.release_date && (
                                 <span className={styles.movieDate}>{movie.release_date.slice(0, 4)}</span>
