@@ -15,6 +15,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AuthProvider from './components/AuthContext';
 import TopBar from './components/TopBar';
 import Settings from './Settings';
+import Rooms from './Rooms';
 import styles from './App.module.css';
 import './colors.css';
 import api from "../main/api";
@@ -77,6 +78,14 @@ function App() {
                                 <Sidebar resetMovieListData={resetMovieListData} />
                                 <div className={styles.mainContent}>
                                     <Settings />
+                                </div>
+                            </div>
+                        } />
+                        <Route path="/rooms" element={
+                            <div className={styles.body}>
+                                <Sidebar resetMovieListData={resetMovieListData} />
+                                <div className={styles.mainContent}>
+                                    <Rooms />
                                 </div>
                             </div>
                         } />

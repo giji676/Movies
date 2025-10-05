@@ -62,6 +62,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "api",
+    "rooms",
+    "channels",
     'accounts.apps.AccountsConfig',
 ]
 
@@ -85,7 +87,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
-
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
@@ -119,6 +120,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'movie.wsgi.application'
+ASGI_APPLICATION = "movie.asgi.application"
 
 
 # Database

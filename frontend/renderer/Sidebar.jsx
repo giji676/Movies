@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { FaRegBookmark, FaHistory, FaCog, FaDesktop} from "react-icons/fa";
+import { FaRegBookmark, FaHistory, FaCog, FaDesktop, FaUsers, } from "react-icons/fa";
 import styles from './Sidebar.module.css';
 
 
@@ -28,6 +28,13 @@ function Sidebar({ resetMovieListData }) {
                     `${styles.button} ${isActive ? styles.active : ''}`
                 }>
                     <FaRegBookmark className={styles.btnIcon}/>
+            </NavLink>
+            <NavLink 
+                to="/rooms" 
+                className={({ isActive }) =>
+                    `${styles.button} ${isActive ? styles.active : ''}`
+                }>
+                    <FaUsers className={styles.btnIcon}/>
             </NavLink>
             <NavLink 
                 to="/settings" 
