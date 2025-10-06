@@ -53,6 +53,7 @@ STATIC_ROOT = os.environ.get("STATIC_ROOT ", "/app/static/")
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -63,7 +64,6 @@ INSTALLED_APPS = [
     "corsheaders",
     "api",
     "rooms",
-    "channels",
     'accounts.apps.AccountsConfig',
 ]
 
