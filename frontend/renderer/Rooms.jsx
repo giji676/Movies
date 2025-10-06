@@ -4,6 +4,8 @@ import styles from "./Rooms.module.css";
 
 function Rooms() {
     const [playing, setPlaying] = useState(false);
+    const [createOutput, setCreateOutput] = useState("");
+    const [joinCode, setJoinCode] = useState("");
     const url = `ws://localhost:8000/ws/socket-server/`;
     const socketRef = useRef();
 
@@ -41,8 +43,48 @@ function Rooms() {
         }));
     }, [playing]);
 
+    const handleCreate = (e) => {
+        e.preventDefault();
+        setCreateOutput("createOutput");
+    };
+
+    const handleJoin = (e) => {
+        e.preventDefault();
+        console.log("join:", joinCode);
+    };
+    
     return (
-        <div>
+        <div className={styles.body}>
+            <div className={styles.roomContainer}>
+                <form className={styles.form}>
+                    <button 
+                        className={styles.createButton}
+                        onClick={(e) => handleCreate(e)}
+                    >
+                        CREATE
+                    </button>
+                    <div className={styles.createOutput}>
+                        {createOutput}
+                    </div>
+                </form>
+                <form 
+                    className={styles.form}
+                    onSubmit={(e) => handleJoin(e)}
+                >
+                    <input 
+                        type="text" 
+                        className={styles.input}
+                        placeholder="Enter code"
+                        onChange={(e) => setJoinCode(e.target.value)}
+                    />
+                    <button 
+                        type="submit"
+                        className={styles.joinButton}
+                    >
+                        JOIN
+                    </button>
+                </form>
+            </div>
             <button 
                 className={styles.button} 
                 onClick={() => handleSubmit()}
