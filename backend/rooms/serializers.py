@@ -39,7 +39,9 @@ class RoomUserSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "room",
+            "room_hash",
             "user",
+            "user_email",
             "role",
             "joined_at",
             "last_watched_timestamp",

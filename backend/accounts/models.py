@@ -40,7 +40,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = []  # only email is required
 
     def __str__(self):
-        return self.email
+        return f"{self.email} id:{self.id}"
 
 class UserSettings(models.Model):
     THEME_CHOICES = [('light', 'Light'), ('dark', 'Dark'), ('system', 'System Default')]

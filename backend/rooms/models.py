@@ -14,7 +14,7 @@ class Room(models.Model):
     room_hash = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
     is_active = models.BooleanField(default=True)
     is_private = models.BooleanField(default=True)
-    password_hash = models.CharField(max_length=100, blank=True, null=True, write_only=True)
+    password_hash = models.CharField(max_length=100, blank=True, null=True)
     whitelisted_users = models.ManyToManyField(User, blank=True, related_name="whitelisted_rooms")
     current_timestamp = models.FloatField(default=0.0)
     max_users = models.PositiveIntegerField(default=8)
@@ -26,10 +26,23 @@ class Room(models.Model):
     )
 
     def add_user(self, user, role="guest"):
-        if self.users.count() >= self.max_users:
+        if self.users.filter(id=user.id).exists():
+            return RoomUser.objects.get(room=self, user=user)
+
+        normal_user_ids = set(self.users.values_list('id', flat=True))
+        whitelisted_user_ids = set(self.whitelisted_users.values_list('id', flat=True))
+
+        all_active_user_ids = normal_user_ids.union(whitelisted_user_ids)
+
+        all_active_user_ids.add(user.id)
+
+        if len(all_active_user_ids) > self.max_users:
             raise ValueError("Room is full")
+
         room_user, created = RoomUser.objects.get_or_create(
-            room=self, user=user, defaults={"role": role}
+            room=self,
+            user=user,
+            defaults={"role": role}
         )
         return room_user
 
