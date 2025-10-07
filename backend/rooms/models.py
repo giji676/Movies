@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password, check_password
+from .exceptions import RoomFullException
 
 User = get_user_model()
 
@@ -32,7 +33,7 @@ class Room(models.Model):
         user_ids.add(user.id)
 
         if len(user_ids) > self.max_users:
-            raise ValueError("Room is full")
+            raise RoomFullException()
 
         if privileges is None:
             privileges, _ = RoomUserPrivileges.objects.get_or_create(
