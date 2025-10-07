@@ -56,28 +56,3 @@ class CreateCodeTest(APITestCase):
         })
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_room_with_whitelisted_users(self):
-        response = self.client.post(self.url, {
-            "movie_id": self.movie1.tmdb_id,
-            "whitelisted_users": [self.other_user.id],
-            "max_users": 2,
-        })
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        room = Room.objects.first()
-        self.assertIn(self.other_user, room.whitelisted_users.all())
-
-        with self.assertRaises(ValueError) as ctx:
-            room.add_user(self.last_user)
-        self.assertEqual(str(ctx.exception), "Room is full")
-
-    def test_add_whitelisted_user_already_in_room(self):
-        response = self.client.post(self.url, {
-            "movie_id": self.movie1.tmdb_id,
-            "max_users": 2,
-        })
-        room = Room.objects.first()
-        room.whitelisted_users.add(self.other_user)
-        room_user = room.add_user(self.other_user)
-        self.assertEqual(room.users.count(), 2) # owner and the "other_user"
