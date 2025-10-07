@@ -1,9 +1,9 @@
 import { useRef, useEffect, useState } from "react";
 import api from "../main/api";
-import styles from "./Rooms.module.css";
+import styles from "./RoomAccess.module.css";
 import ProtectedRoute from './components/ProtectedRoute';
 
-function Rooms() {
+function RoomAccess() {
     const [playing, setPlaying] = useState(false);
     const [createOutput, setCreateOutput] = useState("");
     const [joinCode, setJoinCode] = useState("");
@@ -117,4 +117,4 @@ function Rooms() {
     );
 }
 
-export default Rooms;
+export default RoomAccess;

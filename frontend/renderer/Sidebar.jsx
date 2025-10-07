@@ -30,7 +30,7 @@ function Sidebar({ resetMovieListData }) {
                     <FaRegBookmark className={styles.btnIcon}/>
             </NavLink>
             <NavLink 
-                to="/rooms" 
+                to="/room-access" 
                 className={({ isActive }) =>
                     `${styles.button} ${isActive ? styles.active : ''}`
                 }>
