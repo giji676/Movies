@@ -35,7 +35,7 @@ class CreateRoomView(APIView):
             room.set_password(password)
         room.save()
 
-        RoomUser.objects.create(room=room, user=user, role="owner")
+        # RoomUser.objects.create(room=room, user=user)
 
         serializer = RoomSerializer(room)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

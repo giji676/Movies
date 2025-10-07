@@ -18,7 +18,6 @@ class RoomSerializer(serializers.ModelSerializer):
             "is_active",
             "is_private",
             "password_hash",
-            "whitelisted_users",
             "current_timestamp",
             "max_users",
             "users"
@@ -42,7 +41,7 @@ class RoomUserSerializer(serializers.ModelSerializer):
             "room_hash",
             "user",
             "user_email",
-            "role",
+            "privileges",
             "joined_at",
             "last_watched_timestamp",
             "is_watching",

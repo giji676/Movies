@@ -38,7 +38,7 @@ class CreateCodeTest(APITestCase):
         self.assertEqual(room.created_by, self.user)
         self.assertEqual(room.max_users, 2)
         room_user = RoomUser.objects.get(user=self.user, room=room)
-        self.assertEqual(room_user.role, "owner")
+        self.assertEqual(room_user.privileges.change_privileges, True)
 
     def test_create_room_with_password(self):
         response = self.client.post(self.url, {
