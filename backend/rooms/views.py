@@ -10,17 +10,39 @@ from .exceptions import RoomFullException
 
 User = get_user_model()
 
-class AddUserToRoom(APIView):
+class ManagerUsersInRoom(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def delete(self, request, room_hash, user_id):
+        try:
+            room = Room.objects.get(room_hash=room_hash)
+        except Room.DoesNotExist:
+            return Response({"error": "Room not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            room_user = RoomUser.objects.get(user__id=user_id, room=room)
+            target_user = room_user.user
+        except RoomUser.DoesNotExist:
+            return Response({"error": "Target user not in room"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            current_room_user = RoomUser.objects.get(user=request.user, room=room)
+            if not current_room_user.privileges.remove_users:
+                return Response({"error": "Not enough privilege for this action"}, status=status.HTTP_403_FORBIDDEN)
+        except RoomUser.DoesNotExist:
+            return Response({"error": "You are not in this room"}, status=status.HTTP_403_FORBIDDEN)
+
+        room_user.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def post(self, request, room_hash):
         user = request.user
         data = request.data
-        room_hash = data.get("room_hash")
         target_email = data.get("email")
 
-        if not target_email or not room_hash:
-            return Response({"error": "Missing email or room_hash"}, status=status.HTTP_400_BAD_REQUEST)
+        if not target_email:
+            return Response({"error": "Missing email"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             room = Room.objects.get(room_hash=room_hash)

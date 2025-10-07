@@ -8,6 +8,69 @@ from api.models import Movie
 
 User = get_user_model()
 
+class RemoveUserFromRoomTest(APITestCase):
+    def setUp(self):
+        # Users
+        self.owner = User.objects.create_user(email="owner@example.com", password="password123")
+        self.guest = User.objects.create_user(email="guest@example.com", password="guest123")
+        self.other_user = User.objects.create_user(email="other@example.com", password="other123")
+
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.owner)
+
+        self.movie = Movie.objects.create(title="Movie 1", tmdb_id=1)
+
+        self.room = Room.objects.create(movie_id=self.movie.tmdb_id, created_by=self.owner, max_users=3)
+
+        self.guest_privilege = RoomUserPrivileges.objects.create(
+            room=self.room,
+            name="Guest",
+            play_pause=False,
+            choose_movie=False,
+            add_users=False,
+            remove_users=False,
+            change_privileges=False
+        )
+
+        self.owner_privilege = self.room.privilege_roles.get(name="Owner")
+        self.guest_room_user = RoomUser.objects.create(user=self.guest, room=self.room, privileges=self.guest_privilege)
+
+        self.url_name = "manage-user-detail"
+
+    def test_delete_user_successfully(self):
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash, "user_id": self.guest.id})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(RoomUser.objects.filter(user=self.guest, room=self.room).exists())
+
+    def test_delete_user_not_in_room(self):
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash, "user_id": self.other_user.id})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn("Target user not in room", response.data["error"])
+
+    def test_delete_user_no_privilege(self):
+        # Authenticate as guest who cannot remove users
+        self.client.force_authenticate(user=self.guest)
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash, "user_id": self.owner.id})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn("Not enough privilege", response.data["error"])
+
+    def test_delete_user_requester_not_in_room(self):
+        # Authenticate as a user not in the room
+        self.client.force_authenticate(user=self.other_user)
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash, "user_id": self.guest.id})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn("You are not in this room", response.data["error"])
+
+    def test_delete_user_invalid_room_hash(self):
+        url = reverse(self.url_name, kwargs={"room_hash": "invalidhash", "user_id": self.guest.id})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn("Room not found", response.data["error"])
+
 class AddUserToRoomTest(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -34,12 +97,11 @@ class AddUserToRoomTest(APITestCase):
             max_users=2,
         )
         self.room.save()
-        self.url = reverse("add-user")
+        self.url = reverse("manage-user", kwargs={"room_hash": self.room.room_hash})
 
     def test_add_user_successfully(self):
         response = self.client.post(self.url, {
             "email": self.other_user_email,
-            "room_hash": self.room.room_hash,
         })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         exists = RoomUser.objects.filter(user=self.other_user, room=self.room).exists()
@@ -48,37 +110,26 @@ class AddUserToRoomTest(APITestCase):
     def test_add_user_over_max_limit(self):
         self.client.post(self.url, {
             "email": self.other_user_email,
-            "room_hash": self.room.room_hash,
         })
         response = self.client.post(self.url, {
             "email": self.last_user_email,
-            "room_hash": self.room.room_hash,
         })
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_add_user_missing_email(self):
-        response = self.client.post(self.url, {
-            "room_hash": self.room.room_hash,
-        })
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_add_user_missing_room_hash(self):
-        response = self.client.post(self.url, {
-            "email": self.other_user_email,
-        })
+        response = self.client.post(self.url, {})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_add_user_invalid_room_hash(self):
-        response = self.client.post(self.url, {
+        url = reverse("manage-user", kwargs={"room_hash": "invalidhash"})
+        response = self.client.post(url, {
             "email": self.other_user_email,
-            "room_hash": "invalidhash",
         })
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_add_user_nonexistent_user(self):
         response = self.client.post(self.url, {
             "email": "non-existent@example.com",
-            "room_hash": self.room.room_hash,
         })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -88,7 +139,6 @@ class AddUserToRoomTest(APITestCase):
 
         response = self.client.post(self.url, {
             "email": self.other_user_email,
-            "room_hash": self.room.room_hash,
         })
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -110,18 +160,15 @@ class AddUserToRoomTest(APITestCase):
 
         response = self.client.post(self.url, {
             "email": self.other_user_email,
-            "room_hash": self.room.room_hash,
         })
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_add_existing_user(self):
         self.client.post(self.url, {
             "email": self.other_user_email,
-            "room_hash": self.room.room_hash,
         })
         response = self.client.post(self.url, {
             "email": self.other_user_email,
-            "room_hash": self.room.room_hash,
         })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
