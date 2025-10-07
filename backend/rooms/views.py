@@ -13,6 +13,40 @@ User = get_user_model()
 class ManagerUsersInRoom(APIView):
     permission_classes = [IsAuthenticated]
 
+    def patch(self, request, room_hash, user_id):
+        try:
+            room = Room.objects.get(room_hash=room_hash)
+        except Room.DoesNotExist:
+            return Response({"error": "Room not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            room_user = RoomUser.objects.get(user__id=user_id, room=room)
+        except RoomUser.DoesNotExist:
+            return Response({"error": "Target user not in room"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            request_room_user = RoomUser.objects.get(user=request.user, room=room)
+            if not request_room_user.privileges.change_privileges:
+                return Response({"error": "Not enough privilege for this action"}, status=status.HTTP_403_FORBIDDEN)
+        except RoomUser.DoesNotExist:
+            return Response({"error": "You are not in this room"}, status=status.HTTP_403_FORBIDDEN)
+
+        allowed_fields = ["play_pause", "choose_movie", "add_users", "remove_users", "change_privileges"]
+        data = {k: v for k, v in request.data.items() if k in allowed_fields}
+
+        if not data:
+            return Response({"error": "No valid privilege fields provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        for key, value in data.items():
+            setattr(room_user.privileges, key, value)
+
+        room_user.privileges.save()
+
+        return Response({
+            "message": "Privileges updated successfully",
+            "user": RoomUserSerializer(room_user).data
+        }, status=status.HTTP_200_OK)
+
     def delete(self, request, room_hash, user_id):
         try:
             room = Room.objects.get(room_hash=room_hash)

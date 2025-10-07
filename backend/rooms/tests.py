@@ -8,6 +8,80 @@ from api.models import Movie
 
 User = get_user_model()
 
+class EditUserPrivilegesTest(APITestCase):
+    def setUp(self):
+        # Users
+        self.owner = User.objects.create_user(email="owner@example.com", password="password123")
+        self.guest = User.objects.create_user(email="guest@example.com", password="guest123")
+        self.other_user = User.objects.create_user(email="other@example.com", password="other123")
+
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.owner)
+
+        self.movie = Movie.objects.create(title="Movie 1", tmdb_id=1)
+
+        self.room = Room.objects.create(movie_id=self.movie.tmdb_id, created_by=self.owner, max_users=3)
+
+        self.owner_privilege = self.room.privilege_roles.get(name="Owner")
+
+        self.guest_privilege = RoomUserPrivileges.objects.create(
+            room=self.room,
+            name="Guest",
+            play_pause=False,
+            choose_movie=False,
+            add_users=False,
+            remove_users=False,
+            change_privileges=False
+        )
+
+        self.owner_room_user = RoomUser.objects.get(user=self.owner, room=self.room)
+        self.guest_room_user = RoomUser.objects.create(user=self.guest, room=self.room, privileges=self.guest_privilege)
+
+        self.url_name = "manage-user-detail"
+
+    def test_edit_user_privileges_success(self):
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash, "user_id": self.guest.id})
+        response = self.client.patch(url, {"play_pause": True, "add_users": True})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.guest_room_user.refresh_from_db()
+        self.assertTrue(self.guest_room_user.privileges.play_pause)
+        self.assertTrue(self.guest_room_user.privileges.add_users)
+
+    def test_edit_user_not_in_room(self):
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash, "user_id": self.other_user.id})
+        response = self.client.patch(url, {"play_pause": True})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn("Target user not in room", response.data["error"])
+
+    def test_edit_user_requester_no_privilege(self):
+        # Authenticate as guest without change_privileges
+        self.client.force_authenticate(user=self.guest)
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash, "user_id": self.owner.id})
+        response = self.client.patch(url, {"play_pause": False})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn("Not enough privilege", response.data["error"])
+
+    def test_edit_user_requester_not_in_room(self):
+        # Authenticate as a user not in room
+        self.client.force_authenticate(user=self.other_user)
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash, "user_id": self.guest.id})
+        response = self.client.patch(url, {"play_pause": True})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn("You are not in this room", response.data["error"])
+
+    def test_edit_user_invalid_room_hash(self):
+        url = reverse(self.url_name, kwargs={"room_hash": "invalidhash", "user_id": self.guest.id})
+        response = self.client.patch(url, {"play_pause": True})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn("Room not found", response.data["error"])
+
+    def test_edit_user_no_valid_fields(self):
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash, "user_id": self.guest.id})
+        response = self.client.patch(url, {"invalid_field": True})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("No valid privilege fields provided", response.data["error"])
+
 class RemoveUserFromRoomTest(APITestCase):
     def setUp(self):
         # Users
