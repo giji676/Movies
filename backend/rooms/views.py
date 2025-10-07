@@ -10,6 +10,30 @@ from .exceptions import RoomFullException
 
 User = get_user_model()
 
+class JoinRoomView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, room_hash):
+        try:
+            room = Room.objects.get(room_hash=room_hash)
+        except Room.DoesNotExist:
+            return Response({"error": "Room not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            room_user = room.add_user(request.user)
+        except RoomFullException as e:
+            return Response(
+                {"error": "room_full", "detail": str(e)},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_403_FORBIDDEN)
+
+        return Response({
+            "message": "Joined room successfully",
+            "user": RoomUserSerializer(room_user).data
+        }, status=status.HTTP_201_CREATED)
+
 class ManagerUsersInRoom(APIView):
     permission_classes = [IsAuthenticated]
 

@@ -8,6 +8,51 @@ from api.models import Movie
 
 User = get_user_model()
 
+class JoinRoomViewTest(APITestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(email="owner@example.com", password="password123")
+        self.guest = User.objects.create_user(email="guest@example.com", password="guest123")
+        self.last_user = User.objects.create_user(email="last@example.com", password="last123")
+
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.guest)
+
+        self.movie = Movie.objects.create(title="Movie 1", tmdb_id=1)
+
+        self.room = Room.objects.create(movie_id=self.movie.tmdb_id, created_by=self.owner, max_users=2)
+        self.room.add_user(self.guest)
+
+        self.owner_room_user = RoomUser.objects.get(user=self.owner, room=self.room)
+
+        self.url_name = "join-room"
+
+    def test_join_room_successfully(self):
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(RoomUser.objects.filter(user=self.guest, room=self.room).exists())
+
+    def test_join_room_already_in_room(self):
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Should not create duplicate
+        users_count = RoomUser.objects.filter(user=self.guest, room=self.room).count()
+        self.assertEqual(users_count, 1)
+
+    def test_join_room_full(self):
+        self.client.force_authenticate(user=self.last_user)
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn("room_full", response.data["error"])
+
+    def test_join_room_invalid_hash(self):
+        url = reverse(self.url_name, kwargs={"room_hash": "invalidhash"})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn("Room not found", response.data["error"])
+
 class EditUserPrivilegesTest(APITestCase):
     def setUp(self):
         # Users
