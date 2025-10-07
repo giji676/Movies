@@ -31,7 +31,8 @@ class JoinRoomView(APIView):
 
         return Response({
             "message": "Joined room successfully",
-            "user": RoomUserSerializer(room_user).data
+            "user": RoomUserSerializer(room_user).data,
+            "room": RoomSerializer(room).data
         }, status=status.HTTP_201_CREATED)
 
 class ManagerUsersInRoom(APIView):
