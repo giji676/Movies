@@ -92,7 +92,6 @@ function App() {
                         } />
                         <Route path="/room" element={
                             <div className={styles.body}>
-                                <Sidebar resetMovieListData={resetMovieListData} />
                                 <div className={styles.mainContent}>
                                     <Room />
                                 </div>
