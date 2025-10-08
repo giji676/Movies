@@ -180,7 +180,14 @@ function Room() {
             let data = JSON.parse(e.data);
             switch (data.action) {
                 case "playing":
-                    setIsPlaying(data.action_state);
+                    togglePlay(data.action_state);
+                    break;
+                case "seek":
+                    const video = videoRef.current;
+                    if (!video || !video.duration) break;
+                    const clamped = data.action_state/video.duration;
+                    video.currentTime = data.action_state;
+                    setProgress(clamped);
                     break;
                 case "sync":
                     setOriginSync(data.action_state);
@@ -280,14 +287,22 @@ function Room() {
         };
     };
 
-    const togglePlay = () => {
+    const togglePlay = (state) => {
+        // if state is provided, set play to that state
+        // otherwise toggle play
         if (!videoRef.current) return;
-        if (videoRef.current.paused) {
-            videoRef.current.play().catch(() => toast.warn("Autoplay blocked"));
-            setIsPlaying(true);
+        if (typeof state === "boolean") {
+            if (state) videoRef.current.play();
+            else videoRef.current.pause();
+            setIsPlaying(state);
         } else {
-            videoRef.current.pause();
-            setIsPlaying(false);
+            if (videoRef.current.paused) {
+                videoRef.current.play();
+                setIsPlaying(true);
+            } else {
+                videoRef.current.pause();
+                setIsPlaying(false);
+            }
         }
     };
 
@@ -315,7 +330,7 @@ function Room() {
         }, 2500);
     };
 
-    const handleSliderMouseDown = (ref, setter) => (e) => {
+    const handleSliderMouseDown = (ref, setter, onMouseUpCallback) => (e) => {
         const updateValue = (eMove) => {
             if (!ref.current) return;
             const rect = ref.current.getBoundingClientRect();
@@ -330,9 +345,12 @@ function Room() {
         updateValue(e);
 
         const handleMouseMove = (eMove) => updateValue(eMove);
+
         const handleMouseUp = () => {
             document.removeEventListener("mousemove", handleMouseMove);
             document.removeEventListener("mouseup", handleMouseUp);
+
+            if (onMouseUpCallback) onMouseUpCallback();
         };
 
         document.addEventListener("mousemove", handleMouseMove);
@@ -423,14 +441,26 @@ function Room() {
                             <div className={styles.controlBar}>
                                 <div 
                                     ref={progressBarRef}
-                                    onMouseDown={handleSliderMouseDown(progressBarRef, setProgressValue)}
+                                    onMouseDown={handleSliderMouseDown(
+                                        progressBarRef,
+                                        setProgressValue,
+                                        () => {
+                                            const video = videoRef.current;
+                                            if (!video || socketRef.current?.readyState !== WebSocket.OPEN) return;
+
+                                            socketRef.current.send(JSON.stringify({
+                                                "type": "room_action",
+                                                "action": "seek",
+                                                "action_state": video.currentTime,
+                                            }));
+                                        }
+                                    )}
                                     className={styles.progressBar}
                                 >
                                     <div
                                         className={styles.progressBarFill} 
                                         style={{width: `${progress * 100}%`}}
-                                    >
-                                    </div>
+                                    />
                                 </div>
                                 <div className={styles.controlButtons}>
                                     <div className={styles.leftButtonStack}>
