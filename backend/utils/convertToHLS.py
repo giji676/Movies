@@ -73,7 +73,7 @@ class ConvertToHLS:
                 if duration and line.startswith("out_time_ms="):
                     t_ms = line.split("=")[1]
                     try:
-                        current_seconds = int(t_ms)/100_000_000 # TODO: validate the seconds calculation is correct!
+                        current_seconds = int(t_ms)/1_000 # TODO: validate the seconds calculation is correct!
                         percent = (current_seconds / duration) * 100
                         # Overwrite the same line
                         #print(f"\rProgress: {percent:.1f}% ({current_seconds:.1f}s)   ", end="", flush=True)

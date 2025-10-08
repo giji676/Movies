@@ -12,86 +12,106 @@ from api.movieSearch import MovieSearch, TMDB
 from utils.convertToHLS import ConvertToHLS
 from dotenv import load_dotenv
 
-ENV_FILE = os.environ.get("DJANGO_ENV_FILE", ".env.production")
-load_dotenv(ENV_FILE)
-DOWNLOAD_PATH  = os.environ.get("DJANGO_SECRET_KEY")
+DOWNLOAD_PATH  = os.environ.get("DOWNLOAD_PATH")
 
 logger = logging.getLogger("movies")
 
 class Command(BaseCommand):
     help = 'Fetches and populates movie data from TMDB IDs'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--tmdb_id",
+            type=int,
+            help="TMDB ID of the movie to download",
+        )
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Force conversion even if movie's already in the database",
+        )
+
     def handle(self, *args, **kwargs):
+        input_tmdb_id = kwargs.get("tmdb_id")
+        self.force = kwargs.get("force")
+
         self.tmdb = TMDB()
-        page = 1
-        while True:
-            popular_movies = self.tmdb.getPopularMovies(page=page)
-            for movie in popular_movies["results"]:
-                tmdb_id = movie["id"]
-                if Movie.objects.filter(tmdb_id=tmdb_id).exists():
-                    logger.info("Skipping %s (already exists)", movie["title"])
-                    continue
-                logger.info("Processing %s", movie["title"])
-                tpb_data = self.download(movie)
-                if not tpb_data:
-                    logger.info("No TPB results found for %s", movie["title"])
-                    continue
-                movie_path = os.path.join(DOWNLOAD_PATH, str(movie["id"]))
-                movie_obj, created = Movie.objects.update_or_create(
-                    tmdb_id=tmdb_id,
-                    defaults={
-                        "title": movie["title"],
-                        "overview": movie["overview"],
-                        "release_date": movie["release_date"],
-                        "backdrop_path": "",
-                        "poster_path": "",
-                        "imdb": tpb_data["imdb"],
-                        "category": tpb_data["category"],
-                        "download_path": movie_path,
-                        "hls_available": False,
-                    }
-                )
-                logger.info("Saved: %s data", movie["title"])
+        if input_tmdb_id:
+            movie = self.tmdb.getMovieByTMDBID(input_tmdb_id)
+            self.process(movie)
+        else:
+            page = 1
+            while True:
+                popular_movies = self.tmdb.getPopularMovies(page=page)
+                for movie in popular_movies["results"]:
+                    self.process(movie)
 
-                images_path = os.path.join(movie_path, "images")
-                os.makedirs(images_path, exist_ok=True)
+                logger.info("page %s done", page)
+                page += 1
 
-                poster_rel = os.path.join("images", "poster.jpg")
-                poster_file = os.path.join(images_path, "poster.jpg")
-                backdrop_rel = os.path.join("images", "backdrop.jpg")
-                backdrop_file = os.path.join(images_path, "backdrop.jpg")
+    def process(self, movie):
+        tmdb_id = movie["id"]
+        if not self.force and Movie.objects.filter(tmdb_id=tmdb_id).exists():
+            logger.info("Skipping %s (already exists)", movie["title"])
+            return
+        logger.info("Processing %s", movie["title"])
+        tpb_data = self.download(movie)
+        if not tpb_data:
+            logger.info("No TPB results found for %s", movie["title"])
+            return
+        movie_path = os.path.join(DOWNLOAD_PATH, str(movie["id"]))
+        movie_obj, created = Movie.objects.update_or_create(
+            tmdb_id=tmdb_id,
+            defaults={
+                "title": movie["title"],
+                "overview": movie["overview"],
+                "release_date": movie["release_date"],
+                "backdrop_path": "",
+                "poster_path": "",
+                "imdb": tpb_data["imdb"],
+                "category": tpb_data["category"],
+                "download_path": movie_path,
+                "hls_available": False,
+            }
+        )
+        logger.info("Saved: %s data", movie["title"])
 
-                try:
-                    # Download poster
-                    if movie["poster_path"] and not os.path.isfile(poster_file):
-                        poster_url = self.tmdb.buildImageURL(tmdb_id, "poster")
-                        self.download_image(poster_url, poster_file)
-                        logger.info("Downloaded poster for %s", movie["title"])
-                    # Download backdrop
-                    if movie["backdrop_path"] and not os.path.isfile(backdrop_file):
-                        backdrop_url = self.tmdb.buildImageURL(tmdb_id, "backdrop")
-                        self.download_image(backdrop_url, backdrop_file)
-                        logger.info("Downloaded backdrop for %s", movie["title"])
+        images_path = os.path.join(movie_path, "images")
+        os.makedirs(images_path, exist_ok=True)
 
-                    # Update local paths in DB
-                    movie_obj.poster_path = poster_rel
-                    movie_obj.backdrop_path = backdrop_rel
-                    movie_obj.save(update_fields=["poster_path", "backdrop_path"])
-                except Exception as e:
-                    logger.warning("Image download failed for %s (%s): %s", movie["title"], tmdb_id, e)
-                if created:
-                    torrent_path = os.path.join(movie_obj.download_path, "torrent")
-                    movie_path = self.get_movie_file(torrent_path)
-                    movie_path = os.path.join(torrent_path, movie_path)
-                    movie_info = self.get_movie_info(movie_path)
-                    movie_obj.duration = movie_info["duration"]
-                    movie_obj.save(update_fields=["duration"])
+        poster_rel = os.path.join("images", "poster.jpg")
+        poster_file = os.path.join(images_path, "poster.jpg")
+        backdrop_rel = os.path.join("images", "backdrop.jpg")
+        backdrop_file = os.path.join(images_path, "backdrop.jpg")
 
-                    converter = ConvertToHLS(tmdb_id=tmdb_id) # TODO: redundant call of get_movie_info in here and above. Remove 1
-                    converter.start()
+        try:
+            # Download poster
+            if movie["poster_path"] and not os.path.isfile(poster_file):
+                poster_url = self.tmdb.buildImageURL(tmdb_id, "poster")
+                self.download_image(poster_url, poster_file)
+                logger.info("Downloaded poster for %s", movie["title"])
+            # Download backdrop
+            if movie["backdrop_path"] and not os.path.isfile(backdrop_file):
+                backdrop_url = self.tmdb.buildImageURL(tmdb_id, "backdrop")
+                self.download_image(backdrop_url, backdrop_file)
+                logger.info("Downloaded backdrop for %s", movie["title"])
 
-            logger.info("page %s done", page)
-            page += 1
+            # Update local paths in DB
+            movie_obj.poster_path = poster_rel
+            movie_obj.backdrop_path = backdrop_rel
+            movie_obj.save(update_fields=["poster_path", "backdrop_path"])
+        except Exception as e:
+            logger.warning("Image download failed for %s (%s): %s", movie["title"], tmdb_id, e)
+        if created:
+            torrent_path = os.path.join(movie_obj.download_path, "torrent")
+            movie_path = self.get_movie_file(torrent_path)
+            movie_path = os.path.join(torrent_path, movie_path)
+            movie_info = self.get_movie_info(movie_path)
+            movie_obj.duration = movie_info["duration"]
+            movie_obj.save(update_fields=["duration"])
+
+            converter = ConvertToHLS(tmdb_id=tmdb_id) # TODO: redundant call of get_movie_info in here and above. Remove 1
+            converter.start()
 
     def get_movie_file(self, torrent_path):
         video_extensions = ['.mp4', '.mkv', '.avi', '.mov']

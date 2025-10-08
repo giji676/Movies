@@ -161,6 +161,7 @@ class StreamToClient(APIView):
     Returns the HLS .m3u8 URL for a movie given its TMDB ID.
     Assumes Nginx serves /var/www/media/ as /media/ URL.
     """
+    # TODO: video path is being returned with "/media/media/..." (should only be one media)
     def get(self, request):
         tmdb_id = request.query_params.get("tmdb_id")
         if not tmdb_id:

@@ -12,8 +12,6 @@ from api.movieSearch import MovieSearch, TMDB
 from utils.convertToHLS import ConvertToHLS
 from dotenv import load_dotenv
 
-ENV_FILE = os.environ.get("DJANGO_ENV_FILE", ".env.production")
-load_dotenv(ENV_FILE)
 DOWNLOAD_PATH  = os.environ.get("DOWNLOAD_PATH", "/media/downloads")
 
 logger = logging.getLogger("movies")
