@@ -23,6 +23,7 @@ function Room() {
     const [videoPath, setVideoPath] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [originSync, setOriginSync] = useState(null);
 
     useEffect(() => {
         setUpWebSocket();
@@ -73,14 +74,23 @@ function Room() {
         }));
     }, [isPlaying]);
 
+    useEffect(() => {
+        console.log("sync:", originSync);
+    }, [originSync]);
+
     const setUpWebSocket = () => {
         const socket = new WebSocket(url);
         socketRef.current = socket;
 
         socket.onmessage = (e) => {
             let data = JSON.parse(e.data);
-            if (data.action === "playing") {
-                setIsPlaying(data.action_state);
+            switch (data.action) {
+                case "playing":
+                    setIsPlaying(data.action_state);
+                    break;
+                case "sync":
+                    setOriginSync(data.action_state);
+                    break;
             }
         }
 
@@ -113,7 +123,6 @@ function Room() {
         if (socketRef.current?.readyState !== WebSocket.OPEN) return;
 
         const currentTime = Math.floor(videoRef.current.currentTime); // seconds
-        console.log("updating time:", currentTime);
 
         socketRef.current.send(JSON.stringify({
             "type": "room_action",
