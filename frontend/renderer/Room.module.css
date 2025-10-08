@@ -14,6 +14,10 @@
     box-sizing: border-box;
 }
 
+.hideCursor {
+    cursor: none;
+}
+
 .playerContainer {
     background-color: black;
     width: 100%;

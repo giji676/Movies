@@ -35,6 +35,7 @@ function Room() {
     const timeoutRef = useRef(null);
 
     const [showControls, setShowControls] = useState(true);
+    const [mouseVisible, setMouseVisible] = useState(true);
     const [movieId, setMovieId] = useState(null);
     const [videoPath, setVideoPath] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -97,7 +98,6 @@ function Room() {
 
     useEffect(() => {
         const duration = videoRef.current?.duration;
-        console.log(`Sync: ${originSync}/${duration}`);
     }, [originSync]);
 
     useEffect(() => {
@@ -113,23 +113,6 @@ function Room() {
             if (!mute) videoRef.current.volume = volume;
         }
     }, [mute, volume]);
-
-    useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
-
-        const handleTimeUpdate = () => {
-            const current = video.currentTime;
-            const duration = video.duration;
-            if (!duration) return;
-            setProgress(current / duration);
-        };
-
-        video.addEventListener("timeupdate", handleTimeUpdate);
-        return () => {
-            video.removeEventListener("timeupdate", handleTimeUpdate);
-        };
-    }, []);
 
     const setUpWebSocket = () => {
         const socket = new WebSocket(url);
@@ -202,6 +185,15 @@ function Room() {
         setIsPlaying(!video.paused);
     };
 
+    const handleTimeUpdate = () => {
+        const video = videoRef.current;
+        if (!video) return;
+        const current = video.currentTime;
+        const duration = video.duration;
+        if (!duration) return;
+        setProgress(current / duration);
+    };
+
     const setupTrackingListeners = () => {
         const video = videoRef.current;
         if (!video) return;
@@ -214,6 +206,7 @@ function Room() {
         video.addEventListener("pause", () => {updateState(); stopTracking();});
         video.addEventListener("ended", stopTracking);
         video.addEventListener("seeked", onSeek);
+        video.addEventListener("timeupdate", handleTimeUpdate);
 
         if (!videoRef.current.paused) {
             startTracking();
@@ -225,6 +218,7 @@ function Room() {
             video.removeEventListener("pause", stopTracking);
             video.removeEventListener("ended", stopTracking);
             video.removeEventListener("seeked", onSeek);
+            video.removeEventListener("timeupdate", handleTimeUpdate);
         };
     };
 
@@ -253,11 +247,13 @@ function Room() {
 
     const handleMouseMove = () => {
         setShowControls(true);
+        setMouseVisible(true);
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
         }
         timeoutRef.current = setTimeout(() => {
             setShowControls(false);
+            setMouseVisible(false);
         }, 2500);
     };
 
@@ -319,7 +315,7 @@ function Room() {
     return (
         <div
             onMouseMove={handleMouseMove}
-            className={styles.playerContainer}
+            className={`${styles.playerContainer} ${!mouseVisible ? styles.hideCursor : ''}`}
         >
             {videoPath ? (
                 <div className={styles.videoContainer}>
