@@ -410,23 +410,6 @@ function Room() {
                     {showControls && (
                         <>
                             <div className={styles.controlBar}>
-                                <button onClick={togglePlay}>
-                                    {isPlaying ? <FaPause /> : <FaPlay />}
-                                </button>
-                                <button onClick={toggleMute}>
-                                    {renderVolumeIcon()}
-                                </button>
-                                <div
-                                    ref={volumeBarRef}
-                                    onMouseDown={handleSliderMouseDown(volumeBarRef, setVolumeValue)}
-                                    className={styles.volumeBar}
-                                >
-                                    <div
-                                        className={styles.volumeBarFill} 
-                                        style={{width: `${volume * 100}%`}}
-                                    >
-                                    </div>
-                                </div>
                                 <div 
                                     ref={progressBarRef}
                                     onMouseDown={handleSliderMouseDown(progressBarRef, setProgressValue)}
@@ -438,12 +421,35 @@ function Room() {
                                     >
                                     </div>
                                 </div>
-                                <button onClick={toggleFullscreen}>
-                                    {isExpanded ? <FaCompress /> : <FaExpand />}
-                                </button>
-                                <button onClick={handleSettings}>
-                                    <FaEllipsisV />
-                                </button>
+                                <div className={styles.controlButtons}>
+                                    <div className={styles.leftButtonStack}>
+                                        <button onClick={togglePlay}>
+                                            {isPlaying ? <FaPause /> : <FaPlay />}
+                                        </button>
+                                        <button onClick={toggleMute}>
+                                            {renderVolumeIcon()}
+                                        </button>
+                                        <div
+                                            ref={volumeBarRef}
+                                            onMouseDown={handleSliderMouseDown(volumeBarRef, setVolumeValue)}
+                                            className={styles.volumeBar}
+                                        >
+                                            <div
+                                                className={styles.volumeBarFill} 
+                                                style={{width: `${volume * 100}%`}}
+                                            >
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className={styles.rightButtonStack}>
+                                        <button onClick={toggleFullscreen}>
+                                            {isExpanded ? <FaCompress /> : <FaExpand />}
+                                        </button>
+                                        <button onClick={handleSettings}>
+                                            <FaEllipsisV />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             <button className={backButtonStyle.backButton} onClick={() => navigate(-1)}>
                                 <FaArrowLeft />

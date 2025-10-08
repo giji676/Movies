@@ -40,16 +40,24 @@
 }
 
 .controlBar {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     position: fixed;
     bottom: 0;
     left: 0;
+    width: 100%;
+}
+
+.controlButtons {
     width: 100%;
     display: flex;
     flex-direction: row;
     align-items: center;
 }
 
-.controlBar button {
+.controlButtons button {
     font-size: 1.2rem;
     display: flex;
     justify-content: center;
@@ -60,8 +68,20 @@
     cursor: pointer;
 }
 
-.playButton:hover {
+.leftButtonStack {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-right: auto;
 }
+
+.rightButtonStack {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-left: auto;
+}
+
 
 .volumeBar {
     width: 7rem;
@@ -79,8 +99,7 @@
 }
 
 .progressBar {
-    width: 100%;
-    margin: 0 2rem; 
+    width: 97%;
     height: 0.4rem;
     background-color: rgba(50,50,50,1);
     border-radius: 999px;
