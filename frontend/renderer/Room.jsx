@@ -28,6 +28,7 @@ function Room() {
     const socketRef = useRef();
 
     const videoRef = useRef(null);
+    const playerContainerRef = useRef(null);
     const volumeBarRef = useRef(null);
     const progressBarRef = useRef(null);
     const hlsRef = useRef(null);
@@ -312,13 +313,33 @@ function Room() {
         }
     };
 
+    const toggleFullscreen = () => {
+        const container = playerContainerRef.current;
+        if (!container) return;
+
+        if (!document.fullscreenElement) {
+            if (container.requestFullscreen) container.requestFullscreen();
+                else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+                    else if (container.msRequestFullscreen) container.msRequestFullscreen();
+            setIsExpanded(true);
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                    else if (document.msExitFullscreen) document.msExitFullscreen();
+            setIsExpanded(false);
+        }
+    };
+
     return (
         <div
+            ref={playerContainerRef}
             onMouseMove={handleMouseMove}
             className={`${styles.playerContainer} ${!mouseVisible ? styles.hideCursor : ''}`}
         >
             {videoPath ? (
-                <div className={styles.videoContainer}>
+                <div 
+                    className={styles.videoContainer}
+                >
                     <video
                         ref={videoRef}
                         className={styles.video}
@@ -357,7 +378,7 @@ function Room() {
                                     >
                                     </div>
                                 </div>
-                                <button onClick={() => handlePlayButton()}>
+                                <button onClick={() => toggleFullscreen()}>
                                     {isExpanded ? <FaCompress /> : <FaExpand />}
                                 </button>
                                 <button onClick={() => handlePlayButton()}>
