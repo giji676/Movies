@@ -1,7 +1,18 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { toast } from 'react-toastify';
-import { FaArrowLeft } from "react-icons/fa";
+import { 
+    FaArrowLeft,
+    FaPlay,
+    FaPause,
+    FaVolumeMute,
+    FaVolumeOff,
+    FaVolumeDown,
+    FaVolumeUp,
+    FaExpand,
+    FaCompress,
+    FaEllipsisV,
+} from "react-icons/fa";
 import api from "../main/api";
 import styles from "./Room.module.css";
 import playerStyles from "./Player.module.css";
@@ -17,13 +28,23 @@ function Room() {
     const socketRef = useRef();
 
     const videoRef = useRef(null);
+    const volumeBarRef = useRef(null);
+    const progressBarRef = useRef(null);
     const hlsRef = useRef(null);
     const updateInterval = useRef(null);
+    const timeoutRef = useRef(null);
+
+    const [showControls, setShowControls] = useState(true);
     const [movieId, setMovieId] = useState(null);
     const [videoPath, setVideoPath] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
     const [originSync, setOriginSync] = useState(null);
+    const [mute, setMute] = useState(false);
+    const [volume, setVolume] = useState(1);
+    const [lastVolume, setLastVolume] = useState(volume);
+    const [progress, setProgress] = useState(0);
 
     useEffect(() => {
         setUpWebSocket();
@@ -75,8 +96,40 @@ function Room() {
     }, [isPlaying]);
 
     useEffect(() => {
-        console.log("sync:", originSync);
+        const duration = videoRef.current?.duration;
+        console.log(`Sync: ${originSync}/${duration}`);
     }, [originSync]);
+
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.volume = volume;
+        }
+    }, [volume]);
+
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.muted = mute;
+            if (mute && volume > 0) videoRef.current.volume = 0;
+            if (!mute) videoRef.current.volume = volume;
+        }
+    }, [mute, volume]);
+
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        const handleTimeUpdate = () => {
+            const current = video.currentTime;
+            const duration = video.duration;
+            if (!duration) return;
+            setProgress(current / duration);
+        };
+
+        video.addEventListener("timeupdate", handleTimeUpdate);
+        return () => {
+            video.removeEventListener("timeupdate", handleTimeUpdate);
+        };
+    }, []);
 
     const setUpWebSocket = () => {
         const socket = new WebSocket(url);
@@ -93,7 +146,6 @@ function Room() {
                     break;
             }
         }
-
         return () => {
             socket.close();
         };
@@ -133,7 +185,7 @@ function Room() {
 
     const startTracking = () => {
         if (updateInterval.current) return;
-        updateInterval.current = setInterval(updateTimeStamp, 15000); // every 15 seconds
+        updateInterval.current = setInterval(updateTimeStamp, 1000); // every 15 seconds
     };
 
     const stopTracking = () => {
@@ -187,22 +239,140 @@ function Room() {
         }
     };
 
+    const renderVolumeIcon = () => {
+        if (mute) {
+            return <FaVolumeMute />;
+        } else if (volume === 0) {
+            return <FaVolumeOff />;
+        } else if (volume <= 0.5) {
+            return <FaVolumeDown />;
+        } else {
+            return <FaVolumeUp />;
+        }
+    };
+
+    const handleMouseMove = () => {
+        setShowControls(true);
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+            setShowControls(false);
+        }, 2500);
+    };
+
+    const handleSliderMouseDown = (ref, setter) => (e) => {
+        const updateValue = (eMove) => {
+            if (!ref.current) return;
+            const rect = ref.current.getBoundingClientRect();
+            const offsetX = eMove.clientX - rect.left;
+            const width = rect.width;
+
+            let value = offsetX / width;
+            value = Math.max(0, Math.min(1, value)); // clamp 0–1
+            setter(value);
+        };
+
+        updateValue(e);
+
+        const handleMouseMove = (eMove) => updateValue(eMove);
+        const handleMouseUp = () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+        };
+
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+    };
+
+    const handleSoundButton = () => {
+        videoRef.current.muted = !mute;
+        setMute(!mute);
+    }
+
+    const setVolumeValue = (value) => {
+        const clamped = Math.max(0, Math.min(1, value));
+        setVolume(clamped);
+        if (clamped > 0 && mute) setMute(false);
+    };
+
+    const setProgressValue = (value) => {
+        const video = videoRef.current;
+        if (!video || !video.duration) return;
+
+        const clamped = Math.max(0, Math.min(1, value));
+        video.currentTime = clamped * video.duration;
+        setProgress(clamped);
+    };
+
+    const toggleMute = () => {
+        if (mute) {
+            setMute(false);
+            setVolume(lastVolume || 0.5);
+        } else {
+            setLastVolume(volume);
+            setMute(true);
+            setVolume(0);
+        }
+    };
+
     return (
         <div
+            onMouseMove={handleMouseMove}
             className={styles.playerContainer}
         >
             {videoPath ? (
-                <div className={playerStyles.videoContainer}>
+                <div className={styles.videoContainer}>
                     <video
                         ref={videoRef}
-                        className={playerStyles.video}
-                        controls
+                        className={styles.video}
                         crossOrigin="anonymous"
                         autoPlay
+                        //controls
                     />
-                    <button className={backButtonStyle.backButton} onClick={() => navigate(-1)}>
-                        <FaArrowLeft />
-                    </button>
+                    {showControls && (
+                        <>
+                            <div className={styles.controlBar}>
+                                <button onClick={togglePlay}>
+                                    {isPlaying ? <FaPause /> : <FaPlay />}
+                                </button>
+                                <button onClick={toggleMute}>
+                                    {renderVolumeIcon()}
+                                </button>
+                                <div
+                                    ref={volumeBarRef}
+                                    onMouseDown={handleSliderMouseDown(volumeBarRef, setVolumeValue)}
+                                    className={styles.volumeBar}
+                                >
+                                    <div
+                                        className={styles.volumeBarFill} 
+                                        style={{width: `${volume * 100}%`}}
+                                    >
+                                    </div>
+                                </div>
+                                <div 
+                                    ref={progressBarRef}
+                                    onMouseDown={handleSliderMouseDown(progressBarRef, setProgressValue)}
+                                    className={styles.progressBar}
+                                >
+                                    <div
+                                        className={styles.progressBarFill} 
+                                        style={{width: `${progress * 100}%`}}
+                                    >
+                                    </div>
+                                </div>
+                                <button onClick={() => handlePlayButton()}>
+                                    {isExpanded ? <FaCompress /> : <FaExpand />}
+                                </button>
+                                <button onClick={() => handlePlayButton()}>
+                                    <FaEllipsisV />
+                                </button>
+                            </div>
+                            <button className={backButtonStyle.backButton} onClick={() => navigate(-1)}>
+                                <FaArrowLeft />
+                            </button>
+                        </>
+                    )}
                 </div>
             ) : (
                     <div className={playerStyles.loading}>
