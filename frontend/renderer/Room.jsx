@@ -115,6 +115,63 @@ function Room() {
         }
     }, [mute, volume]);
 
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (!videoRef.current) return;
+
+            switch (e.key.toLowerCase()) {
+                case "k": // pause/play
+                case " ":
+                    e.preventDefault(); // prevent scrolling
+                    togglePlay();
+                    break;
+
+                case "f": // fullscreen
+                case "f11":
+                    e.preventDefault();
+                    toggleFullscreen();
+                    break;
+
+                case "arrowup": // volume up
+                    e.preventDefault();
+                    setVolumeValue(Math.min(volume + 0.05, 1));
+                    break;
+
+                case "arrowdown": // volume down
+                    e.preventDefault();
+                    setVolumeValue(Math.max(volume - 0.05, 0));
+                    break;
+
+                case "arrowright": // seek forward
+                    e.preventDefault();
+                    videoRef.current.currentTime = Math.min(videoRef.current.currentTime + 15, videoRef.current.duration);
+                    break;
+
+                case "arrowleft": // seek backward
+                    e.preventDefault();
+                    videoRef.current.currentTime = Math.max(videoRef.current.currentTime - 15, 0);
+                    break;
+
+                case "m": // mute/unmute
+                    e.preventDefault();
+                    toggleMute();
+                    break;
+
+                case "tab": // let browser handle tab normally for focus
+                    break;
+
+                default:
+                    break;
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [volume, mute, videoRef, isPlaying]);
+
     const setUpWebSocket = () => {
         const socket = new WebSocket(url);
         socketRef.current = socket;
@@ -169,7 +226,7 @@ function Room() {
 
     const startTracking = () => {
         if (updateInterval.current) return;
-        updateInterval.current = setInterval(updateTimeStamp, 1000); // every 15 seconds
+        updateInterval.current = setInterval(updateTimeStamp, 10000);
     };
 
     const stopTracking = () => {
@@ -266,7 +323,7 @@ function Room() {
             const width = rect.width;
 
             let value = offsetX / width;
-            value = Math.max(0, Math.min(1, value)); // clamp 0–1
+            value = Math.max(0, Math.min(1, value));
             setter(value);
         };
 
@@ -330,6 +387,10 @@ function Room() {
         }
     };
 
+    const handleSettings = () => {
+        console.log("settigns");
+    };
+
     return (
         <div
             ref={playerContainerRef}
@@ -345,7 +406,6 @@ function Room() {
                         className={styles.video}
                         crossOrigin="anonymous"
                         autoPlay
-                        //controls
                     />
                     {showControls && (
                         <>
@@ -378,10 +438,10 @@ function Room() {
                                     >
                                     </div>
                                 </div>
-                                <button onClick={() => toggleFullscreen()}>
+                                <button onClick={toggleFullscreen}>
                                     {isExpanded ? <FaCompress /> : <FaExpand />}
                                 </button>
-                                <button onClick={() => handlePlayButton()}>
+                                <button onClick={handleSettings}>
                                     <FaEllipsisV />
                                 </button>
                             </div>
