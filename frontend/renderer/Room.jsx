@@ -376,19 +376,30 @@ function Room() {
 
         if (!document.fullscreenElement) {
             if (container.requestFullscreen) container.requestFullscreen();
-                else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
-                    else if (container.msRequestFullscreen) container.msRequestFullscreen();
+            else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+            else if (container.msRequestFullscreen) container.msRequestFullscreen();
             setIsExpanded(true);
         } else {
             if (document.exitFullscreen) document.exitFullscreen();
-                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                    else if (document.msExitFullscreen) document.msExitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            else if (document.msExitFullscreen) document.msExitFullscreen();
             setIsExpanded(false);
         }
     };
 
     const handleSettings = () => {
         console.log("settigns");
+    };
+
+    const formatTime = (seconds) => {
+        if (isNaN(seconds)) return "00:00:00";
+        
+        const h = Math.floor(seconds / (60 * 60));
+        const m = Math.floor((seconds % (60 * 60)) / 60);
+        const s = Math.floor(seconds % 60);
+
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${pad(h)}:${pad(m)}:${pad(s)}`;
     };
 
     return (
@@ -440,6 +451,9 @@ function Room() {
                                             >
                                             </div>
                                         </div>
+                                        <p>
+                                            {`${formatTime(videoRef.current?.currentTime || 0)} / ${formatTime(videoRef.current?.duration || 0)}`}
+                                        </p>
                                     </div>
                                     <div className={styles.rightButtonStack}>
                                         <button onClick={toggleFullscreen}>

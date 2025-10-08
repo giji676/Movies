@@ -75,6 +75,10 @@
     margin-right: auto;
 }
 
+.leftButtonStack p {
+    margin: 0 1rem;
+}
+
 .rightButtonStack {
     display: flex;
     flex-direction: row;
