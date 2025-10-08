@@ -22,15 +22,16 @@ class RoomConsumer(WebsocketConsumer):
                 "type": "room_action",
                 "action": action,
                 "action_state": action_state,
+                "sender_channel": self.channel_name,
             }
         )
 
     def room_action(self, event):
-        action = event["action"]
-        action_state = event["action_state"]
+        if event.get("sender_channel") == self.channel_name:
+            return
 
         self.send(text_data=json.dumps({
             "type": "room_action",
-            "action": action,
-            "action_state": action_state,
+            "action": event["action"],
+            "action_state": event["action_state"],
         }))
