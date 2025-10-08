@@ -48,17 +48,10 @@
     border-radius: 0.5rem;
 }
 
-
 .input {
     background-color: var(--input-bg-focus);
     padding: 1rem;
     border-radius: 0.5rem;
     border: 0;
     font-size: 1.1rem;
-}
-
-.button {
-    background-color: var(--button-bg);
-    padding: 1rem;
-    border-radius: 0.5rem;
 }

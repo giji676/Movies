@@ -2,50 +2,15 @@ import { useRef, useEffect, useState } from "react";
 import api from "../main/api";
 import styles from "./RoomAccess.module.css";
 import ProtectedRoute from './components/ProtectedRoute';
+import { useNavigate } from 'react-router-dom';
 
 function RoomAccess() {
-    const [playing, setPlaying] = useState(false);
     const [createOutput, setCreateOutput] = useState("");
-    const [joinCode, setJoinCode] = useState("");
-    const url = `ws://localhost:8000/ws/socket-server/`;
-    const socketRef = useRef();
+    const [joinCode, setJoinCode] = useState("edc49eb1bd7a"); // TEMP: set to empty string after testing
+    const navigate = useNavigate();
 
     const [room, setRoom] = useState(null);
     const [roomuser, setRoomUser] = useState(null);
-
-    const joinRoom = (room_hash) => {
-        api
-            .get("room/")
-            .then((res) => res.data)
-            .then((data) => ()=>{});
-
-        const socket = new WebSocket(url);
-        socketRef.current = socket;
-
-        socket.onmessage = (e) => {
-            let data = JSON.parse(e.data);
-            if (data.action === "playing") {
-                setPlaying(data.action_state);
-            }
-        }
-
-        return () => {
-            socket.close();
-        };
-    };
-
-    const handleSubmit = () => {
-        setPlaying(!playing);
-    };
-
-    useEffect(() => {
-        if (socketRef.current?.readyState !== WebSocket.OPEN) return;
-        socketRef.current.send(JSON.stringify({
-            "type": "room_action",
-            "action": "playing",
-            "action_state": playing,
-        }));
-    }, [playing]);
 
     const handleCreate = (e) => {
         e.preventDefault();
@@ -62,13 +27,12 @@ function RoomAccess() {
 
     const handleJoin = (e) => {
         e.preventDefault();
-        console.log("join:", joinCode);
         api
             .post(`/room/join/${joinCode}/`)
             .then((res) => {
                 setRoom(res.data.room);
                 setRoomUser(res.data.user);
-                console.log(res.data);
+                navigate("/room", {state: {room: res.data.room}});
             })
             .catch((error) => console.log(error));
     };
@@ -106,12 +70,6 @@ function RoomAccess() {
                         </button>
                     </form>
                 </div>
-                <button 
-                    className={styles.button} 
-                    onClick={() => handleSubmit()}
-                >
-                    {playing ? "PAUSE" : "PLAY"}
-                </button>
             </div>
         </ProtectedRoute>
     );
