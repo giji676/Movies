@@ -19,12 +19,14 @@ import playerStyles from "./Player.module.css";
 import backButtonStyle from "./components/BackButton.module.css";
 import Hls from 'hls.js';
 
+// TODO: skipping with arrow buttons doesnt update sockets
+
 function Room() {
     const navigate = useNavigate();
     const location = useLocation();
     const { room } = location.state || {};
 
-    const url = `ws://localhost:8000/ws/socket-server/`;
+    const url = `ws://localhost:8000/ws/room/${room.room_hash}/`;
     const socketRef = useRef();
 
     const videoRef = useRef(null);
