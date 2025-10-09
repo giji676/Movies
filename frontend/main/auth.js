@@ -1,8 +1,6 @@
 import axios from "axios";
-import { REFRESH_TOKEN, ACCESS_TOKEN } from "./constants";
 import { jwtDecode } from "jwt-decode";
-import { toast } from 'react-toastify';
-import { getCookie } from "./cookieUtils";
+import { toast } from 'react-toastify'; import { getCookie } from "./cookieUtils";
 
 export const authAxios = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
@@ -20,6 +18,8 @@ authAxios.interceptors.request.use((config) => {
 export async function register(email, username, password) {
     try {
         const res = await authAxios.post("/user/register/", { email, username, password });
+        if (res.status === 201) return true;
+        return false;
     } catch {
         throw new Error("Failed to register");
     }

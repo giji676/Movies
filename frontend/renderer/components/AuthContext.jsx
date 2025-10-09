@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import api from "../../main/api";
-import { REFRESH_TOKEN, ACCESS_TOKEN } from "../../main/constants";
 
 const AuthContext = createContext();
 

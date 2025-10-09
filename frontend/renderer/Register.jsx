@@ -19,9 +19,11 @@ function Register() {
         setMessage("");
 
         try {
-            await api.register(email, username, password);
-            setMessage("Registered successfully! Redirecting to login...");
-            navigate("/login");
+            const res = await api.register(email, username, password);
+            if (res) {
+                setMessage("Registered successfully! Redirecting to login...");
+                navigate("/login");
+            }
         } catch (err) {
             if (err.response && err.response.data) {
                 const data = err.response.data;

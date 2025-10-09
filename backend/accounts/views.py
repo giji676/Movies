@@ -1,6 +1,8 @@
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+
+from movie.settings import SIMPLE_JWT
 from .models import CustomUser, UserSettings
 from .serializers import UserProfileSerializer, UserSettingsSerializer, UserRegisterSerializer
 from django.contrib.auth import get_user_model
@@ -20,14 +22,16 @@ def set_jwt_cookies(response, access, refresh):
         value=access,
         httponly=True,
         secure=False,  # set to True in production with HTTPS
-        samesite='Lax'
+        samesite='Lax',
+        max_age=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
     )
     response.set_cookie(
         key=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'],
         value=refresh,
         httponly=True,
         secure=False,
-        samesite='Lax'
+        samesite='Lax',
+        max_age=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
     )
     return response
 

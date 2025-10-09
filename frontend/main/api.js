@@ -1,5 +1,4 @@
 import axios from "axios";
-import { REFRESH_TOKEN, ACCESS_TOKEN } from "./constants";
 import * as auth from "./auth";
 import { getCookie } from "./cookieUtils";
 
