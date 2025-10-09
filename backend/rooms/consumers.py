@@ -4,6 +4,12 @@ from asgiref.sync import async_to_sync
 
 class RoomConsumer(WebsocketConsumer):
     def connect(self):
+        user = self.scope["user"]
+        if user.is_anonymous:
+            self.close()
+            return
+        print(user)
+
         self.room_group_name = "test"
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
