@@ -18,12 +18,12 @@ function Login() {
         setError("");
 
         try {
-            await api.login(email, password); // sets cookies / tokens
-            // fetch user info after login
-            const res = await api.get("/user/profile/");
-            setUser(res.data); // update AuthContext user state
-
-            navigate("/"); // redirect
+            const login = await api.login(email, password);
+            if (login) {
+                const res = await api.get("/user/profile/");
+                setUser(res.data);
+                navigate("/");
+            }
         } catch (err) {
             if (err.response && err.response.data.detail) {
                 setError(err.response.data.detail);

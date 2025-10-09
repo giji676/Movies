@@ -1,26 +1,20 @@
 import axios from "axios";
 import { REFRESH_TOKEN, ACCESS_TOKEN } from "./constants";
 import * as auth from "./auth";
+import { getCookie } from "./cookieUtils";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
+    withCredentials: true,
 });
 
-api.interceptors.request.use(
-    async (config) => {
-        const token = await auth.checkAuth();
-
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-            return config;
-        } else {
-            return null;
-        }
-    },
-    (error) => {
-        return Promise.reject(error);
+api.interceptors.request.use((config) => {
+    const csrfToken = getCookie('csrftoken');
+    if (csrfToken) {
+        config.headers['X-CSRFToken'] = csrfToken;
     }
-)
+    return config;
+});
 
 api.interceptors.response.use(
     (response) => response,
@@ -31,17 +25,14 @@ api.interceptors.response.use(
             ogRequest._retry = true;
 
             try {
-                const newToken = await auth.refreshAccessToken();
-                if (newToken) {
-                    ogRequest.headers.Authorization = `Bearer ${newToken}`;
+                const refreshRes = await auth.refreshAccessToken();
+                if (refreshRes) {
                     return api(ogRequest);
                 }
             } catch (error) {
                 toast.error(error);
             }
 
-            localStorage.removeItem(ACCESS_TOKEN);
-            localStorage.removeItem(REFRESH_TOKEN);
             toast.error("Session expired. Please log in again.");
         }
         return Promise.reject(error);
