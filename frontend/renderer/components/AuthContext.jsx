@@ -12,7 +12,11 @@ function AuthProvider({ children }) {
         const initAuth = async () => {
             try {
                 const res = await api.get("/user/profile/");
-                setUser(res.data);
+                if (res.status === 200) {
+                    setUser(res.data);
+                } else {
+                    // Failed to fetch profile
+                }
             } catch {
                 setUser(null);
             } finally {
@@ -22,11 +26,9 @@ function AuthProvider({ children }) {
         initAuth();
     }, []);
 
-    const logout = () => {
-        // TODO: add logout to backend as well for future cookie auth
+    const logout = async () => {
+        await api.post("/user/logout/");
         setUser(null);
-        localStorage.removeItem(ACCESS_TOKEN);
-        localStorage.removeItem(REFRESH_TOKEN);
     };
 
     return (
