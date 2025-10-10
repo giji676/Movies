@@ -4,11 +4,14 @@ import styles from "./Movies.module.css";
 import PlaylistMovieCard from './components/PlaylistMovieCard';
 import ProtectedRoute from './components/ProtectedRoute';
 import { toast } from 'react-toastify';
+import { useAuth } from "./components/AuthContext";
 
 function WatchLater({ resetMovieListData }) {
+    const { user } = useAuth();
     const [movies, setMovies] = useState([]);
  
     const getWatchLater = () => {
+        if (!user) return;
         api
             .get("/playlist-movies/", { params: { watch_later: true } })
             .then((res) => res.data)

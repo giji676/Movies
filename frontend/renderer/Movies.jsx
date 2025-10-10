@@ -4,10 +4,13 @@ import MovieCard from "./components/MovieCard";
 import ProtectedRoute from './components/ProtectedRoute';
 import styles from "./Movies.module.css";
 import api from "../main/api";
+import { useAuth } from "./components/AuthContext";
 
 function Movies({ moviesList }) {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const BATCH_SIZE = 10;
+
+    const { user } = useAuth();
 
     const [movies, setMovies] = useState([]);
     const [watchLaterPlaylist, setWatchLaterPlaylist] = useState([]);
@@ -17,6 +20,7 @@ function Movies({ moviesList }) {
     const loader = useRef(null);
 
     const fetchMoviesBatch = async (currentOffset) => {
+        if (!user) return;
         setIsFetching(true);
         try {
             const res = await api.get(`/movie/?offset=${currentOffset}&limit=${BATCH_SIZE}`);
@@ -37,6 +41,7 @@ function Movies({ moviesList }) {
     };
 
     const fetchWatchLaterMovies = async () => {
+        if (!user) return;
         api
             .get("/playlist-movies/", { params: { watch_later: true } })
             .then((res) => res.data)
