@@ -1,6 +1,7 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { toast } from 'react-toastify'; import { getCookie } from "./cookieUtils";
+import { clearUser } from "./authStore";
 
 export const authAxios = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
@@ -39,9 +40,11 @@ export async function refreshAccessToken() {
     try {
         const res = await authAxios.post("/user/refresh/");
         if (res.status === 200) return true;
+        clearUser();
         return false;
     } catch (error) {
         toast.error("Failed to refresh token");
+        clearUser();
         return false;
     }
 }

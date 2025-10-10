@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { registerSetUser } from "../../main/authStore";
 import api from "../../main/api";
 
 const AuthContext = createContext();
@@ -6,6 +7,10 @@ const AuthContext = createContext();
 function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        registerSetUser(setUser);
+    }, []);
 
     useEffect(() => {
         const initAuth = async () => {
