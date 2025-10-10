@@ -36,12 +36,18 @@ export async function login(email, password) {
 }
 
 export async function refreshAccessToken() {
-    try {
-        const res = await authAxios.post("/user/refresh/");
-        if (res.status === 200) return true;
-        return false;
-    } catch (error) {
-        toast.error("Failed to refresh token");
-        return false;
-    }
+    await authAxios
+        .post("/user/refresh/")
+        .then(response => {
+            if (response.status === 200) {
+                if (response.data.success) {
+                return true;
+                }
+            }
+            return false;
+        })
+        .catch(error => {
+            toast.error("Token refresh failed");
+            return false;
+        });
 }

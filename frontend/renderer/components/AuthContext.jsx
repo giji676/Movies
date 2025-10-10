@@ -11,11 +11,7 @@ function AuthProvider({ children }) {
         const initAuth = async () => {
             try {
                 const res = await api.get("/user/profile/");
-                if (res.status === 200) {
-                    setUser(res.data);
-                } else {
-                    // Failed to fetch profile
-                }
+                setUser(res.data);
             } catch {
                 setUser(null);
             } finally {

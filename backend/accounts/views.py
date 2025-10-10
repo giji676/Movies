@@ -42,15 +42,15 @@ class RefreshTokenView(APIView):
         refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
 
         if refresh_token is None:
-            return Response({'error': 'Refresh token missing'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "false", "error": "Refresh token missing"}, status=status.HTTP_200_OK)
 
         try:
             refresh = RefreshToken(refresh_token)
             access_token = str(refresh.access_token)
         except Exception:
-            return Response({'error': 'Invalid refresh token'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "false", "error": "Refresh token missing"}, status=status.HTTP_200_OK)
 
-        response = JsonResponse({'message': 'Token refreshed'})
+        response = JsonResponse({"success": "true", "message": "hoken refreshed"})
         response = set_jwt_cookies(response, access_token, refresh_token)
         return response
 
