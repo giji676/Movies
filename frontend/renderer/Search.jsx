@@ -61,7 +61,7 @@ function Search({ onResults, resetMovieListData, isMobile, showSearchInput, setS
         api
             .get(`/movie/search/?query=${encodeURIComponent(chosenQuery)}`)
             .then((res) => res.data)
-            .then((data) => onResults(data.movies, data.tmdb_config))
+            .then((data) => onResults(data.movies))
             .catch((err) => {
                 toast.error('Search error:', err);
                 onResults([], {});
