@@ -30,7 +30,6 @@ class MovieSearch:
                 movies.append(movie)
 
         result = {
-            "tmdb_config": tmdb.config,
             "movies": movies
         }
         #with open("movie_dump.json", "w") as f:
@@ -60,7 +59,6 @@ class TMDB:
     def __init__(self):
         self.API_KEY = os.getenv("TMDB_API_KEY")
         self.BASE_URL = "https://api.themoviedb.org/3"
-        self.config = self._getConfig()
 
     def _getConfig(self):
         url = f"{self.BASE_URL}/configuration"
@@ -136,14 +134,15 @@ class TMDB:
         image_path = ""
         # poser_sizes go from smallest -> biggest. Last one (-1) index is the original size (very big)
         # -2 index is biggest, thats not the original size (much smaller, around 780px)
+        config = self._getConfig()
         poster_size_index = -2
         if type == "poster":
-            size = self.config["images"]["poster_sizes"][poster_size_index]
+            size = config["images"]["poster_sizes"][poster_size_index]
             image_path = movie["poster_path"]
         elif type == "backdrop":
-            size = self.config["images"]["backdrop_sizes"][poster_size_index]
+            size = config["images"]["backdrop_sizes"][poster_size_index]
             image_path = movie["backdrop_path"]
         else:
-            size = self.config["images"]["poster_sizes"][poster_size_index]
+            size = config["images"]["poster_sizes"][poster_size_index]
             image_path = movie["poster_path"]
-        return f"{self.config["images"]["secure_base_url"]}{size}{image_path}"
+        return f"{config["images"]["secure_base_url"]}{size}{image_path}"

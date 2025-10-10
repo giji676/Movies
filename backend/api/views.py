@@ -204,7 +204,6 @@ class ShowAvailableMovies(APIView):
         serializer = MovieSerializer(movies_qs, many=True, context={'request': request, 'tmdb': tmdb})
 
         result = {
-            "tmdb_config": tmdb.config,
             "movies": serializer.data,
         }
         return Response(result)
@@ -230,7 +229,6 @@ class SearchTPB(APIView):
         limited_movies = result["movies"][:count]
 
         limited_result = {
-            "tmdb_config": result["tmdb_config"],
             "movies": limited_movies
         }
         return Response(limited_result, status=status.HTTP_200_OK)
@@ -270,10 +268,7 @@ class Search(APIView):
         # Use cached serialization
         serialized_movies = [serialize_movie_cached(m) for m in movies]
 
-        tmdb_config = tmdb.config
-
         result = {
-            "tmdb_config": tmdb_config,
             "movies": serialized_movies
         }
 
