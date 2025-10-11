@@ -73,7 +73,7 @@ function Movies({ moviesList }) {
         } else {
             fetchMoviesBatch(0);
         }
-    }, [moviesList]);
+    }, [moviesList, user]);
 
     useEffect(() => {
         fetchWatchLaterMovies();

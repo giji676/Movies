@@ -42,6 +42,10 @@ api.login = async (email, password) => {
     return await auth.login(email, password);
 };
 
+api.logout = async () => {
+    return await auth.logout();
+};
+
 api.register = async (email, username,  password) => {
     return await auth.register(email, username, password);
 };

@@ -29,14 +29,37 @@ export async function register(email, username, password) {
 export async function login(email, password) {
     try {
         const res = await authAxios.post("/user/login/", { email, password });
-        if (res.status === 200) return true;
+        if (res.status === 200) {
+            localStorage.setItem("prev_logged_in", true);
+            return true;
+        }
         else return false;
     } catch {
         throw new Error("Login failed");
     }
 }
 
+export async function logout(email, password) {
+    try {
+        const res = await authAxios.post("/user/logout/");
+        if (res.status === 200) {
+            localStorage.setItem("prev_logged_in", false);
+            return true;
+        }
+        else return false;
+    } catch {
+        return false;
+        // throw new Error("Logout failed");
+    } finally {
+        localStorage.setItem("prev_logged_in", false);
+    }
+}
+
+
 export async function refreshAccessToken() {
+    const prevLogin = localStorage.getItem("prev_logged_in");
+
+    if (!(!!prevLogin)) return false;
     try {
         const res = await authAxios.post("/user/refresh/");
         if (res.status === 200) return true;
