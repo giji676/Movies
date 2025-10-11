@@ -17,9 +17,8 @@ function AuthProvider({ children }) {
     useEffect(() => {
         const initAuth = async () => {
             const prevLogin = localStorage.getItem("prev_logged_in");
-            if (!(!!prevLogin)) {
+            if (!prevLogin || prevLogin === "false") {
                 navigate("/login");
-                setUser(null);
                 return;
             }
             try {
@@ -44,7 +43,7 @@ function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading, logout }}>
+        <AuthContext.Provider value={{ user, setUser, loading, setLoading, logout }}>
             {children}
         </AuthContext.Provider>
     );

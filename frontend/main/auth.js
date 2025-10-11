@@ -55,11 +55,12 @@ export async function logout(email, password) {
     }
 }
 
-
 export async function refreshAccessToken() {
     const prevLogin = localStorage.getItem("prev_logged_in");
+    if (!prevLogin || prevLogin === "false") {
+        return false;
+    }
 
-    if (!(!!prevLogin)) return false;
     try {
         const res = await authAxios.post("/user/refresh/");
         if (res.status === 200) return true;

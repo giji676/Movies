@@ -8,13 +8,13 @@ function Login() {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [loginLoading, setLoginLoading] = useState(false);
     const [error, setError] = useState("");
-    const { user, setUser, logout } = useAuth();
+    const { user, setUser, logout, setLoading } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        setLoginLoading(true);
         setError("");
 
         try {
@@ -22,6 +22,7 @@ function Login() {
             if (login) {
                 const res = await api.get("/user/profile/");
                 setUser(res.data);
+                setLoading(false);
                 navigate("/");
             }
         } catch (err) {
@@ -31,7 +32,7 @@ function Login() {
                 setError("Unable to connect to server.");
             }
         } finally {
-            setLoading(false);
+            setLoginLoading(false);
         }
     };
 
@@ -57,7 +58,7 @@ function Login() {
                         className={styles.input}
                         required
                     />
-                    <button type="submit" className={styles.button} disabled={loading}>
+                    <button type="submit" className={styles.button} disabled={loginLoading}>
                         Login
                     </button>
                 </form>

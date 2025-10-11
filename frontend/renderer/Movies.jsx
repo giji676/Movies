@@ -31,7 +31,8 @@ function Movies({ moviesList }) {
 
             if (data.movies.length < BATCH_SIZE) {
                 setHasMore(false);
-            } else { setOffset(prev => prev + BATCH_SIZE);
+            } else {
+                setOffset(prev => prev + BATCH_SIZE);
             }
         } catch (err) {
             //toast.error("Failed to fetch movies");
@@ -67,13 +68,17 @@ function Movies({ moviesList }) {
     };
 
     useEffect(() => {
+        fetchMoviesBatch(0);
+    }, [user]);
+
+    useEffect(() => {
         if (moviesList) {
             setMovies(moviesList);
             setHasMore(false);
         } else {
             fetchMoviesBatch(0);
         }
-    }, [moviesList, user]);
+    }, [moviesList]);
 
     useEffect(() => {
         fetchWatchLaterMovies();
