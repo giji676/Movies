@@ -58,6 +58,13 @@
     width: 100%;
 }
 
+.movieSelect {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: #00f;
+}
+
 .actions {
     display: flex;
     justify-content: space-between;

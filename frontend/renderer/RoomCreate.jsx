@@ -1,8 +1,11 @@
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import styles from "./RoomCreate.module.css";
 import api from "../main/api";
 
 function RoomCreate() {
+    const navigate = useNavigate();
+
     const [room, setRoom] = useState(null);
     const [isPrivate, setIsPrivate] = useState(true);
     const [maxUsers, setMaxUsers] = useState(4);
@@ -10,14 +13,15 @@ function RoomCreate() {
 
     const handleCreate = (e) => {
         e.preventDefault();
-        setCreateOutput("createOutput");
         api
             .post("/room/create/", {
                 movie_id: 22,
-                is_private: true,
-                password: "testpass" || null,
-                max_users: 4,})
-            .then((res) => {console.log(res.data); setRoom(res.data);})
+                is_private: isPrivate,
+                password: password || null,
+                max_users: maxUsers,})
+            .then((res) => {
+                setRoom(res.data)
+            })
             .catch((error) => console.log(error));
     };
 
@@ -36,7 +40,7 @@ function RoomCreate() {
                         onChange={(e) => setMaxUsers(e.target.value)}
                         className={styles.maxUserInput}
                         min="1"
-                        max="10"
+                        max="8"
                     />
                 </div>
 
@@ -63,9 +67,36 @@ function RoomCreate() {
                     />
                 )}
 
+                {room && (
+                    <div>
+                        <div>
+                            Room code: {room.room_hash}
+                        </div>
+                        <button 
+                            type="submit"
+                            className={styles.movieSelect}
+                            onClick={() => navigate("/room-select-movie")}
+                        >
+                            Select a movie
+                        </button>
+                    </div>
+                )}
+
                 <div className={styles.actions}>
-                    <button className={styles.save} type="submit">Save</button>
-                    <button className={styles.cancel} type="button">Cancel</button>
+                    <button 
+                        className={styles.save} 
+                        type="submit"
+                        onClick={(e) => handleCreate(e)}
+                    >
+                        Create
+                    </button>
+                    <button 
+                        className={styles.cancel} 
+                        type="button"
+                        onClick={() => navigate("/room-access")}
+                    >
+                        Cancel
+                    </button>
                 </div>
             </form>
         </div>

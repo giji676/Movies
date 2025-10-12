@@ -18,6 +18,7 @@ import Settings from './Settings';
 import RoomAccess from './RoomAccess';
 import Room from './Room';
 import RoomCreate from './RoomCreate';
+import RoomSelectMovie from './RoomSelectMovie';
 import styles from './App.module.css';
 import './colors.css';
 import api from "../main/api";
@@ -103,6 +104,14 @@ function App() {
                             <div className={styles.body}>
                                 <div className={styles.mainContent}>
                                     <Room />
+                                </div>
+                            </div>
+                        } />
+                        <Route path="/room-select-movie" element={
+                            <div className={styles.body}>
+                                <Sidebar resetMovieListData={resetMovieListData} />
+                                <div className={styles.mainContent}>
+                                    <RoomSelectMovie />
                                 </div>
                             </div>
                         } />
