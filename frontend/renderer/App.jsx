@@ -17,6 +17,7 @@ import TopBar from './components/TopBar';
 import Settings from './Settings';
 import RoomAccess from './RoomAccess';
 import Room from './Room';
+import RoomCreate from './RoomCreate';
 import styles from './App.module.css';
 import './colors.css';
 import api from "../main/api";
@@ -87,6 +88,14 @@ function App() {
                                 <Sidebar resetMovieListData={resetMovieListData} />
                                 <div className={styles.mainContent}>
                                     <RoomAccess />
+                                </div>
+                            </div>
+                        } />
+                        <Route path="/room-create" element={
+                            <div className={styles.body}>
+                                <Sidebar resetMovieListData={resetMovieListData} />
+                                <div className={styles.mainContent}>
+                                    <RoomCreate />
                                 </div>
                             </div>
                         } />

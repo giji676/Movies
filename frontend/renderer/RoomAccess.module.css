@@ -31,7 +31,6 @@
 .form {
     display: flex;
     flex-direction: column;
-    flex: 1;
 }
 
 .createButton {
@@ -54,4 +53,10 @@
     border-radius: 0.5rem;
     border: 0;
     font-size: 1.1rem;
+}
+
+@media only screen and (max-width: 500px) {
+    .roomContainer {
+        flex-direction: column;
+    }
 }

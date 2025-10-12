@@ -63,18 +63,18 @@ function Movie() {
                                     <FaRegBookmark />
                                     <p>Watch Later</p>
                                 </div>
-                                <div className={styles.button}>
-                                    <FaRegBookmark />
-                                    <p>Watch Later</p>
-                                </div>
-                                <div className={styles.button}>
-                                    <FaRegBookmark />
-                                    <p>Watch Later</p>
-                                </div>
-                                <div className={styles.button}>
-                                    <FaRegBookmark />
-                                    <p>Watch Later</p>
-                                </div>
+                                {/* <div className={styles.button}> */}
+                                {/*     <FaRegBookmark /> */}
+                                {/*     <p>Watch Later</p> */}
+                                {/* </div> */}
+                                {/* <div className={styles.button}> */}
+                                {/*     <FaRegBookmark /> */}
+                                {/*     <p>Watch Later</p> */}
+                                {/* </div> */}
+                                {/* <div className={styles.button}> */}
+                                {/*     <FaRegBookmark /> */}
+                                {/*     <p>Watch Later</p> */}
+                                {/* </div> */}
                             </div>
                             <Link
                                 to="/player"
@@ -107,10 +107,10 @@ function Movie() {
                                     <FaRegBookmark />
                                     <p>Watch Later</p>
                                 </div>
-                                <div className={styles.button}>
-                                    <FaRegBookmark />
-                                    <p>Watch Later</p>
-                                </div>
+                                {/* <div className={styles.button}> */}
+                                {/*     <FaRegBookmark /> */}
+                                {/*     <p>Watch Later</p> */}
+                                {/* </div> */}
                             </div>
                         )}
                     </div>

@@ -5,24 +5,15 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { useNavigate } from 'react-router-dom';
 
 function RoomAccess() {
-    const [createOutput, setCreateOutput] = useState("");
-    const [joinCode, setJoinCode] = useState("edc49eb1bd7a"); // TEMP: set to empty string after testing
     const navigate = useNavigate();
 
+    const [createOutput, setCreateOutput] = useState("");
+    const [joinCode, setJoinCode] = useState(""); // TEMP: set to empty string after testing
     const [room, setRoom] = useState(null);
     const [roomuser, setRoomUser] = useState(null);
 
     const handleCreate = (e) => {
-        e.preventDefault();
-        setCreateOutput("createOutput");
-        api
-            .post("/room/create/", {
-                movie_id: 22,
-                is_private: true,
-                password: "testpass",
-                max_users: 4,})
-            .then((res) => {console.log(res.data); setRoom(res.data);})
-            .catch((error) => console.log(error));
+        navigate("/room-create");
     };
 
     const handleJoin = (e) => {
@@ -46,12 +37,13 @@ function RoomAccess() {
                             className={styles.createButton}
                             onClick={(e) => handleCreate(e)}
                         >
-                            CREATE
+                            create room
                         </button>
                         <div className={styles.createOutput}>
                             {room?.room_hash}
                         </div>
                     </form>
+                    OR
                     <form 
                         className={styles.form}
                         onSubmit={(e) => handleJoin(e)}
@@ -66,7 +58,7 @@ function RoomAccess() {
                             type="submit"
                             className={styles.joinButton}
                         >
-                            JOIN
+                            join room
                         </button>
                     </form>
                 </div>

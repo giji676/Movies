@@ -1,0 +1,151 @@
+* {
+    box-sizing: border-box;
+}
+.body {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    max-width: 320px;
+    border-radius: 1rem;
+    border: 1px solid #e0e0e0;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 0 1 320px;
+    align-items: stretch;
+}
+
+.inputRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.inputRow label {
+    flex: 1;
+}
+
+.maxUserInput,
+.passInput {
+    flex: 1;
+    background-color: #22f;
+    transition: background-color 0.2s ease;
+    padding: 0.7rem;
+    border-radius: 0.5rem;
+    color: #fff;
+    border: none;
+    outline: none;
+    min-width: 0;
+}
+
+.maxUserInput:focus,
+.passInput:focus {
+    background-color: #1515c0;
+}
+
+.maxUserInput {
+    max-width: 4rem;
+}
+
+.passInput {
+    width: 100%;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.save,
+.cancel {
+    flex: 1;
+    padding: 0.6rem;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+.save {
+    background-color: #0c0;
+    color: #252;
+}
+
+.cancel {
+    background-color: #c00;
+    color: #522;
+}
+
+.save:hover {
+    background-color: #00e060;
+    transform: scale(1.03);
+}
+
+.cancel:hover {
+    background-color: #ff5e5e;
+    transform: scale(1.03);
+}
+
+.checkboxRow {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 500;
+}
+
+.checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 2px solid #4a4a7a;
+    border-radius: 0.25rem;
+    background-color: #222266;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.checkbox:hover {
+    border-color: #8888ff;
+}
+
+.checkbox:checked {
+    background-color: #0b0;
+    border-color: #0b0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.checkbox:checked::after {
+    content: "✓";
+    color: #fff;
+    position: absolute;
+    font-size: 1.1rem;
+}
+
+.checkbox:focus-visible {
+    outline: 2px solid #00e060;
+    outline-offset: 2px;
+}
