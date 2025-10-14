@@ -12,6 +12,15 @@ api.interceptors.request.use((config) => {
     if (csrfToken) {
         config.headers['X-CSRFToken'] = csrfToken;
     }
+
+    const exp = Number(localStorage.getItem("access_token_exp"));
+    const now = Date.now() / 1000;
+
+    if (exp && exp < now) {
+        const refreshRes = auth.refreshAccessToken();
+        if (refreshRes) return config;
+        return Promise.reject({ message: "Access token expired" });
+    }
     return config;
 });
 

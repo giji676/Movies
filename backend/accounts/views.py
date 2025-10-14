@@ -50,7 +50,11 @@ class RefreshTokenView(APIView):
         except Exception:
             return Response({'error': 'Invalid refresh token'}, status=400)
 
-        response = JsonResponse({'message': 'Token refreshed'})
+        response = JsonResponse({
+            "message": "Token refreshed",
+            "refresh_token_exp": refresh["exp"],
+            "access_token_exp": refresh.access_token["exp"],
+        })
         response = set_jwt_cookies(response, access_token, refresh_token)
         return response
 
@@ -67,7 +71,11 @@ class LoginView(APIView):
             access_token = str(refresh.access_token)
             refresh_token = str(refresh)
 
-            response = JsonResponse({"message": "Logged in successfully"})
+            response = JsonResponse({
+                "message": "Logged in successfully",
+                "refresh_token_exp": refresh["exp"],
+                "access_token_exp": refresh.access_token["exp"],
+            })
             response = set_jwt_cookies(response, access_token, refresh_token)
             response["X-CSRFToken"] = csrf.get_token(request)
             return response

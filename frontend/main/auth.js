@@ -31,6 +31,8 @@ export async function login(email, password) {
         const res = await authAxios.post("/user/login/", { email, password });
         if (res.status === 200) {
             localStorage.setItem("prev_logged_in", true);
+            localStorage.setItem("access_token_exp", res.data.access_token_exp);
+            localStorage.setItem("refresh_token_exp", res.data.refresh_token_exp);
             return true;
         }
         else return false;
@@ -62,8 +64,15 @@ export async function refreshAccessToken() {
     }
 
     try {
+        if (Number(localStorage.getItem("refresh_token_exp")) < Date.now() / 1000) {
+            return false;
+        }
         const res = await authAxios.post("/user/refresh/");
-        if (res.status === 200) return true;
+        if (res.status === 200) {
+            localStorage.setItem("access_token_exp", res.data.access_token_exp);
+            localStorage.setItem("refresh_token_exp", res.data.refresh_token_exp);
+            return true;
+        }
         clearUser();
         return false;
     } catch (error) {
