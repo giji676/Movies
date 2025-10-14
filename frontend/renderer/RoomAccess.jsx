@@ -43,7 +43,7 @@ function RoomAccess() {
                             {room?.room_hash}
                         </div>
                     </form>
-                    OR
+                    <span className={styles.or}>OR</span>
                     <form 
                         className={styles.form}
                         onSubmit={(e) => handleJoin(e)}
