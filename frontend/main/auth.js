@@ -64,6 +64,9 @@ export async function refreshAccessToken() {
     }
 
     try {
+        if (Number(localStorage.getItem("refresh_token_exp")) < Date.now() / 1000) {
+            return false;
+        }
         const res = await authAxios.post("/user/refresh/");
         if (res.status === 200) {
             localStorage.setItem("access_token_exp", res.data.access_token_exp);

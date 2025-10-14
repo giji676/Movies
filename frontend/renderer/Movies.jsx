@@ -6,6 +6,8 @@ import styles from "./Movies.module.css";
 import api from "../main/api";
 import { useAuth } from "./components/AuthContext";
 
+// TODO: movie/?offset=0&limit=10 getting called 2 times on load
+
 function Movies({ moviesList }) {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const BATCH_SIZE = 10;
