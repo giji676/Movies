@@ -42,10 +42,12 @@ export async function login(email, password) {
 }
 
 export async function logout(email, password) {
+    localStorage.setItem("prev_logged_in", false);
+    localStorage.removeItem("access_token_exp");
+    localStorage.removeItem("refresh_token_exp");
     try {
         const res = await authAxios.post("/user/logout/");
         if (res.status === 200) {
-            localStorage.setItem("prev_logged_in", false);
             return true;
         }
         else return false;
