@@ -5,7 +5,7 @@ import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import api from "../../main/api";
 import { toast } from 'react-toastify';
 
-function MovieCard({ movie, playlist, onPlaylistUpdate }) {
+function MovieCard({ movie, playlist, onPlaylistUpdate, navOverride, room }) {
     const { title, release_date, overview, download_path, poster_path } = movie;
 
     const [hovered, setHovered] = useState(false);
@@ -70,7 +70,6 @@ function MovieCard({ movie, playlist, onPlaylistUpdate }) {
             });
     };
 
-
     const toggleSave = (e) => {
         e.preventDefault();
         if (isSaved) {
@@ -85,7 +84,9 @@ function MovieCard({ movie, playlist, onPlaylistUpdate }) {
             to="/movie"
             state={{ 
                 fallbackMovie: movie,
-                playlistMovie: playlistMovie || null
+                playlistMovie: playlistMovie || null,
+                navOverride: navOverride,
+                room: room,
             }}
             style={{ textDecoration: 'none', color: 'inherit' }}
         >

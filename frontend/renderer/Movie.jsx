@@ -14,7 +14,7 @@ function Movie() {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
 
-    const { playlistMovie, fallbackMovie } = location.state || {};
+    const { playlistMovie, fallbackMovie, navOverride, room } = location.state || {};
     const movie = playlistMovie?.movie || fallbackMovie;
 
     if (!movie) {
@@ -80,6 +80,15 @@ function Movie() {
                                 to="/player"
                                 state={{ movie, playlistMovie }}
                                 className={styles.mobilePlayButton}
+                                onClick={(e) => {
+                                    if (navOverride) {
+                                        e.preventDefault();
+                                        room.tmdb_id = 22;
+                                        navigate(navOverride, {
+                                            state: {room: room}
+                                        });
+                                    }
+                                }}
                             >
                                 ▶ <p>play</p>
                             </Link>
@@ -96,6 +105,15 @@ function Movie() {
                                 to="/player"
                                 state={{ movie, playlistMovie }}
                                 className={styles.posterWrapper}
+                                onClick={(e) => {
+                                    if (navOverride) {
+                                        e.preventDefault();
+                                        room.tmdb_id = 22;
+                                        navigate(navOverride, {
+                                            state: {room: room}
+                                        });
+                                    }
+                                }}
                             >
                                 <img className={styles.poster} src={posterUrl} alt="Poster" />
                                 <div className={styles.playButton}>▶</div>

@@ -20,7 +20,7 @@ function RoomCreate() {
                 password: password || null,
                 max_users: maxUsers,})
             .then((res) => {
-                setRoom(res.data)
+                setRoom(res.data);
             })
             .catch((error) => console.log(error));
     };
@@ -75,7 +75,9 @@ function RoomCreate() {
                         <button 
                             type="submit"
                             className={styles.movieSelect}
-                            onClick={() => navigate("/room-select-movie")}
+                            onClick={() => {
+                                navigate("/room-select-movie", {state: {room: room}});
+                            }}
                         >
                             Select a movie
                         </button>

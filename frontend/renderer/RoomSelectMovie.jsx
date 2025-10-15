@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Movies from "./Movies";
 import TopBar from "./components/TopBar";
 
@@ -6,12 +8,21 @@ import TopBar from "./components/TopBar";
 // else call normal function
 //
 // the callback should add it to room
-function RoomSelectMovie({ room }) {
+function RoomSelectMovie() {
+    const location = useLocation();
+    const room = location.state?.room || null; // safe default
+
+    const test = () => {
+        console.log("test");
+    }
+
     return (
         <div>
             <TopBar />
-            <Movies />
-
+            <Movies 
+                navOverride={"/room"}
+                room={room}
+            />
         </div>
     );
 }

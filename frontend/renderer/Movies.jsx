@@ -8,7 +8,7 @@ import { useAuth } from "./components/AuthContext";
 
 // TODO: movie/?offset=0&limit=10 getting called 2 times on load
 
-function Movies({ moviesList }) {
+function Movies({ moviesList, navOverride, room }) {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const BATCH_SIZE = 10;
 
@@ -112,6 +112,8 @@ function Movies({ moviesList }) {
                             movie={movie} 
                             playlist={watchLaterPlaylist} 
                             onPlaylistUpdate={onPlaylistUpdate}
+                            navOverride={navOverride}
+                            room={room}
                         />
                     </div>
                 ))}
