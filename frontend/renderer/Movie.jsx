@@ -5,6 +5,7 @@ import styles from './Movie.module.css';
 import backButtonStyle from "./components/BackButton.module.css";
 import ProtectedRoute from './components/ProtectedRoute';
 import { FaArrowLeft, FaBookmark, FaRegBookmark, FaEllipsisV, FaPlus, FaPlay, FaMinus, FaInfo } from "react-icons/fa";
+import api from "../main/api";
 
 function Movie() {
     const location = useLocation();
@@ -37,9 +38,12 @@ function Movie() {
         };
     }, []);
 
-    const onNavOverride = (e) => {
+    const onNavOverride = async (e) => {
+        console.log("override");
         if (navOverride) {
             e.preventDefault();
+            const res = await api.patch(`/room/manage/${room.room_hash}/`, {movie_id: movie.tmdb_id});
+            console.log(res);
             room.movie_id = movie.tmdb_id;
             navigate(navOverride, {
                 state: {room: room}

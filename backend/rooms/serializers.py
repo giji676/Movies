@@ -5,7 +5,7 @@ from .models import Room, RoomUser
 User = get_user_model()
 
 class RoomSerializer(serializers.ModelSerializer):
-    password_hash = serializers.CharField(write_only=True, required=False)
+    password = serializers.CharField(write_only=True, required=False)
     users = serializers.SerializerMethodField()
 
     class Meta:
@@ -17,12 +17,18 @@ class RoomSerializer(serializers.ModelSerializer):
             "room_hash",
             "is_active",
             "is_private",
-            "password_hash",
+            "password",
             "current_timestamp",
             "max_users",
             "users"
         ]
-        read_only_fields = ["room_hash", "created_at"]
+        read_only_fields = [
+            "created_by",
+            "created_at",
+            "room_hash",
+            "is_active",
+            "users",
+        ]
 
     def get_users(self, obj):
         room_users = RoomUser.objects.filter(room=obj)

@@ -10,6 +10,31 @@ from .exceptions import RoomFullException
 
 User = get_user_model()
 
+class ManageRoomView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, room_hash):
+        try:
+            room = Room.objects.get(room_hash=room_hash)
+        except Room.DoesNotExist:
+            return Response({"error": "Room not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        if room.created_by != request.user:
+            return Response({"error": "Not allowed to modify this room."}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = RoomSerializer(room, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            password = serializer.validated_data.pop("password", None)
+            updated_room = serializer.save()
+            if password:
+                updated_room.set_password(password)
+                updated_room.save(update_fields=["password_hash"])
+
+            return Response(RoomSerializer(updated_room).data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class JoinRoomView(APIView):
     permission_classes = [IsAuthenticated]
 
