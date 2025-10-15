@@ -3,6 +3,8 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.contrib.auth import get_user_model
 
+# TODO: get rid of / fix old localStorage specific tests
+
 class UserAuthTests(APITestCase):
     def setUp(self):
         self.register_url = reverse("register")

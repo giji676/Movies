@@ -186,9 +186,8 @@ class StreamToClient(APIView):
             return Response({"error": "HLS not available"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Convert filesystem path to URL served by Nginx
-        media_root = "/var/www/media"
-        url_path = m3u8_path.replace(media_root, "").replace(os.sep, "/")
-        url = f"http://{request.get_host()}/media{url_path}"
+        # url = f"http://{request.get_host()}{m3u8_path}"
+        url = f"{m3u8_path}"
 
         return Response({"file_path": url}, status=status.HTTP_200_OK)
 

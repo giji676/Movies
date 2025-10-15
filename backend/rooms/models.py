@@ -9,7 +9,7 @@ from .exceptions import RoomFullException
 User = get_user_model()
 
 class Room(models.Model):
-    movie_id = models.IntegerField()
+    movie_id = models.IntegerField(null=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="owned_rooms")
     created_at = models.DateTimeField(auto_now_add=True)
     room_hash = models.CharField(max_length=32, unique=True, editable=False, db_index=True)

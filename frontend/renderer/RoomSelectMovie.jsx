@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Movies from "./Movies";
 import TopBar from "./components/TopBar";
@@ -12,14 +12,24 @@ function RoomSelectMovie() {
     const location = useLocation();
     const room = location.state?.room || null; // safe default
 
-    const test = () => {
-        console.log("test");
-    }
+    const [moviesList, setMoviesList] = useState(null);
+
+    const setMovieListData = (movies) => {
+        setMoviesList(movies);
+    };
+
+    const resetMovieListData = () => {
+        setMoviesList(null);
+    };
 
     return (
         <div>
-            <TopBar />
+            <TopBar 
+                setMovieListData={setMovieListData}
+                resetMovieListData={resetMovieListData}
+            />
             <Movies 
+                moviesList={moviesList} 
                 navOverride={"/room"}
                 room={room}
             />

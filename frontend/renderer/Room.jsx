@@ -206,8 +206,7 @@ function Room() {
             const res = await api.get(`/movie/stream-to-client/?tmdb_id=${movieId}`);
             const data = res.data;
             if (data.file_path) {
-                //setVideoPath(data.file_path);
-                setVideoPath("http://localhost:5173/media/downloads/22/hls/Pirates_of_the_Caribbean__The_Curse_of_the_Black_Pearl.m3u8");
+                setVideoPath(data.file_path);
             } else {
                 toast.error("No file_path returned for movie:", tmdb_id);
             }

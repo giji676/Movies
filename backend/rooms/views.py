@@ -139,16 +139,11 @@ class CreateRoomView(APIView):
         user = request.user
         data = request.data
 
-        movie_id = data.get("movie_id")
         is_private = data.get("is_private", True)
         password = data.get("password", None)
         max_users = data.get("max_users", 8)
 
-        if not movie_id:
-            return Response({"error": "movie_id is required"}, status=status.HTTP_400_BAD_REQUEST)
-
         room = Room(
-            movie_id=movie_id,
             created_by=user,
             is_private=is_private,
             max_users=max_users

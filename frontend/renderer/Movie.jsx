@@ -83,7 +83,7 @@ function Movie() {
                                 onClick={(e) => {
                                     if (navOverride) {
                                         e.preventDefault();
-                                        room.tmdb_id = 22;
+                                        room.movie_id = movie.tmdb_id;
                                         navigate(navOverride, {
                                             state: {room: room}
                                         });
@@ -108,7 +108,7 @@ function Movie() {
                                 onClick={(e) => {
                                     if (navOverride) {
                                         e.preventDefault();
-                                        room.tmdb_id = 22;
+                                        room.movie_id = movie.tmdb_id;
                                         navigate(navOverride, {
                                             state: {room: room}
                                         });
