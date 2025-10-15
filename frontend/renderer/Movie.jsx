@@ -37,6 +37,16 @@ function Movie() {
         };
     }, []);
 
+    const onNavOverride = (e) => {
+        if (navOverride) {
+            e.preventDefault();
+            room.movie_id = movie.tmdb_id;
+            navigate(navOverride, {
+                state: {room: room}
+            });
+        }
+    };
+
     return (
         <ProtectedRoute>
             <div className={styles.body}>
@@ -80,15 +90,7 @@ function Movie() {
                                 to="/player"
                                 state={{ movie, playlistMovie }}
                                 className={styles.mobilePlayButton}
-                                onClick={(e) => {
-                                    if (navOverride) {
-                                        e.preventDefault();
-                                        room.movie_id = movie.tmdb_id;
-                                        navigate(navOverride, {
-                                            state: {room: room}
-                                        });
-                                    }
-                                }}
+                                onClick={(e) => onNavOverride(e)}
                             >
                                 ▶ <p>play</p>
                             </Link>
@@ -105,15 +107,7 @@ function Movie() {
                                 to="/player"
                                 state={{ movie, playlistMovie }}
                                 className={styles.posterWrapper}
-                                onClick={(e) => {
-                                    if (navOverride) {
-                                        e.preventDefault();
-                                        room.movie_id = movie.tmdb_id;
-                                        navigate(navOverride, {
-                                            state: {room: room}
-                                        });
-                                    }
-                                }}
+                                onClick={(e) => onNavOverride(e)}
                             >
                                 <img className={styles.poster} src={posterUrl} alt="Poster" />
                                 <div className={styles.playButton}>▶</div>

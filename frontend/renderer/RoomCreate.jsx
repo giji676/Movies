@@ -15,7 +15,6 @@ function RoomCreate() {
         e.preventDefault();
         api
             .post("/room/create/", {
-                movie_id: 22,
                 is_private: isPrivate,
                 password: password || null,
                 max_users: maxUsers,})
