@@ -42,9 +42,8 @@ function Movie() {
         if (navOverride) {
             e.preventDefault();
             const res = await api.patch(`/room/manage/${room.room_hash}/`, {movie_id: movie.tmdb_id});
-            movie = res.data;
             navigate(navOverride, {
-                state: {room: room}
+                state: {room: res.data}
             });
         }
     };
