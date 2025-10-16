@@ -39,12 +39,10 @@ function Movie() {
     }, []);
 
     const onNavOverride = async (e) => {
-        console.log("override");
         if (navOverride) {
             e.preventDefault();
             const res = await api.patch(`/room/manage/${room.room_hash}/`, {movie_id: movie.tmdb_id});
-            console.log(res);
-            room.movie_id = movie.tmdb_id;
+            movie = res.data;
             navigate(navOverride, {
                 state: {room: room}
             });
