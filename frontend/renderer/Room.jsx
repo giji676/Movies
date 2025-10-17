@@ -47,6 +47,7 @@ function Room() {
     const [volume, setVolume] = useState(1);
     const [lastVolume, setLastVolume] = useState(volume);
     const [progress, setProgress] = useState(0);
+    const [timestamp, setTimestamp] = useState(0);
 
     useEffect(() => {
         setUpWebSocket();
@@ -64,8 +65,7 @@ function Room() {
             hlsRef.current.destroy();
         }
 
-        const resumeTime = 0;
-        videoRef.current.currentTime = resumeTime;
+        videoRef.current.currentTime = timestamp;
 
         if (Hls.isSupported()) {
             const hls = new Hls();
@@ -178,6 +178,9 @@ function Room() {
         socket.onmessage = (e) => {
             let data = JSON.parse(e.data);
             switch (data.action_type) {
+                case "sync":
+                    setTimestamp(data.timestamp);
+                    break;
                 case "play_state":
                     togglePlay(data.action_state);
                     break;

@@ -12,27 +12,25 @@ class RoomConsumer(AsyncWebsocketConsumer):
         # Fetch current state from Redis
         state = redis_client.hgetall(self.room_group_hash)
         if not state:
-            print("initializing state")
             # Initialize default state
             redis_client.hset(self.room_group_hash, mapping={
                 "timestamp": 0.0,
                 "last_updated": datetime.utcnow().isoformat(),
-                "play_state": "false"
+                "play_state": "False"
             })
             state = redis_client.hgetall(self.room_group_hash)
-        print(state)
 
         # Convert fields to correct types
         timestamp = float(state["timestamp"])
         last_updated = datetime.fromisoformat(state["last_updated"])
-        play_state = state.get("play_state") == "true"
+        play_state = state.get("play_state") == "True"
 
         # Calculate live timestamp
         diff = (datetime.utcnow() - last_updated).total_seconds()
         current_timestamp = timestamp + diff if play_state else timestamp
 
         await self.send(json.dumps({
-            "type": "sync",
+            "action_type": "sync",
             "timestamp": current_timestamp,
             "last_updated": state["last_updated"],
             "play_state": play_state
@@ -47,7 +45,7 @@ class RoomConsumer(AsyncWebsocketConsumer):
         state = redis_client.hgetall(self.room_group_hash)
         timestamp = float(state.get("timestamp", 0.0))
         last_updated = datetime.fromisoformat(state.get("last_updated", datetime.utcnow().isoformat()))
-        play_state = state.get("play_state", "false") == "true"
+        play_state = state.get("play_state", "False") == "True"
 
         # Update server state depending on action
         if action_type == "seek":
@@ -68,7 +66,7 @@ class RoomConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(
             self.room_group_hash,
             {
-                "type": "room_update",
+                "action_type": "room_update",
                 "timestamp": timestamp,
                 "last_updated": last_updated.isoformat(),
                 "play_state": play_state,
@@ -80,7 +78,7 @@ class RoomConsumer(AsyncWebsocketConsumer):
         if event["sender"] == self.channel_name:
             return
         await self.send(json.dumps({
-            "type": "room_update",
+            "action_type": "room_update",
             "timestamp": event["timestamp"],
             "last_updated": event["last_updated"],
             "play_state": event["play_state"]
