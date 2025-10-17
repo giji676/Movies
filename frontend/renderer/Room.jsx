@@ -24,7 +24,7 @@ function Room() {
     const location = useLocation();
     const { room } = location.state || {};
 
-    const url = `ws://localhost:8000/ws/socket-server/`;
+    const url = `ws://localhost:8000/ws/room/${room.room_hash}/`;
     const socketRef = useRef();
 
     const videoRef = useRef(null);
@@ -91,8 +91,7 @@ function Room() {
     useEffect(() => {
         if (socketRef.current?.readyState !== WebSocket.OPEN) return;
         socketRef.current.send(JSON.stringify({
-            "type": "room_action",
-            "action": "playing",
+            "action_type": "play_state",
             "action_state": isPlaying,
         }));
     }, [isPlaying]);
@@ -178,8 +177,8 @@ function Room() {
 
         socket.onmessage = (e) => {
             let data = JSON.parse(e.data);
-            switch (data.action) {
-                case "playing":
+            switch (data.action_type) {
+                case "play_state":
                     togglePlay(data.action_state);
                     break;
                 case "seek":
@@ -188,9 +187,6 @@ function Room() {
                     const clamped = data.action_state/video.duration;
                     video.currentTime = data.action_state;
                     setProgress(clamped);
-                    break;
-                case "sync":
-                    setOriginSync(data.action_state);
                     break;
             }
         }
@@ -223,6 +219,8 @@ function Room() {
 
         const currentTime = Math.floor(videoRef.current.currentTime); // seconds
 
+        return;
+        // Not syncing manually anymore
         socketRef.current.send(JSON.stringify({
             "type": "room_action",
             "action": "sync",
@@ -448,8 +446,7 @@ function Room() {
                                             if (!video || socketRef.current?.readyState !== WebSocket.OPEN) return;
 
                                             socketRef.current.send(JSON.stringify({
-                                                "type": "room_action",
-                                                "action": "seek",
+                                                "action_type": "seek",
                                                 "action_state": video.currentTime,
                                             }));
                                         }
