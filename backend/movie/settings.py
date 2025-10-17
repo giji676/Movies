@@ -53,6 +53,7 @@ STATIC_ROOT = os.environ.get("STATIC_ROOT ", "/app/static/")
 # Application definition
 
 INSTALLED_APPS = [
+    "channels",
     "daphne",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -134,8 +135,11 @@ ASGI_APPLICATION = "movie.asgi.application"
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
 }
 
 # Database
