@@ -34,6 +34,7 @@ function Room() {
     const hlsRef = useRef(null);
     const updateInterval = useRef(null);
     const timeoutRef = useRef(null);
+    const fromServerRef = useRef(false);
 
     const [showControls, setShowControls] = useState(true);
     const [mouseVisible, setMouseVisible] = useState(true);
@@ -87,14 +88,6 @@ function Room() {
         const cleanup = setupTrackingListeners();
         return cleanup;
     }, [videoPath]);
-
-    useEffect(() => {
-        if (socketRef.current?.readyState !== WebSocket.OPEN) return;
-        socketRef.current.send(JSON.stringify({
-            "action_type": "play_state",
-            "action_state": isPlaying,
-        }));
-    }, [isPlaying]);
 
     useEffect(() => {
         const duration = videoRef.current?.duration;
@@ -178,7 +171,22 @@ function Room() {
         setProgress(clamped);
     }, [timestamp]);
 
+    useEffect(() => {
+        if (fromServerRef.current) {
+            fromServerRef.current = false;
+            return;
+        }
+
+        if (socketRef.current?.readyState === WebSocket.OPEN) {
+            socketRef.current.send(JSON.stringify({
+                "action_type": "play_state",
+                "action_state": isPlaying,
+            }));
+        }
+    }, [isPlaying]);
+
     const setRoomState = (data) => {
+        fromServerRef.current = true;
         const lastUpdated = new Date(data.last_updated);
         const now = new Date();
         const diffSeconds = (now - lastUpdated) / 1000;

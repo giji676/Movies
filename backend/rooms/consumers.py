@@ -56,7 +56,7 @@ class RoomConsumer(AsyncWebsocketConsumer):
             last_updated = now
 
         elif action_type == "play_state":
-            new_play_state = bool(action_state)
+            new_play_state = str(action_state).lower() == "true"
 
             # If user is pausing -> calculate current timestamp
             if play_state and not new_play_state:
