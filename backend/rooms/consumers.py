@@ -43,24 +43,38 @@ class RoomConsumer(AsyncWebsocketConsumer):
         # Fetch current state
         state = redis_client.hgetall(self.room_group_hash)
         timestamp = float(state.get("timestamp", 0.0))
-        last_updated = datetime.fromisoformat(state.get("last_updated", datetime.now(timezone.utc).isoformat()))
+        last_updated = datetime.fromisoformat(
+            state.get("last_updated", datetime.now(timezone.utc).isoformat())
+        )
         play_state = state.get("play_state", "False") == "True"
 
-        # Update server state
+        now = datetime.now(timezone.utc)
+
+        # Update server state based on action
         if action_type == "seek":
             timestamp = float(action_state)
-        elif action_type == "play_state":
-            play_state = bool(action_state)
-        last_updated = datetime.now(timezone.utc)
+            last_updated = now
 
-        # Save updated state back to Redis
+        elif action_type == "play_state":
+            new_play_state = bool(action_state)
+
+            # If user is pausing -> calculate current timestamp
+            if play_state and not new_play_state:
+                diff = (now - last_updated).total_seconds()
+                timestamp += diff  # freeze playback position
+
+            # If user is resuming -> just update last_updated
+            last_updated = now
+            play_state = new_play_state
+
+        # Save updated state
         redis_client.hset(self.room_group_hash, mapping={
             "timestamp": timestamp,
             "last_updated": last_updated.isoformat(),
             "play_state": str(play_state)
         })
 
-        # Broadcast updated state to all clients
+        # Broadcast to others
         await self.channel_layer.group_send(
             self.room_group_hash,
             {
