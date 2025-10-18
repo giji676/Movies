@@ -114,7 +114,6 @@ function Room() {
         }
     }, [mute, volume]);
 
-
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (!videoRef.current) return;
@@ -123,7 +122,7 @@ function Room() {
                 case "k": // pause/play
                 case " ":
                     e.preventDefault(); // prevent scrolling
-                    togglePlay();
+                    toggleOrSetPlayState();
                     break;
 
                 case "f": // fullscreen
@@ -171,25 +170,34 @@ function Room() {
         };
     }, [volume, mute, videoRef, isPlaying]);
 
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video || !video.duration) return;
+        const clamped = timestamp/video.duration;
+        video.currentTime = timestamp;
+        setProgress(clamped);
+    }, [timestamp]);
+
+    const setRoomState = (data) => {
+        const lastUpdated = new Date(data.last_updated);
+        const now = new Date();
+        const diffSeconds = (now - lastUpdated) / 1000;
+        const currentTimestamp = data.play_state
+            ? data.timestamp + diffSeconds
+            : data.timestamp;
+        setTimestamp(currentTimestamp);
+        toggleOrSetPlayState(data.play_state);
+    };
+
     const setUpWebSocket = () => {
         const socket = new WebSocket(url);
         socketRef.current = socket;
 
         socket.onmessage = (e) => {
             let data = JSON.parse(e.data);
-            switch (data.action_type) {
-                case "sync":
-                    setTimestamp(data.timestamp);
-                    break;
-                case "play_state":
-                    togglePlay(data.action_state);
-                    break;
-                case "seek":
-                    const video = videoRef.current;
-                    if (!video || !video.duration) break;
-                    const clamped = data.action_state/video.duration;
-                    video.currentTime = data.action_state;
-                    setProgress(clamped);
+            switch (data.type) {
+                case "room_update":
+                    setRoomState(data);
                     break;
             }
         }
@@ -219,16 +227,7 @@ function Room() {
     const updateTimeStamp = async () => {
         if (!videoRef.current) return;
         if (socketRef.current?.readyState !== WebSocket.OPEN) return;
-
         const currentTime = Math.floor(videoRef.current.currentTime); // seconds
-
-        return;
-        // Not syncing manually anymore
-        socketRef.current.send(JSON.stringify({
-            "type": "room_action",
-            "action": "sync",
-            "action_state": currentTime,
-        }));
     };
 
     const startTracking = () => {
@@ -246,7 +245,6 @@ function Room() {
     const updateState = () => {
         const video = videoRef.current;
         if (!video) return;
-
         setIsPlaying(!video.paused);
     };
 
@@ -287,7 +285,7 @@ function Room() {
         };
     };
 
-    const togglePlay = (state) => {
+    const toggleOrSetPlayState = (state) => {
         // if state is provided, set play to that state
         // otherwise toggle play
         if (!videoRef.current) return;
@@ -463,7 +461,7 @@ function Room() {
                                 </div>
                                 <div className={styles.controlButtons}>
                                     <div className={styles.leftButtonStack}>
-                                        <button onClick={togglePlay}>
+                                        <button onClick={toggleOrSetPlayState}>
                                             {isPlaying ? <FaPause /> : <FaPlay />}
                                         </button>
                                         <button onClick={toggleMute}>
