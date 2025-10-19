@@ -5,6 +5,7 @@ from utils.redisClient import redis_client
 
 class RoomConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        print(self.scope["user"])
         self.room_group_hash = f"room_{self.scope['url_route']['kwargs']['room_hash']}"
         await self.channel_layer.group_add(self.room_group_hash, self.channel_name)
         await self.accept()
@@ -14,7 +15,7 @@ class RoomConsumer(AsyncWebsocketConsumer):
         if not state:
             # Initialize default state
             redis_client.hset(self.room_group_hash, mapping={
-                "timestamp": 60.0,
+                "timestamp": 0.0,
                 "last_updated": datetime.now(timezone.utc).isoformat(),
                 "play_state": "False"
             })
