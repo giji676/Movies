@@ -209,6 +209,9 @@ function Room() {
                     break;
             }
         }
+        socket.onclose = (e) => {
+            console.log(e.code);
+        }
         return () => {
             socket.close();
         };
