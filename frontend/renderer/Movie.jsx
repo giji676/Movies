@@ -10,7 +10,7 @@ import api from "../main/api";
 function Movie() {
     const location = useLocation();
     const navigate = useNavigate();
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 430);
 
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
