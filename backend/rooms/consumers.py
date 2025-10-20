@@ -52,11 +52,12 @@ class RoomConsumer(AsyncWebsocketConsumer):
         # Calculate live timestamp
         diff = (datetime.now(timezone.utc) - last_updated).total_seconds()
         current_timestamp = timestamp + diff if play_state else timestamp
+        new_last_updated = datetime.now(timezone.utc).isoformat()
 
         await self.send(json.dumps({
             "type": "room_update",
             "timestamp": current_timestamp,
-            "last_updated": state["last_updated"],
+            "last_updated": new_last_updated,
             "play_state": play_state
         }))
 
