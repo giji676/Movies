@@ -2,6 +2,7 @@
 omit =
     */migrations/*
     */tests/*
+    */tests.py*
     manage.py
     */__init__.py
 
