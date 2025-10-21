@@ -49,10 +49,12 @@ function Room() {
     const [lastVolume, setLastVolume] = useState(volume);
     const [progress, setProgress] = useState(0);
     const [timestamp, setTimestamp] = useState(0);
+    const [roomUser, setRoomUser] = useState();
 
     useEffect(() => {
         setUpWebSocket();
         setMovieId(room.movie_id);
+        getRoomUser();
     }, []);
 
     useEffect(() => {
@@ -215,6 +217,17 @@ function Room() {
         return () => {
             socket.close();
         };
+    };
+
+    const getRoomUser = async () => {
+        try {
+            const res = await api.get(`/room/${room.room_hash}/room-user/`);
+            if (res.data?.room_user) {
+                setRoomUser(res.data.room_user);
+            }
+        } catch (err) {
+            toast.error("Failed to fetch room-user", err);
+        }
     };
 
     const getMoviePath = async () => {

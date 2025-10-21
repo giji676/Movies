@@ -10,6 +10,23 @@ from .exceptions import RoomFullException
 
 User = get_user_model()
 
+class RoomUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    """ Return full room user, including privilages """
+    def get(self, request, room_hash):
+        user = request.user
+        try:
+            room = Room.objects.get(room_hash=room_hash)
+        except Room.DoesNotExist:
+            return Response({"error": "Room not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            room_user = RoomUser.objects.get(user=user, room=room)
+        except RoomUser.DoesNotExist:
+            return Response({"error": "RoomUser not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"room_user": RoomUserSerializer(room_user).data}, status=status.HTTP_200_OK)
+
 class ManageRoomView(APIView):
     permission_classes = [IsAuthenticated]
 
