@@ -31,18 +31,17 @@ class RoomUserViewTest(APITestCase):
             remove_users=False,
             change_privileges=False
         )
-        # self.guest_room_user = RoomUser.objects.create(user=self.guest, room=self.room, privileges=self.guest_privilege)
         self.room.add_user(self.guest, privileges=self.guest_privilege)
 
         self.url_name = "room-user"
 
     def test_invalid_user(self):
-        invalid_user_client = APIClient()
-        invalid_user_client.force_authenticate(user=self.last_user)
-        url = reverse(self.url_name, kwargs={"room_hash": "invalid room hash"})
-        response = invalid_user_client.get(url)
+        self.client.force_authenticate(user=self.last_user)
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertNotIn("room_user", response.data)
+        self.assertIn("not found", response.data["error"])
 
     def test_invalid_room_hash(self):
         url = reverse(self.url_name, kwargs={"room_hash": "invalid room hash"})
