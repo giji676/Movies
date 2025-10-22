@@ -1,3 +1,4 @@
+import uuid
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient, APIRequestFactory
 from rest_framework import status
@@ -30,12 +31,13 @@ class MovieSearchTests(APITestCase):
     def test_search(self):
         response = self.client.get(self.search_url, {"query": "Movie"})
         self.assertEqual(response.status_code, 200);
-        self.assertEqual(len(response.data), 3);
+        self.assertEqual(len(response.data["movies"]), 3);
 
     def test_non_existant_search(self):
-        response = self.client.get(self.search_url, {"query": "this title should not exist"})
+        query = str(uuid.uuid4().hex)
+        response = self.client.get(self.search_url, {"query": query})
         self.assertEqual(response.status_code, 200);
-        self.assertEqual(len(response.data), 0);
+        self.assertEqual(len(response.data["movies"]), 0);
 
     def test_empty_search_suggest(self):
         response = self.client.get(self.search_suggest_url, {"query": ""})
@@ -47,7 +49,8 @@ class MovieSearchTests(APITestCase):
         self.assertEqual(len(response.data), 3);
 
     def test_non_existant_search_suggest(self):
-        response = self.client.get(self.search_suggest_url, {"query": "this title should not exist"})
+        query = str(uuid.uuid4().hex)
+        response = self.client.get(self.search_suggest_url, {"query": query})
         self.assertEqual(response.status_code, 200);
         self.assertEqual(len(response.data), 0);
 
