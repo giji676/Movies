@@ -163,7 +163,6 @@ class StreamToClient(APIView):
     Returns the HLS .m3u8 URL for a movie given its TMDB ID.
     Assumes Nginx serves /var/www/media/ as /media/ URL.
     """
-    # TODO: video path is being returned with "/media/media/..." (should only be one media)
     def get(self, request):
         tmdb_id = request.query_params.get("tmdb_id")
         if not tmdb_id:
@@ -172,7 +171,7 @@ class StreamToClient(APIView):
         try:
             tmdb_id = int(tmdb_id)
         except ValueError:
-            return Response({"error": "Invalid tmdb_id"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Invalid tmdb_id, must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             movie = Movie.objects.get(tmdb_id=tmdb_id)
@@ -185,13 +184,9 @@ class StreamToClient(APIView):
         m3u8_path = os.path.join(hls_dir, m3u8_filename)
 
         if not os.path.isfile(m3u8_path):
-            return Response({"error": "HLS not available"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "HLS not available"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Convert filesystem path to URL served by Nginx
-        # url = f"http://{request.get_host()}{m3u8_path}"
-        url = f"{m3u8_path}"
-
-        return Response({"file_path": url}, status=status.HTTP_200_OK)
+        return Response({"file_path": m3u8_path}, status=status.HTTP_200_OK)
 
 class ShowAvailableMovies(APIView):
     """Return a paginated JSON of the movies available on the server"""

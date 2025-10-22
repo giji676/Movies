@@ -1,4 +1,5 @@
 import uuid
+from unittest.mock import patch
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient, APIRequestFactory
 from rest_framework import status
@@ -8,6 +9,43 @@ from api.serializers import MovieSerializer
 from api.models import Movie, PlaylistMovie
 from unittest.mock import Mock
 from django.utils import timezone
+
+class StreamToClientTests(APITestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email="user@example.com", password="password123"
+        )
+        self.movie = Movie.objects.create(title="Movie 1", tmdb_id=1)
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+        self.url = reverse("stream-to-client")
+
+    def test_missing_tmdb_id(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("no tmdb_id", response.data["error"].lower())
+
+    def test_invalid_id(self):
+        response = self.client.get(self.url, data={"tmdb_id": "invalid tmdb_id"})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("invalid", response.data["error"].lower())
+
+    def test_nonexistent_id(self):
+        response = self.client.get(self.url, data={"tmdb_id": 9999})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("not found", response.data["error"].lower())
+
+    def test_nonexistent_hls(self):
+        response = self.client.get(self.url, data={"tmdb_id": self.movie.tmdb_id})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn("hls not available", response.data["error"].lower())
+
+    def test_stream_to_client_hls_available(self):
+        with patch("os.path.isfile", return_value=True):
+            response = self.client.get(self.url, data={"tmdb_id": self.movie.tmdb_id})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in self.movie.title)
+        self.assertIn(f"{safe_title}.m3u8", response.data["file_path"])
 
 class MovieSearchTests(APITestCase):
     def setUp(self):
@@ -26,33 +64,33 @@ class MovieSearchTests(APITestCase):
 
     def test_empty_search(self):
         response = self.client.get(self.search_url, {"query": ""})
-        self.assertEqual(response.status_code, 400);
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_search(self):
         response = self.client.get(self.search_url, {"query": "Movie"})
-        self.assertEqual(response.status_code, 200);
-        self.assertEqual(len(response.data["movies"]), 3);
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["movies"]), 3)
 
     def test_non_existant_search(self):
         query = str(uuid.uuid4().hex)
         response = self.client.get(self.search_url, {"query": query})
-        self.assertEqual(response.status_code, 200);
-        self.assertEqual(len(response.data["movies"]), 0);
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["movies"]), 0)
 
     def test_empty_search_suggest(self):
         response = self.client.get(self.search_suggest_url, {"query": ""})
-        self.assertEqual(response.status_code, 200);
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_search_suggest(self):
         response = self.client.get(self.search_suggest_url, {"query": "Movie"})
-        self.assertEqual(response.status_code, 200);
-        self.assertEqual(len(response.data), 3);
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
 
     def test_non_existant_search_suggest(self):
         query = str(uuid.uuid4().hex)
         response = self.client.get(self.search_suggest_url, {"query": query})
-        self.assertEqual(response.status_code, 200);
-        self.assertEqual(len(response.data), 0);
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
 
 class PlaylistMovieListTests(APITestCase):
     def setUp(self):
@@ -74,38 +112,38 @@ class PlaylistMovieListTests(APITestCase):
 
     def test_list_all_playlist_movies(self):
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 3)
 
     def test_filter_watch_later_true(self):
         response = self.client.get(self.url, {"watch_later": "true"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
         tmdb_ids = {movie["movie"]["tmdb_id"] for movie in response.data}
         self.assertEqual(tmdb_ids, {1, 2})
 
     def test_filter_watch_history_true(self):
         response = self.client.get(self.url, {"watch_history": "true"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
         tmdb_ids = {movie["movie"]["tmdb_id"] for movie in response.data}
         self.assertEqual(tmdb_ids, {1, 3})
 
     def test_filter_both_watch_later_and_watch_history_true(self):
         response = self.client.get(self.url, {"watch_later": "true", "watch_history": "true"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["movie"]["tmdb_id"], 1)
 
     def test_filter_watch_later_false(self):
         response = self.client.get(self.url, {"watch_later": "false"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["movie"]["tmdb_id"], 3)
 
     def test_filter_watch_history_false(self):
         response = self.client.get(self.url, {"watch_history": "false"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["movie"]["tmdb_id"], 2)
 
