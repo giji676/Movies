@@ -72,8 +72,6 @@ class JoinRoomView(APIView):
                 {"error": "room_full", "detail": str(e)},
                 status=status.HTTP_403_FORBIDDEN
             )
-        except ValueError as e:
-            return Response({"error": str(e)}, status=status.HTTP_403_FORBIDDEN)
 
         return Response({
             "message": "Joined room successfully",
@@ -173,8 +171,6 @@ class ManagerUsersInRoom(APIView):
                 {"error": "room_full", "detail": str(e)},
                 status=status.HTTP_403_FORBIDDEN
             )
-        except:
-            return Response({"error": "something went wrong while adding the user"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({"message": "User added successfully", "user": RoomUserSerializer(new_room_user).data}, status=status.HTTP_201_CREATED)
 
