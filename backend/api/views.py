@@ -256,7 +256,6 @@ class SuggestMovies(APIView):
 
 class Search(APIView):
     """Search through local movies in the database with TMDB config included."""
-
     def get(self, request):
         query = request.query_params.get("query")
         if not query:
@@ -281,5 +280,12 @@ class MoviePopulars(APIView):
         page = request.query_params.get("page")
         if not page:
             page = 1
+        else:
+            try:
+                page = int(page)
+            except ValueError:
+                raise ValidationError({"error": "page must be a positive integer"})
+            if page < 0:
+                page = 0
         result = tmdb.getPopularMovies(page)
         return Response(result, status=status.HTTP_200_OK)

@@ -11,6 +11,46 @@ from api.models import Movie, PlaylistMovie
 from unittest.mock import Mock
 from django.utils import timezone
 
+class MoviePopularsTests(APITestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email="user@example.com", password="password123"
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+        self.url = reverse("movie-populars")
+        self.fake_response = {
+            "page": 1,
+            "results": [
+                {"title": "Ironman"},
+                {"title": "Ironman 2"},
+                {"title": "Ironman 3"},
+            ]
+        }
+
+    def test_invalid_page(self):
+        response = self.client.get(self.url, data={"page": "invalid_page"})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("integer", response.data["error"].lower())
+
+    def test_valid(self):
+        with patch("api.views.tmdb.getPopularMovies", return_value=self.fake_response):
+            response = self.client.get(self.url, data={"page": 1})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), len(self.fake_response["results"]))
+
+    def test_negative_page(self):
+        with patch("api.views.tmdb.getPopularMovies", return_value=self.fake_response):
+            response = self.client.get(self.url, data={"page": -1})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), len(self.fake_response["results"]))
+
+    def test_missing_page(self):
+        with patch("api.views.tmdb.getPopularMovies", return_value=self.fake_response):
+            response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), len(self.fake_response["results"]))
+
 class SearchTPBTests(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
