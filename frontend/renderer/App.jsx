@@ -88,7 +88,7 @@ function App() {
                             <div className={styles.body}>
                                 <Sidebar resetMovieListData={resetMovieListData} />
                                 <div className={styles.mainContent}>
-                                    <NotFound />
+                                    <RoomAccess />
                                 </div>
                             </div>
                         } />
