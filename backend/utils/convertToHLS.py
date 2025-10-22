@@ -206,6 +206,7 @@ class ConvertToHLS:
         else:
             cmd += ["-c:a", "copy"]
 
+        # ffmpeg -i /media/downloads/<id>/torrent/<title>.mp4 -c:v libx264 -preset fast -crf 23 -c:a aac -b:a 128k -map 0 -f hls -hls_time 10 -hls_playlist_type vod /media/downloads/<id>/hls/<title>.m3u8
         # Container
         """
         if video_info["container"].lower() not in ["mp4", "mov"]:

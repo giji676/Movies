@@ -10,9 +10,31 @@ from .exceptions import RoomFullException
 
 User = get_user_model()
 
+class RoomUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    """ Return full room user, including privilages """
+    def get(self, request, room_hash):
+        user = request.user
+        try:
+            room = Room.objects.get(room_hash=room_hash)
+        except Room.DoesNotExist:
+            return Response({"error": "Room not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            room_user = RoomUser.objects.get(user=user, room=room)
+        except RoomUser.DoesNotExist:
+            return Response({"error": "RoomUser not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"room_user": RoomUserSerializer(room_user).data}, status=status.HTTP_200_OK)
+
 class ManageRoomView(APIView):
     permission_classes = [IsAuthenticated]
 
+    """
+        Partially updates a Room.
+        Accepts any Room fields in JSON; optionally, a 'password' can be set or updated.
+        Returns the updated Room on success, or an error if not allowed or invalid.
+    """
     def patch(self, request, room_hash):
         try:
             room = Room.objects.get(room_hash=room_hash)
@@ -32,7 +54,6 @@ class ManageRoomView(APIView):
                 updated_room.save(update_fields=["password_hash"])
 
             return Response(RoomSerializer(updated_room).data, status=status.HTTP_200_OK)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class JoinRoomView(APIView):
@@ -51,8 +72,6 @@ class JoinRoomView(APIView):
                 {"error": "room_full", "detail": str(e)},
                 status=status.HTTP_403_FORBIDDEN
             )
-        except ValueError as e:
-            return Response({"error": str(e)}, status=status.HTTP_403_FORBIDDEN)
 
         return Response({
             "message": "Joined room successfully",
@@ -152,8 +171,6 @@ class ManagerUsersInRoom(APIView):
                 {"error": "room_full", "detail": str(e)},
                 status=status.HTTP_403_FORBIDDEN
             )
-        except:
-            return Response({"error": "something went wrong while adding the user"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({"message": "User added successfully", "user": RoomUserSerializer(new_room_user).data}, status=status.HTTP_201_CREATED)
 

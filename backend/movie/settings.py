@@ -53,6 +53,7 @@ STATIC_ROOT = os.environ.get("STATIC_ROOT ", "/app/static/")
 # Application definition
 
 INSTALLED_APPS = [
+    "channels",
     "daphne",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -96,8 +97,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=31),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',),  # still useful for dev
@@ -132,10 +133,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'movie.wsgi.application'
 ASGI_APPLICATION = "movie.asgi.application"
 
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(REDIS_HOST, REDIS_PORT)],
+        },
+    },
 }
 
 # Database

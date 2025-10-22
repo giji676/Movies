@@ -1,4 +1,12 @@
 services:
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
   nginx:
     image: ghcr.io/giji676/movies/nginx:${IMAGE_TAG}
     restart: unless-stopped
@@ -25,6 +33,7 @@ services:
       - 8000
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:15
@@ -39,3 +48,4 @@ services:
 volumes:
   static_volume: {}
   postgres_data: {}
+  redis_data: {}

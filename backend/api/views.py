@@ -145,9 +145,11 @@ class PlaylistMovieCreate(generics.ListCreateAPIView):
         tmdb_id = self.request.data.get('tmdb_id')
         # validate movie exists with that tmdb id
         try:
-            movie = Movie.objects.get(tmdb_id=tmdb_id)
+            movie = Movie.objects.get(tmdb_id=int(tmdb_id))
         except Movie.DoesNotExist:
             raise ValidationError({"tmdb_id": "Movie with this TMDB ID does not exist."})
+        except ValueError:
+            raise ValidationError({"tmdb_id": "tmdb_id must be an integer"})
 
         user = self.request.user
         # check for duplicate
@@ -161,7 +163,6 @@ class StreamToClient(APIView):
     Returns the HLS .m3u8 URL for a movie given its TMDB ID.
     Assumes Nginx serves /var/www/media/ as /media/ URL.
     """
-    # TODO: video path is being returned with "/media/media/..." (should only be one media)
     def get(self, request):
         tmdb_id = request.query_params.get("tmdb_id")
         if not tmdb_id:
@@ -170,7 +171,7 @@ class StreamToClient(APIView):
         try:
             tmdb_id = int(tmdb_id)
         except ValueError:
-            return Response({"error": "Invalid tmdb_id"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Invalid tmdb_id, must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             movie = Movie.objects.get(tmdb_id=tmdb_id)
@@ -183,22 +184,20 @@ class StreamToClient(APIView):
         m3u8_path = os.path.join(hls_dir, m3u8_filename)
 
         if not os.path.isfile(m3u8_path):
-            return Response({"error": "HLS not available"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "HLS not available"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Convert filesystem path to URL served by Nginx
-        # url = f"http://{request.get_host()}{m3u8_path}"
-        url = f"{m3u8_path}"
-
-        return Response({"file_path": url}, status=status.HTTP_200_OK)
+        return Response({"file_path": m3u8_path}, status=status.HTTP_200_OK)
 
 class ShowAvailableMovies(APIView):
     """Return a paginated JSON of the movies available on the server"""
     def get(self, request):
         try:
-            offset = int(request.GET.get('offset', 0))
-            limit = int(request.GET.get('limit', 25))
+            offset = int(request.query_params.get("offset", 0))
+            limit = int(request.query_params.get("limit", 25))
         except ValueError:
-            return Response({"error": "Invalid offset or limit"}, status=status.HTTP_400_BAD_REQUEST)
+            raise ValidationError({"error": "Invalid offset or limit"})
+        if (offset < 0 or limit < 0):
+            raise ValidationError({"error": "offset and limit must be positive integers"})
 
         movies_qs = Movie.objects.order_by("-tmdb_id")[offset:offset + limit]
         serializer = MovieSerializer(movies_qs, many=True, context={'request': request, 'tmdb': tmdb})
@@ -220,7 +219,9 @@ class SearchTPB(APIView):
         try:
             count = int(count)
         except:
-            count = None
+            raise ValidationError({"error": "count must be a positive integer"})
+        if count < 0:
+            raise ValidationError({"error": "count must be a positive integer"})
 
         if not query:
             return Response({"error": "No query specified"}, status=status.HTTP_400_BAD_REQUEST)
@@ -255,7 +256,6 @@ class SuggestMovies(APIView):
 
 class Search(APIView):
     """Search through local movies in the database with TMDB config included."""
-
     def get(self, request):
         query = request.query_params.get("query")
         if not query:
@@ -280,5 +280,12 @@ class MoviePopulars(APIView):
         page = request.query_params.get("page")
         if not page:
             page = 1
+        else:
+            try:
+                page = int(page)
+            except ValueError:
+                raise ValidationError({"error": "page must be a positive integer"})
+            if page < 0:
+                page = 0
         result = tmdb.getPopularMovies(page)
         return Response(result, status=status.HTTP_200_OK)

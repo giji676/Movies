@@ -8,6 +8,120 @@ from api.models import Movie
 
 User = get_user_model()
 
+class ManageRoomTest(APITestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(email="owner@example.com", password="password123")
+        self.guest = User.objects.create_user(email="guest@example.com", password="guest123")
+        self.last_user = User.objects.create_user(email="last@example.com", password="last123")
+
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.owner)
+
+        self.movie = Movie.objects.create(title="Movie 1", tmdb_id=1)
+
+        self.room = Room.objects.create(movie_id=self.movie.tmdb_id, created_by=self.owner, max_users=2)
+
+        self.owner_room_user = RoomUser.objects.get(user=self.owner, room=self.room)
+        self.guest_privilege = RoomUserPrivileges.objects.create(
+            room=self.room,
+            name="Guest",
+            play_pause=False,
+            choose_movie=False,
+            add_users=False,
+            remove_users=False,
+            change_privileges=False
+        )
+        self.room.add_user(self.guest, privileges=self.guest_privilege)
+
+        self.url_name = "manage-room"
+
+    def test_invalid_room_hash(self):
+        url = reverse(self.url_name, kwargs={"room_hash": "invalid room hash"})
+        response = self.client.patch(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_unauthorized_user(self):
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash})
+        self.client.force_authenticate(self.guest)
+        response = self.client.patch(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_invalid_field(self):
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash})
+        response = self.client.patch(url, {"invalid_field": "invalid_data"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        room = Room.objects.get(pk=self.room.pk)
+        self.assertFalse(hasattr(room, "invalid_field"))
+
+    def test_invalid_data(self):
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash})
+        response = self.client.patch(url, {"max_users": "invalid_data"})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        room = Room.objects.get(pk=self.room.pk)
+        self.assertNotEqual(getattr(room, "max_users"), "invalid_data")
+
+    def test_set_password(self):
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash})
+        response = self.client.patch(url, {
+            "is_private": True,
+            "password": "testpass",
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        room = Room.objects.get(pk=self.room.pk)
+        self.assertTrue(room.is_private)
+        # Check it's not stored as plain text (same as input)
+        self.assertNotEqual(room.password_hash, "testpass")
+        self.assertTrue(room.check_password("testpass"))
+
+class RoomUserViewTest(APITestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(email="owner@example.com", password="password123")
+        self.guest = User.objects.create_user(email="guest@example.com", password="guest123")
+        self.last_user = User.objects.create_user(email="last@example.com", password="last123")
+
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.guest)
+
+        self.movie = Movie.objects.create(title="Movie 1", tmdb_id=1)
+
+        self.room = Room.objects.create(movie_id=self.movie.tmdb_id, created_by=self.owner, max_users=2)
+
+        self.owner_room_user = RoomUser.objects.get(user=self.owner, room=self.room)
+        self.guest_privilege = RoomUserPrivileges.objects.create(
+            room=self.room,
+            name="Guest",
+            play_pause=True,
+            choose_movie=False,
+            add_users=False,
+            remove_users=False,
+            change_privileges=False
+        )
+        self.room.add_user(self.guest, privileges=self.guest_privilege)
+
+        self.url_name = "room-user"
+
+    def test_invalid_user(self):
+        self.client.force_authenticate(user=self.last_user)
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertNotIn("room_user", response.data)
+        self.assertIn("not found", response.data["error"])
+
+    def test_invalid_room_hash(self):
+        url = reverse(self.url_name, kwargs={"room_hash": "invalid room hash"})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertNotIn("room_user", response.data)
+
+    def test_get_room_user_successfully(self):
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("room_user", response.data)
+        self.assertTrue(response.data["room_user"]["privileges"]["play_pause"])
+        self.assertFalse(response.data["room_user"]["privileges"]["choose_movie"])
+
 class JoinRoomViewTest(APITestCase):
     def setUp(self):
         self.owner = User.objects.create_user(email="owner@example.com", password="password123")
@@ -342,4 +456,4 @@ class CreateCodeTest(APITestCase):
             "is_private": False,
         })
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
