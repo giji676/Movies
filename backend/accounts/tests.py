@@ -4,6 +4,57 @@ from rest_framework import status
 from django.contrib.auth import get_user_model
 from .models import CustomUser
 
+class LogoutTest(APITestCase):
+    def setUp(self):
+        self.url = reverse("logout")
+        self.email = "test@example.com"
+        self.password = "strongpassword123"
+        self.user = CustomUser.objects.create_user(
+            email=self.email,
+            password=self.password
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+    def test_logout_removes_cookies(self):
+        self.client.cookies["access_token"] = "dummy_access"
+        self.client.cookies["refresh_token"] = "dummy_refresh"
+
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("logged out", response.data["message"].lower())
+        
+        # Ensure cookies are deleted
+        self.assertIn("access_token", response.cookies)
+        self.assertIn("refresh_token", response.cookies)
+        self.assertEqual(response.cookies["access_token"].value, "")
+        self.assertEqual(response.cookies["refresh_token"].value, "")
+
+    def test_logout_without_tokens(self):
+        # No cookies set
+        self.client.logout()
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("logged out", response.data["message"].lower())
+        # Cookies should still exist but be empty
+        self.assertIn("access_token", response.cookies)
+        self.assertIn("refresh_token", response.cookies)
+        self.assertEqual(response.cookies["access_token"].value, "")
+        self.assertEqual(response.cookies["refresh_token"].value, "")
+
+    def test_logout_without_being_logged_in(self):
+        # No access or refresh cookies set
+        response = self.client.post(self.url)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("logged out", response.data["message"].lower())
+
+        # Ensure cookies are still returned but empty
+        self.assertIn("access_token", response.cookies)
+        self.assertIn("refresh_token", response.cookies)
+        self.assertEqual(response.cookies["access_token"].value, "")
+        self.assertEqual(response.cookies["refresh_token"].value, "")
+
 class UserSettingsTest(APITestCase):
     def setUp(self):
         self.url = reverse("user-settings")

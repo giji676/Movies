@@ -83,6 +83,7 @@ class LoginView(APIView):
             return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
 class LogoutView(APIView):
+    permission_classes = [AllowAny] 
     def post(self, request):
         response = Response({"message": "Logged out"})
         response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
