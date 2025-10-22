@@ -219,7 +219,9 @@ class SearchTPB(APIView):
         try:
             count = int(count)
         except:
-            count = None
+            raise ValidationError({"error": "count must be a positive integer"})
+        if count < 0:
+            raise ValidationError({"error": "count must be a positive integer"})
 
         if not query:
             return Response({"error": "No query specified"}, status=status.HTTP_400_BAD_REQUEST)

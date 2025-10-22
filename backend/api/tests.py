@@ -1,4 +1,5 @@
 import uuid
+import json
 from unittest.mock import patch
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient, APIRequestFactory
@@ -9,6 +10,44 @@ from api.serializers import MovieSerializer
 from api.models import Movie, PlaylistMovie
 from unittest.mock import Mock
 from django.utils import timezone
+
+class SearchTPBTests(APITestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email="user@example.com", password="password123"
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+        self.url = reverse("search-tpb")
+
+        self.fake_response = {
+            "movies": [
+                {"title": "Ironman"},
+                {"title": "Ironman 2"},
+                {"title": "Ironman 3"},
+            ]
+        }
+
+    def test_invalid_count(self):
+        response = self.client.get(self.url, data={"count": "invalid_count"})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_negative_count(self):
+        response = self.client.get(self.url, data={"count": -10})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("positive integer", response.data["error"].lower())
+
+    def test_missing_query(self):
+        response = self.client.get(self.url, data={"count": 10})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("no query", response.data["error"].lower())
+
+    def test_valid_inputs(self):
+        with patch("api.views.MovieSearch.search", return_value=self.fake_response):
+            response = self.client.get(self.url, data={"query": "Ironman", "count": 2})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["movies"])
+        self.assertTrue(len(response.data["movies"]) <= 2)
 
 class ShowAvailableMoviesTests(APITestCase):
     def setUp(self):
