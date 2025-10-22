@@ -42,13 +42,13 @@ class RefreshTokenView(APIView):
         refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
 
         if refresh_token is None:
-            return Response({'error': 'Refresh token missing'}, status=400)
+            return Response({'error': 'Refresh token missing'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             refresh = RefreshToken(refresh_token)
             access_token = str(refresh.access_token)
         except Exception:
-            return Response({'error': 'Invalid refresh token'}, status=400)
+            return Response({'error': 'Invalid refresh token'}, status=status.HTTP_400_BAD_REQUEST)
 
         response = JsonResponse({
             "message": "Token refreshed",
@@ -71,16 +71,16 @@ class LoginView(APIView):
             access_token = str(refresh.access_token)
             refresh_token = str(refresh)
 
-            response = JsonResponse({
+            response = Response({
                 "message": "Logged in successfully",
                 "refresh_token_exp": refresh["exp"],
                 "access_token_exp": refresh.access_token["exp"],
-            })
+            }, status=status.HTTP_200_OK)
             response = set_jwt_cookies(response, access_token, refresh_token)
             response["X-CSRFToken"] = csrf.get_token(request)
             return response
         else:
-            return Response({"error": "Invalid credentials"}, status=400)
+            return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
 class LogoutView(APIView):
     def post(self, request):
