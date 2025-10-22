@@ -185,6 +185,18 @@ class PlaylistTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(PlaylistMovie.objects.filter(author=self.user, tmdb=self.movie).exists())
 
+    def test_create_invalid_tmdb_id(self):
+        response = self.client.post(self.create_url, {"tmdb_id": "invalid_tmdb_id"})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("tmdb_id", response.data)
+        self.assertEqual(response.data["tmdb_id"], "tmdb_id must be an integer")
+
+    def test_create_nonexistent_movie(self):
+        response = self.client.post(self.create_url, {"tmdb_id": 9999})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("tmdb_id", response.data)
+        self.assertIn("does not exist.", response.data["tmdb_id"])
+
     def test_list_playlist_movies(self):
         response = self.client.get(self.create_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -195,6 +207,28 @@ class PlaylistTests(APITestCase):
         response = self.client.post(self.create_url, {"tmdb_id": self.movie.tmdb_id})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("detail", response.data)
+
+    def test_modify_invalid_value(self):
+        response = self.client.patch(self.modify_url(self.movie.tmdb_id), {
+            "modify_field": "watch_later",
+            "value": "invalid_value",
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("true or false", response.data["value"])
+
+    def test_modify_value_integer(self):
+        response = self.client.patch(self.modify_url(self.movie.tmdb_id), {
+            "modify_field": "watch_later",
+            "value": 1,  # bool(1) → True
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["data"]["watch_later"])
+        response = self.client.patch(self.modify_url(self.movie.tmdb_id), {
+            "modify_field": "watch_later",
+            "value": 0,  # bool(0) → False
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data["data"]["watch_later"])
     
     def test_create_on_modify(self):
         """

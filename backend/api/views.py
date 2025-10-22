@@ -145,9 +145,11 @@ class PlaylistMovieCreate(generics.ListCreateAPIView):
         tmdb_id = self.request.data.get('tmdb_id')
         # validate movie exists with that tmdb id
         try:
-            movie = Movie.objects.get(tmdb_id=tmdb_id)
+            movie = Movie.objects.get(tmdb_id=int(tmdb_id))
         except Movie.DoesNotExist:
             raise ValidationError({"tmdb_id": "Movie with this TMDB ID does not exist."})
+        except ValueError:
+            raise ValidationError({"tmdb_id": "tmdb_id must be an integer"})
 
         user = self.request.user
         # check for duplicate
