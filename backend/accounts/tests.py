@@ -1,8 +1,52 @@
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
-from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.tokens import RefreshToken
 from .models import CustomUser
+from movie import settings
+
+ACCESS_TOKEN = settings.SIMPLE_JWT["AUTH_COOKIE"]
+REFRESH_TOKEN = settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"]
+
+class RefreshTokenTest(APITestCase):
+    def setUp(self):
+        self.url = reverse("jwt-refresh")
+        self.email = "test@example.com"
+        self.password = "strongpassword123"
+        self.user = CustomUser.objects.create_user(
+            email=self.email,
+            password=self.password
+        )
+        self.refresh = RefreshToken.for_user(self.user)
+        self.access = str(self.refresh.access_token)
+        self.refresh_token = str(self.refresh)
+        self.client = APIClient()
+
+    def test_refresh_with_valid_token(self):
+        self.client.cookies[REFRESH_TOKEN] = self.refresh_token
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("token refreshed", response.data["message"].lower())
+        self.assertIn("refresh_token_exp", response.data)
+        self.assertIn("access_token_exp", response.data)
+        # Check cookies
+        self.assertIn(ACCESS_TOKEN, response.cookies)
+        self.assertIn(REFRESH_TOKEN, response.cookies)
+        access_cookie = response.cookies[ACCESS_TOKEN]
+        refresh_cookie = response.cookies[REFRESH_TOKEN]
+        self.assertTrue(access_cookie["httponly"])
+        self.assertTrue(refresh_cookie["httponly"])
+
+    def test_refresh_missing_cookie(self):
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("refresh token missing", response.data["error"].lower())
+
+    def test_refresh_invalid_cookie(self):
+        self.client.cookies[REFRESH_TOKEN] = "invalidtoken"
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("invalid refresh token", response.data["error"].lower())
 
 class LogoutTest(APITestCase):
     def setUp(self):
@@ -17,18 +61,18 @@ class LogoutTest(APITestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_logout_removes_cookies(self):
-        self.client.cookies["access_token"] = "dummy_access"
-        self.client.cookies["refresh_token"] = "dummy_refresh"
+        self.client.cookies[ACCESS_TOKEN] = "dummy_access"
+        self.client.cookies[REFRESH_TOKEN] = "dummy_refresh"
 
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("logged out", response.data["message"].lower())
         
         # Ensure cookies are deleted
-        self.assertIn("access_token", response.cookies)
-        self.assertIn("refresh_token", response.cookies)
-        self.assertEqual(response.cookies["access_token"].value, "")
-        self.assertEqual(response.cookies["refresh_token"].value, "")
+        self.assertIn(ACCESS_TOKEN, response.cookies)
+        self.assertIn(REFRESH_TOKEN, response.cookies)
+        self.assertEqual(response.cookies[ACCESS_TOKEN].value, "")
+        self.assertEqual(response.cookies[REFRESH_TOKEN].value, "")
 
     def test_logout_without_tokens(self):
         # No cookies set
@@ -37,10 +81,10 @@ class LogoutTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("logged out", response.data["message"].lower())
         # Cookies should still exist but be empty
-        self.assertIn("access_token", response.cookies)
-        self.assertIn("refresh_token", response.cookies)
-        self.assertEqual(response.cookies["access_token"].value, "")
-        self.assertEqual(response.cookies["refresh_token"].value, "")
+        self.assertIn(ACCESS_TOKEN, response.cookies)
+        self.assertIn(REFRESH_TOKEN, response.cookies)
+        self.assertEqual(response.cookies[ACCESS_TOKEN].value, "")
+        self.assertEqual(response.cookies[REFRESH_TOKEN].value, "")
 
     def test_logout_without_being_logged_in(self):
         # No access or refresh cookies set
@@ -50,10 +94,10 @@ class LogoutTest(APITestCase):
         self.assertIn("logged out", response.data["message"].lower())
 
         # Ensure cookies are still returned but empty
-        self.assertIn("access_token", response.cookies)
-        self.assertIn("refresh_token", response.cookies)
-        self.assertEqual(response.cookies["access_token"].value, "")
-        self.assertEqual(response.cookies["refresh_token"].value, "")
+        self.assertIn(ACCESS_TOKEN, response.cookies)
+        self.assertIn(REFRESH_TOKEN, response.cookies)
+        self.assertEqual(response.cookies[ACCESS_TOKEN].value, "")
+        self.assertEqual(response.cookies[REFRESH_TOKEN].value, "")
 
 class UserSettingsTest(APITestCase):
     def setUp(self):
@@ -125,10 +169,10 @@ class LoginTest(APITestCase):
         self.assertIn("refresh_token_exp", response.data)
         self.assertIn("access_token_exp", response.data)
 
-        self.assertIn("refresh_token", response.cookies)
-        self.assertIn("access_token", response.cookies)
-        access_cookie = response.cookies["access_token"]
-        refresh_cookie = response.cookies["refresh_token"]
+        self.assertIn(ACCESS_TOKEN, response.cookies)
+        self.assertIn(REFRESH_TOKEN, response.cookies)
+        access_cookie = response.cookies[ACCESS_TOKEN]
+        refresh_cookie = response.cookies[REFRESH_TOKEN]
         self.assertTrue(access_cookie["httponly"])
         self.assertTrue(refresh_cookie["httponly"])
         self.assertEqual(access_cookie["path"], "/")
