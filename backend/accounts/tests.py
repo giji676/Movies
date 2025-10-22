@@ -4,7 +4,54 @@ from rest_framework import status
 from django.contrib.auth import get_user_model
 from .models import CustomUser
 
-# TODO: get rid of / fix old localStorage specific tests
+class UserSettingsTest(APITestCase):
+    def setUp(self):
+        self.url = reverse("user-settings")
+        self.email = "test@example.com"
+        self.password = "strongpassword123"
+        self.user_data = {
+            "email": self.email,
+            "password": self.password
+        }
+        self.user = CustomUser.objects.create_user(
+            email=self.email,
+            password=self.password
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+    def test_valid_access(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("theme", response.data)
+
+class UserProfileTest(APITestCase):
+    def setUp(self):
+        self.url = reverse("user-profile")
+        self.email = "test@example.com"
+        self.password = "strongpassword123"
+        self.user_data = {
+            "email": self.email,
+            "password": self.password
+        }
+        self.user = CustomUser.objects.create_user(
+            email=self.email,
+            password=self.password
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+    def test_valid_access(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["email"], self.email)
+        self.assertNotIn("password", response.data)
+
+    def test_invalid_access(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual("not_authenticated", response.data["detail"].code)
 
 class LoginTest(APITestCase):
     def setUp(self):
@@ -48,7 +95,6 @@ class LoginTest(APITestCase):
 
 class RegisterTest(APITestCase):
     def setUp(self):
-        self.client = APIClient()
         self.url = reverse("register")
         self.email = "test@example.com"
         self.password = "strongpassword123"
