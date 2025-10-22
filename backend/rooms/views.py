@@ -30,6 +30,11 @@ class RoomUserView(APIView):
 class ManageRoomView(APIView):
     permission_classes = [IsAuthenticated]
 
+    """
+        Partially updates a Room.
+        Accepts any Room fields in JSON; optionally, a 'password' can be set or updated.
+        Returns the updated Room on success, or an error if not allowed or invalid.
+    """
     def patch(self, request, room_hash):
         try:
             room = Room.objects.get(room_hash=room_hash)
@@ -49,7 +54,6 @@ class ManageRoomView(APIView):
                 updated_room.save(update_fields=["password_hash"])
 
             return Response(RoomSerializer(updated_room).data, status=status.HTTP_200_OK)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class JoinRoomView(APIView):
