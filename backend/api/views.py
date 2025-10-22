@@ -192,10 +192,12 @@ class ShowAvailableMovies(APIView):
     """Return a paginated JSON of the movies available on the server"""
     def get(self, request):
         try:
-            offset = int(request.GET.get('offset', 0))
-            limit = int(request.GET.get('limit', 25))
+            offset = int(request.query_params.get("offset", 0))
+            limit = int(request.query_params.get("limit", 25))
         except ValueError:
-            return Response({"error": "Invalid offset or limit"}, status=status.HTTP_400_BAD_REQUEST)
+            raise ValidationError({"error": "Invalid offset or limit"})
+        if (offset < 0 or limit < 0):
+            raise ValidationError({"error": "offset and limit must be positive integers"})
 
         movies_qs = Movie.objects.order_by("-tmdb_id")[offset:offset + limit]
         serializer = MovieSerializer(movies_qs, many=True, context={'request': request, 'tmdb': tmdb})

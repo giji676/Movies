@@ -10,6 +10,31 @@ from api.models import Movie, PlaylistMovie
 from unittest.mock import Mock
 from django.utils import timezone
 
+class ShowAvailableMoviesTests(APITestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email="user@example.com", password="password123"
+        )
+        self.movie = Movie.objects.create(title="Movie 1", tmdb_id=1)
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+        self.url = reverse("show-available-movies")
+
+    def test_invalid_limits(self):
+        response = self.client.get(self.url, data={"offset": "invalid_offset", "limit": "invalid_limit"})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("invalid", response.data["error"].lower())
+
+    def test_negative_limits(self):
+        response = self.client.get(self.url, data={"offset": -10, "limit": 20})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("positive integer", response.data["error"].lower())
+
+    def test_more_than_available_limits_show(self):
+        response = self.client.get(self.url, data={"offset": 0, "limit": 10})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["movies"]), 1)
+
 class StreamToClientTests(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
