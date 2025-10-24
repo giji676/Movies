@@ -49,20 +49,15 @@ class RoomConsumer(AsyncWebsocketConsumer):
         last_updated = datetime.fromisoformat(state["last_updated"])
         play_state = state.get("play_state") == "True"
 
-        """
-            Not calculating live timestamp serverside anymore.
-            As this needs to be done clientside anyways to comensate
-            for transmition delay.
-        """
         # Calculate live timestamp
-        # diff = (datetime.now(timezone.utc) - last_updated).total_seconds()
-        # current_timestamp = timestamp + diff if play_state else timestamp
-        # new_last_updated = datetime.now(timezone.utc).isoformat()
+        diff = (datetime.now(timezone.utc) - last_updated).total_seconds()
+        current_timestamp = timestamp + diff if play_state else timestamp
+        new_last_updated = datetime.now(timezone.utc).isoformat()
 
         await self.send(json.dumps({
             "type": "room_update",
-            "timestamp": timestamp,
-            "last_updated": last_updated,
+            "timestamp": current_timestamp,
+            "last_updated": new_last_updated,
             "play_state": play_state
         }))
 
@@ -119,8 +114,8 @@ class RoomConsumer(AsyncWebsocketConsumer):
             )
 
     async def room_update(self, event):
-        if event["sender"] == self.channel_name:
-            return
+        # if event["sender"] == self.channel_name:
+        #     return
         await self.send(json.dumps({
             "type": "room_update",
             "timestamp": event["timestamp"],
