@@ -194,21 +194,42 @@ function Room() {
         if (!roomUser.privileges.play_pause) return;
         if (!videoRef.current) return;
 
-        const rect = ref.current.getBoundingClientRect();
-        const offsetX = e.clientX - rect.left;
-        const width = rect.width;
-        let value = offsetX / width;
-        value = Math.max(0, Math.min(1, value));
-        const timeStamp = value * videoRef.current.duration;
+        const updateValue = (e) => {
+            const rect = ref.current.getBoundingClientRect();
+            const offsetX = e.clientX - rect.left;
+            const width = rect.width;
 
-        if (socketRef.current?.readyState === WebSocket.OPEN) {
-            socketRef.current.send(JSON.stringify({
-                "action_type": "seek",
-                "action_state": timeStamp,
-            }));
-        }
+            let value = offsetX / width;
+            value = Math.max(0, Math.min(1, value));
+            setProgress(value);
+
+            const timeStamp = value * videoRef.current.duration;
+            videoRef.current.currentTime = timeStamp;
+            return timeStamp;
+        };
+
+        let timeStamp = updateValue(e);
+
+        const handleMouseMove = (e) => {
+            timeStamp = updateValue(e);
+        };
+
+        const handleMouseUp = () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+
+            if (socketRef.current?.readyState === WebSocket.OPEN) {
+                socketRef.current.send(JSON.stringify({
+                    "action_type": "seek",
+                    "action_state": timeStamp,
+                    "action_time": new Date(),
+                }));
+            }
+        };
+
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
     };
-
 
     const handleTimeUpdate = () => {
         if (!videoRef.current) return;

@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timezone
+from dateutil.parser import isoparse
 from channels.generic.websocket import AsyncWebsocketConsumer
 from utils.redisClient import redis_client
 from utils import customStatus
@@ -65,6 +66,7 @@ class RoomConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         action_type = data.get("action_type")
         action_state = data.get("action_state")
+        action_time = data.get("action_time")
 
         # Fetch current state
         state = redis_client.hgetall(self.group_name)
@@ -81,6 +83,9 @@ class RoomConsumer(AsyncWebsocketConsumer):
             if action_type == "seek":
                 timestamp = float(action_state)
                 last_updated = now
+                action_time_clean = isoparse(action_time)
+                diff = (now - action_time_clean).total_seconds()
+                timestamp += diff
 
             elif action_type == "play_state":
                 new_play_state = str(action_state).lower() == "true"
