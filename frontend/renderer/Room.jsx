@@ -111,7 +111,7 @@ function Room() {
 
                 case "arrowright": // seek forward
                     e.preventDefault();
-                    if (!roomUser.privileges.play_state) break;
+                    if (!roomUser.privileges.play_pause) return;
                     handleMouseMove();
                     videoRef.current.currentTime = Math.min(videoRef.current.currentTime + 15, videoRef.current.duration);
                     sendSeekUpdate(videoRef.current.currentTime);
@@ -119,7 +119,7 @@ function Room() {
 
                 case "arrowleft": // seek backward
                     e.preventDefault();
-                    if (!roomUser.privileges.play_state) break;
+                    if (!roomUser.privileges.play_pause) return;
                     handleMouseMove();
                     videoRef.current.currentTime = Math.max(videoRef.current.currentTime - 15, 0);
                     sendSeekUpdate(videoRef.current.currentTime);
@@ -211,9 +211,13 @@ function Room() {
                 video.play().catch(() => {
                     toast.warn("Autoplay blocked, interact to continue");
                 });
+                setIsPlaying(true);
             }
         } else {
-            if (!video.paused) video.pause();
+            if (!video.paused) {
+                video.pause();
+                setIsPlaying(false);
+            }
         }
     };
 
