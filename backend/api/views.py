@@ -199,7 +199,7 @@ class ShowAvailableMovies(APIView):
         if (offset < 0 or limit < 0):
             raise ValidationError({"error": "offset and limit must be positive integers"})
 
-        movies_qs = Movie.objects.order_by("-tmdb_id")[offset:offset + limit]
+        movies_qs = Movie.objects.order_by("tmdb_id")[offset:offset + limit]
         serializer = MovieSerializer(movies_qs, many=True, context={'request': request, 'tmdb': tmdb})
 
         result = {

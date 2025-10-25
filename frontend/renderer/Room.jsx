@@ -30,14 +30,19 @@ function Room() {
     const hlsRef = useRef();
     const progressBarRef = useRef();
     const volumeBarRef = useRef();
+    const playerContainerRef = useRef();
+    const timeoutRef = useRef(null);
 
+    const [showControls, setShowControls] = useState(true);
+    const [mouseVisible, setMouseVisible] = useState(true);
     const [moviePath, setMoviePath] = useState("");
     const [roomUser, setRoomUser] = useState(null);
-    const [showInputs, setShowInputs] = useState(true);
     const [progress, setProgress] = useState(0);
     const [volume, setVolume] = useState(1);
     const [lastVolume, setLastVolume] = useState(1);
     const [mute, setMute] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     useEffect(() => {
         getMoviePath();
@@ -76,7 +81,54 @@ function Room() {
                 case "k": // pause/play
                 case " ":
                     e.preventDefault();
+                    handleMouseMove();
                     updatePlayState();
+                    break;
+
+                case "f": // fullscreen
+                case "f11":
+                    e.preventDefault();
+                    toggleFullscreen();
+                    break;
+
+                case "m": // mute/unmute
+                    e.preventDefault();
+                    handleMouseMove();
+                    toggleMute();
+                    break;
+
+                case "arrowup": // volume up
+                    e.preventDefault();
+                    handleMouseMove();
+                    setVolumeValue(Math.min(volume + 0.05, 1));
+                    break;
+
+                case "arrowdown": // volume down
+                    e.preventDefault();
+                    handleMouseMove();
+                    setVolumeValue(Math.max(volume - 0.05, 0));
+                    break;
+
+                case "arrowright": // seek forward
+                    e.preventDefault();
+                    if (!roomUser.privileges.play_pause) return;
+                    handleMouseMove();
+                    videoRef.current.currentTime = Math.min(videoRef.current.currentTime + 15, videoRef.current.duration);
+                    sendSeekUpdate(videoRef.current.currentTime);
+                    break;
+
+                case "arrowleft": // seek backward
+                    e.preventDefault();
+                    if (!roomUser.privileges.play_pause) return;
+                    handleMouseMove();
+                    videoRef.current.currentTime = Math.max(videoRef.current.currentTime - 15, 0);
+                    sendSeekUpdate(videoRef.current.currentTime);
+                    break;
+
+                case "tab": // let browser handle tab normally for focus
+                    break;
+
+                default:
                     break;
             }
         }
@@ -84,7 +136,7 @@ function Room() {
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [roomUser]);
+    }, [roomUser, volume, mute, videoRef, isPlaying]);
 
     const getMoviePath = async () => {
         if (!room.movie_id) return;
@@ -159,9 +211,13 @@ function Room() {
                 video.play().catch(() => {
                     toast.warn("Autoplay blocked, interact to continue");
                 });
+                setIsPlaying(true);
             }
         } else {
-            if (!video.paused) video.pause();
+            if (!video.paused) {
+                video.pause();
+                setIsPlaying(false);
+            }
         }
     };
 
@@ -187,6 +243,16 @@ function Room() {
             socketRef.current.send(JSON.stringify({
                 "action_type": "play_state",
                 "action_state": new_state,
+            }));
+        }
+    };
+
+    const sendSeekUpdate = (timeStamp) => {
+        if (socketRef.current?.readyState === WebSocket.OPEN) {
+            socketRef.current.send(JSON.stringify({
+                "action_type": "seek",
+                "action_state": timeStamp,
+                "action_time": new Date(),
             }));
         }
     };
@@ -219,13 +285,7 @@ function Room() {
             document.removeEventListener("mousemove", handleMouseMove);
             document.removeEventListener("mouseup", handleMouseUp);
 
-            if (socketRef.current?.readyState === WebSocket.OPEN) {
-                socketRef.current.send(JSON.stringify({
-                    "action_type": "seek",
-                    "action_state": timeStamp,
-                    "action_time": new Date(),
-                }));
-            }
+            sendSeekUpdate(timeStamp);
         };
 
         document.addEventListener("mousemove", handleMouseMove);
@@ -324,7 +384,7 @@ function Room() {
 
     const formatTime = (seconds) => {
         if (isNaN(seconds)) return "00:00:00";
-        
+
         const h = Math.floor(seconds / (60 * 60));
         const m = Math.floor((seconds % (60 * 60)) / 60);
         const s = Math.floor(seconds % 60);
@@ -333,77 +393,110 @@ function Room() {
         return `${pad(h)}:${pad(m)}:${pad(s)}`;
     };
 
+    const toggleFullscreen = () => {
+        const container = playerContainerRef.current;
+        if (!container) return;
+
+        if (!document.fullscreenElement) {
+            if (container.requestFullscreen) container.requestFullscreen();
+                else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+                    else if (container.msRequestFullscreen) container.msRequestFullscreen();
+            setIsExpanded(true);
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                    else if (document.msExitFullscreen) document.msExitFullscreen();
+            setIsExpanded(false);
+        }
+    };
+
+    const handleMouseMove = () => {
+        setShowControls(true);
+        setMouseVisible(true);
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+            setShowControls(false);
+            setMouseVisible(false);
+        }, 2500);
+    };
+
     return (
         <div
+            ref={playerContainerRef}
+            onMouseMove={handleMouseMove}
             className={`${styles.playerContainer}`}
         >
             {moviePath ? (
-                <>
-                    <div 
-                        className={styles.videoContainer}
-                    >
-                        <video
-                            ref={videoRef}
-                            className={styles.video}
-                            crossOrigin="anonymous"
-                            autoPlay
-                        />
-                        {showInputs && (
-                            <>
-                                <div className={styles.controlBar}>
-                                    <div 
-                                        ref={progressBarRef}
-                                        onMouseDown={handleProgressBarSlider(progressBarRef)}
-                                        className={styles.progressBar}
-                                    >
+                <div 
+                    className={styles.videoContainer}
+                >
+                    <video
+                        ref={videoRef}
+                        className={styles.video}
+                        crossOrigin="anonymous"
+                        autoPlay
+                    />
+                    {showControls && (
+                        <>
+                            <div className={styles.controlBar}>
+                                <div 
+                                    ref={progressBarRef}
+                                    onMouseDown={handleProgressBarSlider(progressBarRef)}
+                                    className={styles.progressBar}
+                                >
+                                    <div
+                                        className={styles.progressBarFill} 
+                                        style={{width: `${progress * 100}%`}}
+                                    />
+                                </div>
+                                <div className={styles.controlButtons}>
+                                    <div className={styles.leftButtonStack}>
+                                        <button onClick={updatePlayState}>
+                                            {isPlaying ? <FaPause /> : <FaPlay />}
+                                        </button>
+                                        <button onClick={toggleMute}>
+                                            {renderVolumeIcon()}
+                                        </button>
                                         <div
-                                            className={styles.progressBarFill} 
-                                            style={{width: `${progress * 100}%`}}
-                                        />
-                                    </div>
-                                    <div className={styles.controlButtons}>
-                                        <div className={styles.leftButtonStack}>
-                                            <button>
-                                                <FaPlay />
-                                            </button>
-                                            <button onClick={toggleMute}>
-                                                {renderVolumeIcon()}
-                                            </button>
+                                            ref={volumeBarRef}
+                                            onMouseDown={handleVolumeBarSlider(volumeBarRef)}
+                                            className={styles.volumeBar}
+                                        >
                                             <div
-                                                ref={volumeBarRef}
-                                                onMouseDown={handleVolumeBarSlider(volumeBarRef)}
-                                                className={styles.volumeBar}
+                                                className={styles.volumeBarFill} 
+                                                style={{width: `${volume * 100}%`}}
                                             >
-                                                <div
-                                                    className={styles.volumeBarFill} 
-                                                    style={{width: `${volume * 100}%`}}
-                                                >
-                                                </div>
                                             </div>
-                                            <p>
-                                                {`${formatTime(videoRef.current?.currentTime || 0)} / ${formatTime(videoRef.current?.duration || 0)}`}
-                                            </p>
                                         </div>
-                                        <div className={styles.rightButtonStack}>
-                                            <button>
-                                                <FaExpand />
-                                            </button>
-                                            <button>
-                                                <FaEllipsisV />
-                                            </button>
-                                        </div>
+                                        <p>
+                                            {`${formatTime(videoRef.current?.currentTime || 0)} / ${formatTime(videoRef.current?.duration || 0)}`}
+                                        </p>
+                                    </div>
+                                    <div className={styles.rightButtonStack}>
+                                        <button onClick={toggleFullscreen}>
+                                            {isExpanded ? <FaCompress /> : <FaExpand />}
+                                        </button>
+                                        <button>
+                                            <FaEllipsisV />
+                                        </button>
                                     </div>
                                 </div>
-                                <button className={backButtonStyle.backButton} onClick={() => navigate(-1)}>
-                                    <FaArrowLeft />
-                                </button>
-                            </>
-                        )}
-                    </div>
-                </>
+                            </div>
+                            <button className={backButtonStyle.backButton} onClick={() => navigate(-1)}>
+                                <FaArrowLeft />
+                            </button>
+                        </>
+                    )}
+                </div>
             ) : (
-                    <div>
-
+                    <div className={playerStyles.loading}>
+                        <button className={backButtonStyle.backButton} onClick={() => navigate(-1)}>
+                            <FaArrowLeft />
+                        </button>
+                        <h1>Video Not Available</h1>
+                        <p>Sorry, this movie cannot be played at the moment.</p>
                     </div>
                 )}
         </div>
