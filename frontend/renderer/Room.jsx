@@ -29,12 +29,15 @@ function Room() {
     const videoRef = useRef();
     const hlsRef = useRef();
     const progressBarRef = useRef();
+    const volumeBarRef = useRef();
 
     const [moviePath, setMoviePath] = useState("");
     const [roomUser, setRoomUser] = useState(null);
-    const [originTimeStamp, setOriginTimeStamp] = useState(null);
     const [showInputs, setShowInputs] = useState(true);
-    const [progress, setProgress] = useState(null);
+    const [progress, setProgress] = useState(0);
+    const [volume, setVolume] = useState(1);
+    const [lastVolume, setLastVolume] = useState(1);
+    const [mute, setMute] = useState(false);
 
     useEffect(() => {
         getMoviePath();
@@ -48,8 +51,6 @@ function Room() {
         if (hlsRef.current) {
             hlsRef.current.destroy();
         }
-
-        // videoRef.current.currentTime = originTimeStamp;
 
         if (Hls.isSupported()) {
             const hls = new Hls();
@@ -231,6 +232,76 @@ function Room() {
         document.addEventListener("mouseup", handleMouseUp);
     };
 
+    const handleVolumeBarSlider = (ref) => (e) => {
+        const updateValue = (e) => {
+            const rect = ref.current.getBoundingClientRect();
+            const offsetX = e.clientX - rect.left;
+            const width = rect.width;
+
+            let value = offsetX / width;
+            value = Math.max(0, Math.min(1, value));
+            setVolumeValue(value);
+        };
+
+        updateValue(e);
+
+        const handleMouseMove = (e) => {
+            updateValue(e);
+        };
+
+        const handleMouseUp = () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+        };
+
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+    };
+
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.volume = volume;
+        }
+    }, [volume]);
+
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.muted = mute;
+            if (mute && volume > 0) videoRef.current.volume = 0;
+            if (!mute) videoRef.current.volume = volume;
+        }
+    }, [mute, volume]);
+
+    const setVolumeValue = (value) => {
+        if (!videoRef.current) return;
+        const clamped = Math.max(0, Math.min(1, value));
+        setVolume(clamped);
+        if (clamped > 0 && mute) setMute(false);
+    };
+
+    const renderVolumeIcon = () => {
+        if (mute) {
+            return <FaVolumeMute />;
+        } else if (volume === 0) {
+            return <FaVolumeOff />;
+        } else if (volume <= 0.5) {
+            return <FaVolumeDown />;
+        } else {
+            return <FaVolumeUp />;
+        }
+    };
+
+    const toggleMute = () => {
+        if (mute) {
+            setMute(false);
+            setVolume(lastVolume || 0.5);
+        } else {
+            setLastVolume(volume);
+            setMute(true);
+            setVolume(0);
+        }
+    };
+
     const handleTimeUpdate = () => {
         if (!videoRef.current) return;
         if (!videoRef.current.duration || videoRef.current.duration === 0) {
@@ -240,32 +311,13 @@ function Room() {
         setProgress(videoRef.current.currentTime/videoRef.current.duration);
     };
 
-    // const handleSeek = () => {
-    //     if (!videoRef.current) return;
-    //     const newTime = videoRef.current.currentTime;
-    //     console.log("seek:", newTime);
-    // };
-    //
     const setUpTrackingListeners = () => {
         const video = videoRef.current
         if (!video) return;
 
-        // video.addEventListener("play", () => {updateState(); startTracking();});
-        // video.addEventListener("pause", () => {updateState(); stopTracking();});
-        // video.addEventListener("ended", stopTracking);
-        // video.addEventListener("seeked", handleSeek);
         video.addEventListener("timeupdate", handleTimeUpdate);
 
-        if (!video.paused) {
-            // startTracking();
-        }
-
         return () => {
-            // stopTracking();
-            // video.removeEventListener("play", stopTracking);
-            // video.removeEventListener("pause", stopTracking);
-            // video.removeEventListener("ended", stopTracking);
-            // video.removeEventListener("seeked", handleSeek);
             video.removeEventListener("timeupdate", handleTimeUpdate);
         };
     };
@@ -303,15 +355,17 @@ function Room() {
                                             <button>
                                                 <FaPlay />
                                             </button>
-                                            <button>
-                                                <FaVolumeMute />
+                                            <button onClick={toggleMute}>
+                                                {renderVolumeIcon()}
                                             </button>
                                             <div
+                                                ref={volumeBarRef}
+                                                onMouseDown={handleVolumeBarSlider(volumeBarRef)}
                                                 className={styles.volumeBar}
                                             >
                                                 <div
                                                     className={styles.volumeBarFill} 
-                                                    // style={{width: `${volume * 100}%`}}
+                                                    style={{width: `${volume * 100}%`}}
                                                 >
                                                 </div>
                                             </div>
