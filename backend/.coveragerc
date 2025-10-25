@@ -9,3 +9,5 @@ omit =
 [report]
 show_missing = True
 skip_covered = False
+exclude_lines =
+    def __str__\(
