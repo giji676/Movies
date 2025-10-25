@@ -322,6 +322,17 @@ function Room() {
         };
     };
 
+    const formatTime = (seconds) => {
+        if (isNaN(seconds)) return "00:00:00";
+        
+        const h = Math.floor(seconds / (60 * 60));
+        const m = Math.floor((seconds % (60 * 60)) / 60);
+        const s = Math.floor(seconds % 60);
+
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${pad(h)}:${pad(m)}:${pad(s)}`;
+    };
+
     return (
         <div
             className={`${styles.playerContainer}`}
@@ -369,6 +380,9 @@ function Room() {
                                                 >
                                                 </div>
                                             </div>
+                                            <p>
+                                                {`${formatTime(videoRef.current?.currentTime || 0)} / ${formatTime(videoRef.current?.duration || 0)}`}
+                                            </p>
                                         </div>
                                         <div className={styles.rightButtonStack}>
                                             <button>
