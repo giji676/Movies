@@ -279,8 +279,8 @@ class RemoveUserFromRoomTest(APITestCase):
     def test_delete_user_not_in_room(self):
         url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash, "user_id": self.other_user.id})
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertIn("Target user not in room", response.data["error"])
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(RoomUser.objects.filter(user=self.other_user, room=self.room).exists())
 
     def test_delete_user_no_privilege(self):
         # Authenticate as guest who cannot remove users

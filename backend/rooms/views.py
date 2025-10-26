@@ -123,19 +123,13 @@ class ManagerUsersInRoom(APIView):
             return Response({"error": "Room not found"}, status=status.HTTP_404_NOT_FOUND)
 
         try:
-            room_user = RoomUser.objects.get(user__id=user_id, room=room)
-            target_user = room_user.user
-        except RoomUser.DoesNotExist:
-            return Response({"error": "Target user not in room"}, status=status.HTTP_404_NOT_FOUND)
-
-        try:
             current_room_user = RoomUser.objects.get(user=request.user, room=room)
             if not current_room_user.privileges.remove_users:
                 return Response({"error": "Not enough privilege for this action"}, status=status.HTTP_403_FORBIDDEN)
         except RoomUser.DoesNotExist:
             return Response({"error": "You are not in this room"}, status=status.HTTP_403_FORBIDDEN)
 
-        room_user.delete()
+        room.remove_user(user_id)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
