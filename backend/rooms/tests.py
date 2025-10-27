@@ -304,6 +304,27 @@ class RemoveUserFromRoomTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertIn("Room not found", response.data["error"])
 
+    # def test_delete_owner(self):
+    #     url = reverse(self.url_name, kwargs={"room_hash": "invalidhash", "user_id": self.owner.id})
+    #     response = self.client.delete(url)
+    #     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+    #     self.assertFalse(RoomUser.objects.filter(user=self.owner, room=self.room).exists())
+
+    def test_delete_all_users(self):
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash, "user_id": self.guest.id})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(RoomUser.objects.filter(user=self.guest, room=self.room).exists())
+
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash, "user_id": self.owner.id})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(RoomUser.objects.filter(user=self.owner, room=self.room).exists())
+
+        self.room.refresh_from_db()
+        self.assertFalse(self.room.is_active)
+
+
 class AddUserToRoomTest(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(
