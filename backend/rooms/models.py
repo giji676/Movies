@@ -101,8 +101,6 @@ class Room(models.Model):
             self.password_hash = make_password(raw_password)
 
     def check_password(self, raw_password):
-        if not self.password_hash:
-            return False
         return check_password(raw_password, self.password_hash)
 
     def __str__(self):

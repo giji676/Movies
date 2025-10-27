@@ -65,6 +65,15 @@ class JoinRoomView(APIView):
         except Room.DoesNotExist:
             return Response({"error": "Room not found"}, status=status.HTTP_404_NOT_FOUND)
 
+        # TODO: validate password and access to is_private rooms
+        if room.is_private and room.password_hash:
+            password = request.data.get("password")
+            if not password:
+                return Response({"error": "Password required"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not room.check_password(password):
+                return Response({"error": "Invalid password"}, status=status.HTTP_403_FORBIDDEN)
+
         try:
             room_user = room.add_user(request.user)
         except RoomFullException as e:

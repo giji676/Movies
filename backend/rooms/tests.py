@@ -167,6 +167,33 @@ class JoinRoomViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertIn("Room not found", response.data["error"])
 
+    def test_join_valid_password(self):
+        self.room.set_password("roompass123")
+        self.room.is_private = True
+        self.room.save()
+        self.room.refresh_from_db()
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash})
+        response = self.client.post(url, data={"password": "roompass123"})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_join_invalid_password(self):
+        self.room.set_password("roompass123")
+        self.room.is_private = True
+        self.room.save()
+        self.room.refresh_from_db()
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash})
+        response = self.client.post(url, data={"password": "invalidpadd"})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_join_missing_password(self):
+        self.room.set_password("roompass123")
+        self.room.is_private = True
+        self.room.save()
+        self.room.refresh_from_db()
+        url = reverse(self.url_name, kwargs={"room_hash": self.room.room_hash})
+        response = self.client.post(url, data={})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 class EditUserPrivilegesTest(APITestCase):
     def setUp(self):
         # Users
