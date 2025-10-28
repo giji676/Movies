@@ -52,7 +52,7 @@ function Movies({ moviesList, navOverride, room }) {
             .catch((err) => {
                 // toast.error("Failed to fetch watch later movies")
             });
-    }
+    };
 
     const onPlaylistUpdate = (movie, action) => {
         setWatchLaterPlaylist((watchLaterPlaylist) => {
@@ -74,11 +74,13 @@ function Movies({ moviesList, navOverride, room }) {
     }, [user]);
 
     useEffect(() => {
-        if (moviesList) {
+        if (moviesList?.length > 0) {
             setMovies(moviesList);
             setHasMore(false);
         } else {
+            setMovies([]);
             fetchMoviesBatch(0);
+            setHasMore(true);
         }
     }, [moviesList]);
 

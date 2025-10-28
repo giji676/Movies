@@ -24,14 +24,14 @@ import './colors.css';
 import api from "../main/api";
 
 function App() {
-    const [moviesList, setMoviesList] = useState(null);
+    const [moviesList, setMoviesList] = useState([]);
 
     const setMovieListData = (movies) => {
         setMoviesList(movies);
     };
 
     const resetMovieListData = () => {
-        setMoviesList(null);
+        setMoviesList([]);
     };
 
     return (
