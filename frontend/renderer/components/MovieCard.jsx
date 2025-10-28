@@ -83,8 +83,7 @@ function MovieCard({ movie, playlist, onPlaylistUpdate, navOverride, room }) {
         <Link
             to="/movie"
             state={{ 
-                fallbackMovie: movie,
-                playlistMovie: playlistMovie || null,
+                movie: movie,
                 navOverride: navOverride,
                 room: room,
             }}

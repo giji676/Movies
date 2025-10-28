@@ -15,11 +15,10 @@ function Player() {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
 
-    const { movie, playlistMovie: initialPlaylistMovie } = location.state || {};
-    const [playlistMovie, setPlaylistMovie] = useState(initialPlaylistMovie);
+    const { movie } = location.state || {};
+    const [playlistMovie, setPlaylistMovie] = useState();
 
-    const movieData = playlistMovie?.movie || movie || {};
-    const { tmdb_id, title, backdrop_path } = movieData;
+    const { tmdb_id, title, backdrop_path } = movie;
 
     const videoRef = useRef(null);
     const hlsRef = useRef(null);
@@ -29,7 +28,7 @@ function Player() {
     const [isLoading, setIsLoading] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
 
-    const backdropUrl = `${MEDIA_DOWNLOADS}/${tmdb_id}/${movieData.backdrop_path}`;
+    const backdropUrl = `${MEDIA_DOWNLOADS}/${tmdb_id}/${movie.backdrop_path}`;
 
     useEffect(() => {
         if (!playlistMovie) {

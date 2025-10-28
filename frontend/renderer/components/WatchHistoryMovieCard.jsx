@@ -26,7 +26,6 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
 
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
-
     const posterUrl = `${MEDIA_DOWNLOADS}/${tmdb_id}/${movie.poster_path}`;
 
     useEffect(() => {
@@ -140,7 +139,7 @@ function WatchHistoryMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
         <div className={styles.movieCard}>
             <Link
                 to="/movie"
-                state={{ playlistMovie }}
+                state={{ movie }}
                 style={{ textDecoration: 'none', color: 'inherit' }}
                 className={styles.linkWrapper}
                 onClick={(e) => {

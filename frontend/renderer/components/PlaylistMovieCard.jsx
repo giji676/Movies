@@ -98,7 +98,7 @@ function PlaylistMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
     return (
         <Link
             to="/movie"
-            state={{ playlistMovie }}
+            state={{ movie }}
             style={{ textDecoration: 'none', color: 'inherit' }}
         >
             <div className={styles.movieCard}

@@ -15,8 +15,7 @@ function Movie() {
     const BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const MEDIA_DOWNLOADS = import.meta.env.VITE_MEDIA_DOWNLOADS;
 
-    const { playlistMovie, fallbackMovie, navOverride, room } = location.state || {};
-    const movie = playlistMovie?.movie || fallbackMovie;
+    const { movie, navOverride, room } = location.state || {};
 
     if (!movie) {
         return <p>Movie data not found.</p>;
@@ -89,7 +88,7 @@ function Movie() {
                             </div>
                             <Link
                                 to="/player"
-                                state={{ movie, playlistMovie }}
+                                state={{ movie }}
                                 className={styles.mobilePlayButton}
                                 onClick={(e) => onNavOverride(e)}
                             >
@@ -106,7 +105,7 @@ function Movie() {
                         <div className={styles.posterSideContent}>
                             <Link
                                 to="/player"
-                                state={{ movie, playlistMovie }}
+                                state={{ movie }}
                                 className={styles.posterWrapper}
                                 onClick={(e) => onNavOverride(e)}
                             >
