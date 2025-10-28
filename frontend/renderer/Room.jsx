@@ -447,13 +447,16 @@ function Room() {
                                     className={styles.progressBar}
                                 >
                                     <div
-                                        className={styles.progressBarFill} 
+                                        className={`${styles.progressBarFill} ${roomUser?.privileges?.play_pause ? "" : styles.notEnoughPrivileges}`} 
                                         style={{width: `${progress * 100}%`}}
                                     />
                                 </div>
                                 <div className={styles.controlButtons}>
                                     <div className={styles.leftButtonStack}>
-                                        <button onClick={updatePlayState}>
+                                        <button 
+                                            onClick={updatePlayState}
+                                            className={`${roomUser?.privileges?.play_pause ? "" : styles.notEnoughPrivileges}`}
+                                        >
                                             {isPlaying ? <FaPause /> : <FaPlay />}
                                         </button>
                                         <button onClick={toggleMute}>
