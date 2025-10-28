@@ -1,5 +1,11 @@
 import { NavLink } from 'react-router-dom';
-import { FaRegBookmark, FaHistory, FaCog, FaDesktop, FaUsers, } from "react-icons/fa";
+import { 
+    PiClockCounterClockwiseBold,
+    PiDesktopBold, PiDesktopFill,
+    PiBookmarkSimpleBold, PiBookmarkSimpleFill,
+    PiUsersThreeBold, PiUsersThreeFill,
+    PiGearSixBold, PiGearSixFill,
+} from "react-icons/pi";
 import styles from './Sidebar.module.css';
 
 
@@ -13,35 +19,51 @@ function Sidebar({ resetMovieListData }) {
                 className={({ isActive }) =>
                     `${styles.button} ${isActive ? styles.active : ''}`
                 }>
-                <FaDesktop className={styles.btnIcon}/>
+                {({ isActive }) => 
+                    isActive 
+                        ? (<PiDesktopFill className={styles.btnIcon}/>) 
+                        : (<PiDesktopBold className={styles.btnIcon}/>)
+                }
             </NavLink>
             <NavLink 
                 to="/watch-history" 
                 className={({ isActive }) =>
                     `${styles.button} ${isActive ? styles.active : ''}`
                 }>
-                    <FaHistory className={styles.btnIcon}/>
+                    <PiClockCounterClockwiseBold className={styles.btnIcon}/>
             </NavLink>
             <NavLink 
                 to="/watch-later" 
                 className={({ isActive }) =>
                     `${styles.button} ${isActive ? styles.active : ''}`
                 }>
-                    <FaRegBookmark className={styles.btnIcon}/>
+                {({ isActive }) => 
+                    isActive 
+                        ? (<PiBookmarkSimpleFill className={styles.btnIcon}/>) 
+                        : (<PiBookmarkSimpleBold className={styles.btnIcon}/>)
+                }
             </NavLink>
             <NavLink 
                 to="/room-access" 
                 className={({ isActive }) =>
                     `${styles.button} ${isActive ? styles.active : ''}`
                 }>
-                    <FaUsers className={styles.btnIcon}/>
+                {({ isActive }) => 
+                    isActive 
+                        ? (<PiUsersThreeFill className={styles.btnIcon}/>) 
+                        : (<PiUsersThreeBold className={styles.btnIcon}/>)
+                }
             </NavLink>
             <NavLink 
                 to="/settings" 
                 className={({ isActive }) =>
                     `${styles.button} ${isActive ? styles.active : ''}`
                 }>
-                    <FaCog className={styles.btnIcon}/>
+                {({ isActive }) => 
+                    isActive 
+                        ? (<PiGearSixFill className={styles.btnIcon}/>) 
+                        : (<PiGearSixBold className={styles.btnIcon}/>)
+                }
             </NavLink>
         </div>
     );

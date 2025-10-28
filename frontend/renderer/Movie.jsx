@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom'
 import styles from './Movie.module.css';
 import backButtonStyle from "./components/BackButton.module.css";
 import ProtectedRoute from './components/ProtectedRoute';
-import { FaArrowLeft, FaBookmark, FaRegBookmark, FaEllipsisV, FaPlus, FaPlay, FaMinus, FaInfo } from "react-icons/fa";
+import { FaArrowLeft, FaRegBookmark, FaEllipsisV, FaPlus, FaPlay, FaMinus, FaInfo } from "react-icons/fa";
+import { PiBookmarkSimpleBold, PiBookmarkSimpleFill } from "react-icons/pi";
 import api from "../main/api";
 
 function Movie() {
@@ -70,21 +71,9 @@ function Movie() {
                         <>
                             <div className={styles.buttonsContainer}>
                                 <div className={styles.button}>
-                                    <FaRegBookmark />
+                                    <PiBookmarkSimpleBold />
                                     <p>Watch Later</p>
                                 </div>
-                                {/* <div className={styles.button}> */}
-                                {/*     <FaRegBookmark /> */}
-                                {/*     <p>Watch Later</p> */}
-                                {/* </div> */}
-                                {/* <div className={styles.button}> */}
-                                {/*     <FaRegBookmark /> */}
-                                {/*     <p>Watch Later</p> */}
-                                {/* </div> */}
-                                {/* <div className={styles.button}> */}
-                                {/*     <FaRegBookmark /> */}
-                                {/*     <p>Watch Later</p> */}
-                                {/* </div> */}
                             </div>
                             <Link
                                 to="/player"

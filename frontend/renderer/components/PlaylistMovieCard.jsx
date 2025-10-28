@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './PlaylistMovieCard.module.css';
-import { FaBookmark, FaRegBookmark } from "react-icons/fa";
+import { PiBookmarkSimpleBold, PiBookmarkSimpleFill } from "react-icons/pi";
 import api from "../../main/api";
 import { toast } from 'react-toastify';
 
@@ -122,9 +122,9 @@ function PlaylistMovieCard({ playlistMovie, playlist, onPlaylistUpdate }) {
                                 onClick={toggleSave}
                                 style={{ opacity: (hovered || isSaved) ? 1 : 0 }}
                             >
-                                {isSaved ? 
-                                    <FaBookmark className={styles.btnIcon} /> 
-                                    : <FaRegBookmark className={styles.btnIcon} />}
+                                {isSaved 
+                                    ? <PiBookmarkSimpleFill className={styles.btnIcon} /> 
+                                    : <PiBookmarkSimpleBold className={styles.btnIcon} />}
                             </button>
                         )}
                     </div>
