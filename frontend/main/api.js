@@ -2,6 +2,8 @@ import axios from "axios";
 import * as auth from "./auth";
 import { getCookie } from "./cookieUtils";
 
+let retry = false;
+
 const api = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
     withCredentials: true,
@@ -29,16 +31,18 @@ api.interceptors.response.use(
     async (error) => {
         const ogRequest = error.config;
 
-        if (error.response?.status === 401 && !ogRequest._retry) {
-            ogRequest._retry = true;
+        if (error.response?.status === 401 && !retry) {
+            retry = true;
 
             try {
                 const refreshRes = await auth.refreshAccessToken();
                 if (refreshRes) {
+                    retry = false;
                     return api(ogRequest);
                 }
             } catch (error) {
                 toast.error(error);
+                retry = false;
             }
 
             toast.error("Session expired. Please log in again.");

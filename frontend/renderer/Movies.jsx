@@ -79,6 +79,7 @@ function Movies({ moviesList, navOverride, room }) {
             setHasMore(false);
         } else {
             setMovies([]);
+            setOffset(0);
             fetchMoviesBatch(0);
             setHasMore(true);
         }
