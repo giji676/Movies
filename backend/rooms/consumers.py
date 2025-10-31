@@ -56,7 +56,7 @@ class RoomConsumer(AsyncWebsocketConsumer):
         new_last_updated = datetime.now(timezone.utc).isoformat()
 
         await self.send(json.dumps({
-            "type": "room_update",
+            "type": "control_state",
             "timestamp": current_timestamp,
             "last_updated": new_last_updated,
             "play_state": play_state
@@ -110,7 +110,7 @@ class RoomConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_send(
                 self.group_name,
                 {
-                    "type": "room_update",
+                    "type": "control_state",
                     "timestamp": timestamp,
                     "last_updated": last_updated.isoformat(),
                     "play_state": play_state,
@@ -118,12 +118,18 @@ class RoomConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-    async def room_update(self, event):
+    async def control_state(self, event):
         # if event["sender"] == self.channel_name:
         #     return
         await self.send(json.dumps({
-            "type": "room_update",
+            "type": "control_state",
             "timestamp": event["timestamp"],
             "last_updated": event["last_updated"],
             "play_state": event["play_state"]
+        }))
+
+    async def room_update(self, event):
+        await self.send(json.dumps({
+            "type": "room_update",
+            "room": event["room"]
         }))

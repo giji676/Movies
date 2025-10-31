@@ -1,14 +1,14 @@
 import { useRef, useEffect, useState } from "react";
 import api from "../main/api";
 import styles from "./RoomAccess.module.css";
+import { toast } from 'react-toastify';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useNavigate } from 'react-router-dom';
 
 function RoomAccess() {
     const navigate = useNavigate();
 
-    const [createOutput, setCreateOutput] = useState("");
-    const [joinCode, setJoinCode] = useState(""); // TEMP: set to empty string after testing
+    const [joinCode, setJoinCode] = useState("");
     const [room, setRoom] = useState(null);
     const [roomuser, setRoomUser] = useState(null);
 
@@ -23,9 +23,11 @@ function RoomAccess() {
             .then((res) => {
                 setRoom(res.data.room);
                 setRoomUser(res.data.user);
-                navigate("/room", {state: {room: res.data.room}});
+                navigate("/room", {state: {locationStateRoom: res.data.room}});
             })
-            .catch((error) => console.log(error));
+            .catch((error) => {
+                console.log(error.error);
+            });
     };
     
     return (
@@ -39,9 +41,6 @@ function RoomAccess() {
                         >
                             create room
                         </button>
-                        <div className={styles.createOutput}>
-                            {room?.room_hash}
-                        </div>
                     </form>
                     <span className={styles.or}>OR</span>
                     <form 

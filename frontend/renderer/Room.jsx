@@ -23,7 +23,7 @@ import socketUrl from "../main/webSocketBase";
 function Room() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { room } = location.state || {};
+    const { locationStateRoom } = location.state || {};
 
     const socketRef = useRef();
     const videoRef = useRef();
@@ -43,12 +43,19 @@ function Room() {
     const [mute, setMute] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [room, setRoom] = useState(false);
 
     useEffect(() => {
+        console.log(locationStateRoom);
+        setRoom(locationStateRoom);
+    }, []);
+
+    useEffect(() => {
+        if (!room) return;
         getMoviePath();
         getRoomUser();
         setUpWebSocket();
-    }, []);
+    }, [room]);
 
     useEffect(() => {
         if (!moviePath || !videoRef.current ) return;
@@ -139,7 +146,7 @@ function Room() {
     }, [roomUser, volume, mute, videoRef, isPlaying]);
 
     const getMoviePath = async () => {
-        if (!room.movie_id) return;
+        if (!room?.movie_id) return;
 
         try {
             const res = await api.get(`/movie/stream-to-client/?tmdb_id=${room.movie_id}`);
@@ -153,7 +160,7 @@ function Room() {
     };
 
     const getRoomUser = async () => {
-        if (!room.room_hash) return;
+        if (!room?.room_hash) return;
 
         try {
             const res = await api.get(`/room/${room.room_hash}/room-user/`);
@@ -166,6 +173,7 @@ function Room() {
     };
 
     const setUpWebSocket = () => {
+        if (!room) return;
         const socket = new WebSocket(socketUrl(`/ws/room/${room.room_hash}/`));
         socketRef.current = socket;
 
@@ -174,6 +182,9 @@ function Room() {
             switch (data.type) {
                 case "room_update":
                     setRoomState(data);
+                    break;
+                case "control_state":
+                    setControlState(data);
                     break;
             }
         }
@@ -190,7 +201,7 @@ function Room() {
         return time + diff;
     };
 
-    const setRoomState = (data) => {
+    const setControlState = (data) => {
         if (!videoRef?.current) return;
 
         const video = videoRef.current;
@@ -219,6 +230,10 @@ function Room() {
                 setIsPlaying(false);
             }
         }
+    };
+
+    const setRoomState = (data) => {
+        setRoom(data.room);
     };
 
     const updatePlayState = (state) => {
@@ -498,8 +513,8 @@ function Room() {
                         <button className={backButtonStyle.backButton} onClick={() => navigate(-1)}>
                             <FaArrowLeft />
                         </button>
-                        <h1>Video Not Available</h1>
-                        <p>Sorry, this movie cannot be played at the moment.</p>
+                        <h1>Waiting for the owner to select movie</h1>
+                        {/* <p>Sorry, this movie cannot be played at the moment.</p> */}
                     </div>
                 )}
         </div>

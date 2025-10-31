@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from django.contrib.auth import get_user_model
 from .models import Room, RoomUser
 from .serializers import RoomSerializer, RoomUserSerializer
@@ -52,6 +54,17 @@ class ManageRoomView(APIView):
             if password:
                 updated_room.set_password(password)
                 updated_room.save(update_fields=["password_hash"])
+
+            # Notify WebSocket clients about the updated room
+            channel_layer = get_channel_layer()
+
+            async_to_sync(channel_layer.group_send)(
+                f"room_{room_hash}",
+                {
+                    "type": "room_update",
+                    "room": RoomSerializer(updated_room).data
+                }
+            )
 
             return Response(RoomSerializer(updated_room).data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
