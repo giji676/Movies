@@ -23,7 +23,7 @@ function RoomAccess() {
             .then((res) => {
                 setRoom(res.data.room);
                 setRoomUser(res.data.user);
-                navigate("/room", {state: {locationStateRoom: res.data.room}});
+                navigate(`/room/${res.data.room.room_hash}`, {state: {room: res.data.room}});
             })
             .catch((error) => {
                 console.log(error.error);

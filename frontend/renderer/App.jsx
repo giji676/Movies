@@ -100,7 +100,7 @@ function App() {
                                 </div>
                             </div>
                         } />
-                        <Route path="/room" element={
+                        <Route path="/room/:roomHash" element={
                             <div className={styles.body}>
                                 <div className={styles.mainContent}>
                                     <Room />

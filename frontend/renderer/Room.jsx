@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { 
@@ -23,7 +23,7 @@ import socketUrl from "../main/webSocketBase";
 function Room() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { locationStateRoom } = location.state || {};
+    const { roomHash } = useParams();
 
     const socketRef = useRef();
     const videoRef = useRef();
@@ -43,12 +43,7 @@ function Room() {
     const [mute, setMute] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [room, setRoom] = useState(false);
-
-    useEffect(() => {
-        console.log(locationStateRoom);
-        setRoom(locationStateRoom);
-    }, []);
+    const [room, setRoom] = useState(location.state?.room || null);
 
     useEffect(() => {
         if (!room) return;
@@ -56,6 +51,15 @@ function Room() {
         getRoomUser();
         setUpWebSocket();
     }, [room]);
+
+    useEffect(() => {
+        if (!room && roomHash) {
+            api
+                .post(`/room/join/${roomHash}/`)
+                .then(res => setRoom(res.data.room))
+                .catch((error) => console.log(error.error));
+        }
+    }, [roomHash, room, navigate]);
 
     useEffect(() => {
         if (!moviePath || !videoRef.current ) return;

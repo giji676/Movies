@@ -30,7 +30,7 @@ function RoomSelectMovie() {
             />
             <Movies 
                 moviesList={moviesList} 
-                navOverride={"/room"}
+                navOverride={`/room/${room.room_hash}`}
                 room={room}
             />
         </div>
