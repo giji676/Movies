@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import styles from "./RoomCreate.module.css";
 import api from "../main/api";
+import { toast } from "react-toastify";
 
 function RoomCreate() {
     const navigate = useNavigate();
@@ -10,22 +11,38 @@ function RoomCreate() {
     const [isPrivate, setIsPrivate] = useState(true);
     const [maxUsers, setMaxUsers] = useState(4);
     const [password, setPassword] = useState("");
+    const [inviteURL, setInviteURL] = useState("");
 
-    const handleCreate = (e) => {
+    const handleCreate = async (e) => {
         e.preventDefault();
-        api
-            .post("/room/create/", {
+        try {
+            const res = await api.post("/room/create/", {
                 is_private: isPrivate,
                 password: password || null,
-                max_users: maxUsers,})
-            .then((res) => {
-                setRoom(res.data);
-            })
-            .catch((error) => console.log(error));
+                max_users: maxUsers,
+            });
+            setRoom(res.data);
+        } catch (error) {
+            toast.error("Failed to create room");
+            console.error(error);
+        }
     };
 
     useEffect(() => {
-    }, [isPrivate]);
+        if (room?.room_hash) {
+            const url = `${window.location.origin}/room/${room.room_hash}/`;
+            setInviteURL(url);
+        }
+    }, [room]);
+
+    const handleCopy = async (text, label) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            toast.success(`${label} copied!`);
+        } catch {
+            toast.error("Failed to copy");
+        }
+    };
 
     return (
         <div className={styles.body}>
@@ -67,15 +84,50 @@ function RoomCreate() {
                 )}
 
                 {room && (
-                    <div>
-                        <div>
-                            Room code: {room.room_hash}
+                    <div className={styles.inviteSection}>
+                        <div className={styles.inviteBlock}>
+                            <label>Invite Code</label>
+                            <div className={styles.copyRow}>
+                                <input
+                                    type="text"
+                                    value={room.room_hash}
+                                    readOnly
+                                    className={styles.copyInput}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => handleCopy(room.room_hash, "Invite code")}
+                                    className={styles.copyButton}
+                                >
+                                    Copy
+                                </button>
+                            </div>
                         </div>
+
+                        <div className={styles.inviteBlock}>
+                            <label>Invite URL</label>
+                            <div className={styles.copyRow}>
+                                <input
+                                    type="text"
+                                    value={inviteURL}
+                                    readOnly
+                                    className={styles.copyInput}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => handleCopy(inviteURL, "Invite URL")}
+                                    className={styles.copyButton}
+                                >
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+
                         <button 
-                            type="submit"
+                            type="button"
                             className={styles.movieSelect}
                             onClick={() => {
-                                navigate("/room-select-movie", {state: {room: room}});
+                                navigate("/room-select-movie", { state: { room } });
                             }}
                         >
                             Select a movie
@@ -87,7 +139,6 @@ function RoomCreate() {
                     <button 
                         className={styles.save} 
                         type="submit"
-                        onClick={(e) => handleCreate(e)}
                     >
                         Create
                     </button>
