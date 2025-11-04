@@ -38,9 +38,9 @@ function Room() {
     const [moviePath, setMoviePath] = useState("");
     const [roomUser, setRoomUser] = useState(null);
     const [progress, setProgress] = useState(0);
-    const [volume, setVolume] = useState(1);
-    const [lastVolume, setLastVolume] = useState(1);
-    const [mute, setMute] = useState(false);
+    const [volume, setVolume] = useState(0);
+    const [lastVolume, setLastVolume] = useState(0);
+    const [mute, setMute] = useState(true);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [room, setRoom] = useState(location.state?.room || null);
@@ -74,6 +74,8 @@ function Room() {
             hls.loadSource(moviePath);
             hls.attachMedia(videoRef.current);
         }
+        videoRef.current.mute = mute;
+        videoRef.current.volume = volume;
         setUpTrackingListeners();
 
         return () => {
@@ -417,14 +419,14 @@ function Room() {
         if (!container) return;
 
         if (!document.fullscreenElement) {
-            if (container.requestFullscreen) container.requestFullscreen();
-                else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
-                    else if (container.msRequestFullscreen) container.msRequestFullscreen();
+            if (container.requestFullscreen) { container.requestFullscreen(); }
+            else if (container.webkitRequestFullscreen) { container.webkitRequestFullscreen(); }
+            else if (container.msRequestFullscreen) { container.msRequestFullscreen(); }
             setIsExpanded(true);
         } else {
-            if (document.exitFullscreen) document.exitFullscreen();
-                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                    else if (document.msExitFullscreen) document.msExitFullscreen();
+            if (document.exitFullscreen) { document.exitFullscreen(); }
+            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+            else if (document.msExitFullscreen) { document.msExitFullscreen(); }
             setIsExpanded(false);
         }
     };
@@ -445,7 +447,7 @@ function Room() {
         <div
             ref={playerContainerRef}
             onMouseMove={handleMouseMove}
-            className={`${styles.playerContainer}`}
+            className={styles.playerContainer}
         >
             {moviePath ? (
                 <div 
