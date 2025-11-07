@@ -13,6 +13,7 @@ function RoomAccess() {
     const [roomuser, setRoomUser] = useState(null);
 
     const handleCreate = (e) => {
+        e.preventDefault();
         navigate("/room-create");
     };
 
