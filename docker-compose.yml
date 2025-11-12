@@ -15,7 +15,7 @@ services:
       - "443:443"
     volumes:
       - static_volume:/app/backend/movie/static/
-      - ./docker/nginx/development:/etc/nginx/conf.d
+      - ./nginx/production:/etc/nginx/conf.d
       - /media/downloads:/media/downloads
       - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
