@@ -12,19 +12,5 @@ export default defineConfig(({ mode }) => ({
     },
     server: {
         host: true, // needed for LAN access
-        ...(mode === 'dev' && {
-            proxy: {
-                '/api': {
-                    target: 'http://localhost:8000',
-                    changeOrigin: true,
-                    secure: false,
-                },
-                '/media/downloads': {
-                    target: 'http://localhost:8000',
-                    changeOrigin: true,
-                    secure: false,
-                }
-            }
-        })
     },
 }));
