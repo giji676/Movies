@@ -4,6 +4,23 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>tStreams</title>
+
+        <!-- Only load Google Analytics if the env variable is set -->
+        <script>
+        const gtagId = "%VITE_GTAG_ID%";
+        if (gtagId) {
+            const script = document.createElement("script");
+            script.async = true;
+            script.src = `https://www.googletagmanager.com/gtag/js?id=${gtagId}`;
+            document.head.appendChild(script);
+
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag("js", new Date());
+            gtag("config", gtagId);
+        }
+        </script>
+
         <link rel="stylesheet" href="index.css">
     </head>
     <body>
