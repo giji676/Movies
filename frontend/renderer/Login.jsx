@@ -6,10 +6,14 @@ import styles from './Login.module.css';
 
 function Login() {
     const navigate = useNavigate();
+
+    const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [loginLoading, setLoginLoading] = useState(false);
+
     const [loading, setLoading] = useState(false);
+    const [isRegistering, setIsRegistering] = useState(false);
+
     const [error, setError] = useState("");
     // const { user, setUser, logout, setLoading } = useAuth();
     const { login, guestLogin } = useAuth();
@@ -24,17 +28,12 @@ function Login() {
         }
 
         setLoading(true);
-        try {
-            await login(email.toLowerCase(), password);
-            navigate("/");
-        } catch (err) {
-            setError(err?.response?.data?.error);
-        } finally {
-            setLoading(false);
-        }
+        await login(email.toLowerCase(), password);
+        setLoading(false);
+        navigate("/");
     };
 
-    const handleRegister = async () => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         setError("");
 
@@ -45,10 +44,12 @@ function Login() {
 
         setLoading(true);
         try {
-            await api.post("accounts/register/", {
+            await api.post("/user/register/", {
                 email: email.toLowerCase(),
                 password,
+                username,
             });
+            resetForm(false);
 
             // setMessageModalVisible(true);
         } catch (err) {
@@ -70,14 +71,39 @@ function Login() {
         }
     };
 
-    // TODO: Remove old funcs, update html to use new funcs
+    const resetForm = (_isRegistering) => {
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        setError("");
+        setIsRegistering(_isRegistering);
+        setLoading(false);
+    };
 
     return (
         <div className={styles.body}>
             <div className={styles.container}>
-                <h1>Login</h1>
+                <h1>{isRegistering ? "Create Account" : "Login"}</h1>
                 {error && <div className={styles.error}>{error}</div>}
-                <form className={styles.form} onSubmit={(e) => handleLogin(e)}>
+                <form className={styles.form} onSubmit={(e) => 
+                    {isRegistering ? (
+                            handleRegister(e)
+                        ) : (
+                                handleLogin(e)
+                            )
+                        }
+                    }
+                >
+                    {isRegistering && (
+                        <input
+                            type="username"
+                            placeholder="Username"
+                            value={username}
+                            onChange={e => setUsername(e.target.value)}
+                            className={styles.input}
+                            required
+                        />
+                    )}
                     <input
                         type="email"
                         placeholder="Email"
@@ -94,13 +120,15 @@ function Login() {
                         className={styles.input}
                         required
                     />
-                    <button type="submit" className={styles.button} disabled={loginLoading}>
-                        Login
+                    <button type="submit" className={styles.button} disabled={loading}>
+                        {isRegistering ? (loading ? "Registering..." : "Register") : (loading ? "Logging in..." : "Login")}
                     </button>
                 </form>
-                <p className={styles.text}>Don't have an account?</p>
-                <p className={styles.link} onClick={() => navigate("/register")}>
-                    Register here
+                <p className={styles.text}>
+                    {isRegistering ? "Already have an account?" : "Don't have an account?"}
+                </p>
+                <p className={styles.link} onClick={() => setIsRegistering(prev => !prev)}>
+                    {isRegistering ? "Login here" : "Register here"}
                 </p>
             </div>
         </div>
