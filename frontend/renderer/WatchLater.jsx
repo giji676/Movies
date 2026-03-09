@@ -4,7 +4,7 @@ import styles from "./Movies.module.css";
 import PlaylistMovieCard from './components/PlaylistMovieCard';
 import ProtectedRoute from './components/ProtectedRoute';
 import { toast } from 'react-toastify';
-import { useAuth } from "./components/AuthContext";
+import { useAuth } from "../main/useAuth";
 
 function WatchLater({ resetMovieListData }) {
     const { user } = useAuth();

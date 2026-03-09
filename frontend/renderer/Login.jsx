@@ -1,47 +1,83 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './Login.module.css';
+import { useAuth } from "../main/useAuth";
 import api from "../main/api";
-import { useAuth } from './components/AuthContext';
+import styles from './Login.module.css';
 
 function Login() {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loginLoading, setLoginLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const { user, setUser, logout, setLoading } = useAuth();
+    // const { user, setUser, logout, setLoading } = useAuth();
+    const { login, guestLogin } = useAuth();
 
-    const handleSubmit = async (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        setLoginLoading(true);
+        setError("");
+
+        if (!email || !password) {
+            setError("Email and password are required");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await login(email.toLowerCase(), password);
+            navigate("/");
+        } catch (err) {
+            setError(err?.response?.data?.error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRegister = async () => {
+        e.preventDefault();
+        setError("");
+
+        if (!email || !password) {
+            setError("All fields are required");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await api.post("accounts/register/", {
+                email: email.toLowerCase(),
+                password,
+            });
+
+            // setMessageModalVisible(true);
+        } catch (err) {
+            setError(err?.response?.data?.error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGuest = async () => {
+        e.preventDefault();
         setError("");
 
         try {
-            const login = await api.login(email, password);
-            if (login) {
-                const res = await api.get("/user/profile/");
-                setUser(res.data);
-                setLoading(false);
-                navigate("/");
-            }
+            await guestLogin(guestName);
+            // setGuestModalVisible(false);
         } catch (err) {
-            if (err.response && err.response.data.detail) {
-                setError(err.response.data.detail);
-            } else {
-                setError("Unable to connect to server.");
-            }
-        } finally {
-            setLoginLoading(false);
+            setError(err?.response?.data?.error);
         }
     };
+
+    // TODO: Remove old funcs, update html to use new funcs
 
     return (
         <div className={styles.body}>
             <div className={styles.container}>
                 <h1>Login</h1>
                 {error && <div className={styles.error}>{error}</div>}
-                <form className={styles.form} onSubmit={handleSubmit}>
+                <form className={styles.form} onSubmit={(e) => handleLogin(e)}>
                     <input
                         type="email"
                         placeholder="Email"

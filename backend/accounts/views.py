@@ -70,8 +70,8 @@ class LoginView(APIView):
 
             response = Response({
                 "message": "Logged in successfully",
-                "refresh_token_exp": refresh["exp"],
                 "access_token_exp": refresh.access_token["exp"],
+                "refresh_token_exp": refresh["exp"],
             }, status=status.HTTP_200_OK)
             response = set_jwt_cookies(response, access_token, refresh_token)
             response["X-CSRFToken"] = csrf.get_token(request)

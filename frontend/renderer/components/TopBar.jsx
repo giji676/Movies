@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Search from '../Search';
 import UserMenu from './UserMenu';
 import styles from './TopBar.module.css';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../../main/useAuth';
 
 function TopBar({ setMovieListData, resetMovieListData }) {
     const [showSearchInput, setShowSearchInput] = useState(false);

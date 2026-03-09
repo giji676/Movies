@@ -1,70 +1,80 @@
 import axios from "axios";
-import * as auth from "./auth";
 import { getCookie } from "./cookieUtils";
-
-let retry = false;
+import { getTokens, setTokens, clearTokens } from "./authStorage";
+import { authApi } from "./authApi";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
     withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(async (config) => {
     const csrfToken = getCookie('csrftoken');
     if (csrfToken) {
         config.headers['X-CSRFToken'] = csrfToken;
     }
-
-    const exp = Number(localStorage.getItem("access_token_exp"));
-    const now = Date.now() / 1000;
-
-    if (exp && exp < now) {
-        const refreshRes = auth.refreshAccessToken();
-        if (refreshRes) return config;
-        return Promise.reject({ message: "Access token expired" });
-    }
     return config;
 });
+
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
 
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
-        const ogRequest = error.config;
+        const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !retry) {
-            retry = true;
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
 
-            try {
-                const refreshRes = await auth.refreshAccessToken();
-                if (refreshRes) {
-                    retry = false;
-                    return api(ogRequest);
-                }
-            } catch (error) {
-                toast.error(error);
-                retry = false;
+            const { refresh_exp, type } = getTokens();
+            if (!refresh_exp) {
+                clearTokens();
+                return Promise.reject(error);
             }
 
-            toast.error("Session expired. Please log in again.");
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                }).then((token_exp) => {
+                        return api(originalRequest);
+                    });
+            }
+
+            isRefreshing = true;
+
+            try {
+                const res = await authApi.post("accounts/refresh/");
+
+                const { access_token_exp, refresh_token_exp } = res.data;
+
+                setTokens(access_token_exp, refresh_token_exp, type);
+
+                processQueue(null, access_token_exp);
+
+                return api(originalRequest);
+            } catch (err) {
+                processQueue(err, null);
+                clearTokens();
+                return Promise.reject(err);
+            } finally {
+                isRefreshing = false;
+            }
         }
+
         return Promise.reject(error);
     }
-)
-
-api.login = async (email, password) => {
-    return await auth.login(email, password);
-};
-
-api.logout = async () => {
-    return await auth.logout();
-};
-
-api.register = async (email, username,  password) => {
-    return await auth.register(email, username, password);
-};
-
-api.checkAuth = async () => {
-    return await auth.checkAuth();
-};
+);
 
 export default api;
