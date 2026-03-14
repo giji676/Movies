@@ -15,6 +15,7 @@ export const clearTokens = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("last_login");
+    localStorage.removeItem("device_id");
 };
 
 export const getDeviceId = () => {

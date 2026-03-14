@@ -70,15 +70,16 @@ function Login() {
     };
 
     const handleGuest = async () => {
-        e.preventDefault();
         setError("");
 
+        setLoading(true);
         try {
-            await guestLogin(guestName);
-            // setGuestModalVisible(false);
+            await guestLogin();
+            navigate("/");
         } catch (err) {
             setError(err?.response?.data?.error);
         }
+        setLoading(false);
     };
 
     const resetForm = (_isRegistering) => {
@@ -144,6 +145,9 @@ function Login() {
                 }}>
                     {isRegistering ? "Login here" : "Register here"}
                 </p>
+                <button type="button" className={styles.guestBtn} onClick={handleGuest}>
+                    Continue as Guest
+                </button>
             </div>
         </div>
     );

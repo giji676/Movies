@@ -32,6 +32,39 @@ def set_jwt_cookies(response, access, refresh):
     )
     return response
 
+class GuestView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data
+        device_id = data.get("device_id")
+
+        try:
+            user = User.objects.get(device_id=device_id)
+        except User.DoesNotExist:
+            username = data.get("username")
+
+            user = User.objects.create(
+                device_id=device_id,
+                username=username or f"guest_{device_id[:8]}",
+                email=f"guest_{device_id[:8]}@example.com",
+                is_guest=True,
+            )
+
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+
+        response = Response({
+            "message": "Registered guest successfully",
+            "access_token_exp": refresh.access_token["exp"],
+            "refresh_token_exp": refresh["exp"],
+        })
+
+        response = set_jwt_cookies(response, access_token, refresh_token)
+
+        return response
+
 class RefreshTokenView(APIView):
     permission_classes = [AllowAny]
 

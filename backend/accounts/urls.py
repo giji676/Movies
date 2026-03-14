@@ -9,4 +9,5 @@ urlpatterns = [
     path("profile/", views.UserProfileView.as_view(), name="user-profile"),
     path("settings/", views.UserSettingsView.as_view(), name="user-settings"),
     path("register/", views.CreateUserView.as_view(), name="register"),
+    path("guest/", views.GuestView.as_view(), name="guest"),
 ]

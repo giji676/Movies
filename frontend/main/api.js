@@ -55,7 +55,7 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const res = await authApi.post("accounts/refresh/");
+                const res = await authApi.post("/user/refresh/");
 
                 const { access_token_exp, refresh_token_exp } = res.data;
 

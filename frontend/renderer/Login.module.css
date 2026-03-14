@@ -77,8 +77,20 @@ h1 {
     background-color: #357abd;
 }
 
+.guestBtn {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: #4a90e2;
+    color: #fff;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
 .text {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     color: #666;
     font-size: 0.95rem;
 }

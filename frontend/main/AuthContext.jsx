@@ -51,32 +51,35 @@ export function AuthProvider({ children }) {
         }
     };
 
-    const guestLogin = async (name) => {
-        let device_id = getDeviceId();
+    const guestLogin = async () => {
+        try {
+            let device_id = getDeviceId();
 
-        if (!device_id) {
-            device_id = uuidv4();
-            setDeviceId(device_id);
+            if (!device_id) {
+                device_id = uuidv4();
+                setDeviceId(device_id);
+            }
+
+            const res = await authApi.post("/user/guest/", {
+                device_id,
+            });
+
+            const { access_token_exp, refresh_token_exp } = res.data;
+
+            setTokens(access_token_exp, refresh_token_exp, "guest");
+
+            setAuthType("guest");
+            await fetchUser();
+        } catch (err) {
+            throw err;
         }
-
-        const res = await authApi.post("accounts/guest/", {
-            device_id,
-            name: name,
-        });
-
-        const { access_token_exp, refresh_token } = res.data;
-
-        setTokens(access_token_exp, refresh_token_exp, "guest");
-
-        setAuthType("guest");
-        await fetchUser();
     };
 
     const refreshAccessToken = async (type) => {
         try {
-            const res = await authApi.post("accounts/refresh/");
+            const res = await authApi.post("/user/refresh/");
 
-            const { access_token_exp, refresh_token } = res.data;
+            const { access_token_exp, refresh_token_exp } = res.data;
 
             setTokens(access_token_exp, refresh_token_exp, type);
 
@@ -95,7 +98,7 @@ export function AuthProvider({ children }) {
         if (!device_id) return null;
 
         try {
-            const res = await authApi.post("accounts/guest/", { device_id });
+            const res = await authApi.post("/user/guest/", { device_id });
             const { msg, access_token_exp, refresh_token } = res.data;
 
             setTokens(access_token_exp, refresh_token_exp, "guest");
@@ -108,7 +111,7 @@ export function AuthProvider({ children }) {
     };
 
     const logout = async () => {
-        // TODO: Call backend for logout
+        await api.post("/user/logout/");
         clearTokens();
         setAuthType(null);
         setUser(null);
