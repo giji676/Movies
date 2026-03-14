@@ -46,10 +46,8 @@ export function AuthProvider({ children }) {
 
             setAuthType("registered");
             await fetchUser();
-            // return true;
         } catch (err) {
-            console.error("Login failed:", err);
-            // return false;
+            throw err;
         }
     };
 

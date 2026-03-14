@@ -28,9 +28,13 @@ function Login() {
         }
 
         setLoading(true);
-        await login(email.toLowerCase(), password);
+        try {
+            await login(email.toLowerCase(), password);
+            navigate("/");
+        } catch (err) {
+            setError(err?.response?.data?.error);
+        }
         setLoading(false);
-        navigate("/");
     };
 
     const handleRegister = async (e) => {
