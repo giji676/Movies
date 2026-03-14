@@ -4,7 +4,7 @@ import MovieCard from "./components/MovieCard";
 import ProtectedRoute from './components/ProtectedRoute';
 import styles from "./Movies.module.css";
 import api from "../main/api";
-import { useAuth } from "./components/AuthContext";
+import { useAuth } from "../main/useAuth";
 
 // TODO: movie/?offset=0&limit=10 getting called 2 times on load
 

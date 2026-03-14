@@ -1,6 +1,6 @@
 import { FaRegUser } from "react-icons/fa";
 import styles from './Settings.module.css';
-import { useAuth } from './components/AuthContext';
+import { useAuth } from '../main/useAuth';
 
 function Settings() {
     const { user, logout } = useAuth();

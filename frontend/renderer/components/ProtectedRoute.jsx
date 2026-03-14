@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import api from "../../main/api";
 import { useState, useEffect } from "react";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "../../main/useAuth";
 
 function ProtectedRoute({children}) {
     const { user, loading } = useAuth();

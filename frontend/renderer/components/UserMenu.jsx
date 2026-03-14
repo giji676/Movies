@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaRegUser } from "react-icons/fa";
 import Settings from '../Settings';
 import styles from './UserMenu.module.css';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../../main/useAuth';
 
 function UserMenu() {
     const navigate = useNavigate();
