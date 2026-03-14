@@ -57,10 +57,16 @@ function Login() {
 
             // setMessageModalVisible(true);
         } catch (err) {
-            setError(err?.response?.data?.error);
-        } finally {
-            setLoading(false);
+            const data = err?.response?.data;
+
+            if (data?.error) {
+                setError(data.error);
+            } else if (data) {
+                const firstKey = Object.keys(data)[0];
+                setError(data[firstKey][0]);
+            }
         }
+        setLoading(false);
     };
 
     const handleGuest = async () => {
@@ -131,7 +137,11 @@ function Login() {
                 <p className={styles.text}>
                     {isRegistering ? "Already have an account?" : "Don't have an account?"}
                 </p>
-                <p className={styles.link} onClick={() => setIsRegistering(prev => !prev)}>
+                <p className={styles.link} onClick={() => {
+                    const _isRegistering = isRegistering;
+                    setIsRegistering(!_isRegistering);
+                    resetForm(!_isRegistering);
+                }}>
                     {isRegistering ? "Login here" : "Register here"}
                 </p>
             </div>
