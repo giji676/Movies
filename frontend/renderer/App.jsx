@@ -6,7 +6,6 @@ import Movie from './Movie';
 import Movies from './Movies';
 import Player from './Player';
 import Login from './Login';
-import Register from './Register';
 import Sidebar from './Sidebar';
 import NotFound from './NotFound';
 import WatchLater from './WatchLater';
@@ -61,15 +60,6 @@ function App() {
                                 <Sidebar resetMovieListData={resetMovieListData} />
                                 <div className={styles.mainContent}>
                                     <Login />
-                                </div>
-                            </div>
-                        } />
-
-                        <Route path="/register" element={
-                            <div className={styles.body}>
-                                <Sidebar resetMovieListData={resetMovieListData} />
-                                <div className={styles.mainContent}>
-                                    <Register />
                                 </div>
                             </div>
                         } />

@@ -13,8 +13,9 @@ function Settings() {
                 {user ? (
                     <div className={styles.userData}>
                         <div>
-                            <p>Username: {user.username}</p>
-                            <p>Email: {user.email}</p>
+                            {/* <p>Username: {user.username}</p> */}
+                            {/* <p>Email: {user.email}</p> */}
+                            <p>Comming soon...</p>
                         </div>
                         {user.avatar_url ? (
                             <img src={user.avatar_url} alt="Profile" className={styles.avatar} />
@@ -31,6 +32,7 @@ function Settings() {
             <hr className={styles.divider} />
             <div className={styles.preferencesContainer}>
                 <h2>Preferences</h2>
+                <p>Comming soon...</p>
             </div>
         </div>
     );
