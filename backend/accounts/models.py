@@ -10,7 +10,7 @@ class AccountsConfig(AppConfig):
     def ready(self):
         import accounts.signals  # make sure signals are imported
 
-class CustomUserManager(BaseUserManager):
+class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
@@ -23,7 +23,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, password, **extra_fields)
 
-class CustomUser(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, blank=True)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
@@ -35,7 +35,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
-    objects = CustomUserManager()
+    objects = UserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []  # only email is required
@@ -47,7 +47,7 @@ class UserSettings(models.Model):
     THEME_CHOICES = [('light', 'Light'), ('dark', 'Dark'), ('system', 'System Default')]
 
     user = models.OneToOneField(
-        'accounts.CustomUser', on_delete=models.CASCADE, related_name='settings'
+        'accounts.User', on_delete=models.CASCADE, related_name='settings'
     )
 
     theme = models.CharField(max_length=10, choices=THEME_CHOICES, default='system')
@@ -58,7 +58,7 @@ class UserSettings(models.Model):
 class Subscription(models.Model):
     PLAN_CHOICES = [('Free', 'Free'), ('Pro', 'Pro')]
 
-    user = models.OneToOneField('accounts.CustomUser', on_delete=models.CASCADE, related_name='subscription')
+    user = models.OneToOneField('accounts.User', on_delete=models.CASCADE, related_name='subscription')
     plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='Free')
     active = models.BooleanField(default=True)
     stripe_customer_id = models.CharField(max_length=100, blank=True, null=True)
