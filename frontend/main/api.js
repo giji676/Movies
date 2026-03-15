@@ -38,7 +38,7 @@ api.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
-            const { refresh_exp, type } = getTokens();
+            const { access_exp, refresh_exp, type } = getTokens();
             if (!refresh_exp) {
                 clearTokens();
                 return Promise.reject(error);

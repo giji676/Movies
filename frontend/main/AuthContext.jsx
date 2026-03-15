@@ -83,7 +83,7 @@ export function AuthProvider({ children }) {
 
             setTokens(access_token_exp, refresh_token_exp, type);
 
-            return access_token;
+            return access_token_exp;
         } catch {
             if (type === "guest") {
                 return attemptGuestRestore();
@@ -99,7 +99,7 @@ export function AuthProvider({ children }) {
 
         try {
             const res = await authApi.post("/user/guest/", { device_id });
-            const { msg, access_token_exp, refresh_token } = res.data;
+            const { msg, access_token_exp, refresh_token_exp } = res.data;
 
             setTokens(access_token_exp, refresh_token_exp, "guest");
             setAuthType("guest");
@@ -126,14 +126,24 @@ export function AuthProvider({ children }) {
                 return;
             }
 
-            if (!isExpired(access_exp)) {
-                setAuthType(type);
-            } else if (!isExpired(refresh_exp)) {
-                await refreshAccessToken(type);
-            } else if (type === "guest") {
-                await attemptGuestRestore();
+            try {
+                if (!isExpired(access_exp)) {
+                    setAuthType(type);
+                } else if (!isExpired(refresh_exp)) {
+                    await refreshAccessToken(type);
+                    setAuthType(type);
+                } else if (type === "guest") {
+                    await attemptGuestRestore();
+                } else {
+                    await logout();
+                    setLoading(false);
+                    return;
+                }
+                await fetchUser();
+            } catch (err) {
+                console.error("Auth init failed", err);
+                await logout();
             }
-            await fetchUser();
 
             setLoading(false);
         };
