@@ -34,10 +34,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
+def str_to_bool(val):
+    return val.lower() in ['true', '1', 'yes']
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes")
+DEBUG = str_to_bool(os.environ.get("DEBUG", "False"))
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOST", "localhost").split(",")
 
@@ -105,9 +108,6 @@ SIMPLE_JWT = {
     'AUTH_COOKIE': 'access_token',     # used in custom authentication class
     'AUTH_COOKIE_REFRESH': 'refresh_token',
 }
-
-def str_to_bool(val):
-    return val.lower() in ['true', '1', 'yes']
 
 CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
 CORS_ALLOW_ALL_ORIGINS = str_to_bool(os.environ.get("CORS_ALLOW_ALL_ORIGINS", "False"))
