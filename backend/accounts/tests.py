@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import CustomUser
+from .models import User
 from movie import settings
 
 ACCESS_TOKEN = settings.SIMPLE_JWT["AUTH_COOKIE"]
@@ -13,7 +13,7 @@ class RefreshTokenTest(APITestCase):
         self.url = reverse("jwt-refresh")
         self.email = "test@example.com"
         self.password = "strongpassword123"
-        self.user = CustomUser.objects.create_user(
+        self.user = User.objects.create_user(
             email=self.email,
             password=self.password
         )
@@ -53,7 +53,7 @@ class LogoutTest(APITestCase):
         self.url = reverse("logout")
         self.email = "test@example.com"
         self.password = "strongpassword123"
-        self.user = CustomUser.objects.create_user(
+        self.user = User.objects.create_user(
             email=self.email,
             password=self.password
         )
@@ -108,7 +108,7 @@ class UserSettingsTest(APITestCase):
             "email": self.email,
             "password": self.password
         }
-        self.user = CustomUser.objects.create_user(
+        self.user = User.objects.create_user(
             email=self.email,
             password=self.password
         )
@@ -129,7 +129,7 @@ class UserProfileTest(APITestCase):
             "email": self.email,
             "password": self.password
         }
-        self.user = CustomUser.objects.create_user(
+        self.user = User.objects.create_user(
             email=self.email,
             password=self.password
         )
@@ -157,7 +157,7 @@ class LoginTest(APITestCase):
             "email": self.email,
             "password": self.password
         }
-        self.user = CustomUser.objects.create_user(
+        self.user = User.objects.create_user(
             email=self.email,
             password=self.password
         )

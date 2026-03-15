@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from movie.settings import SIMPLE_JWT
-from .models import CustomUser
+from .models import User
 from .serializers import UserProfileSerializer, UserSettingsSerializer, UserRegisterSerializer
 from django.contrib.auth import get_user_model
 from django.middleware import csrf
@@ -136,7 +136,7 @@ class UserSettingsView(generics.RetrieveUpdateAPIView):
         return self.request.user.settings
 
 class CreateUserView(generics.CreateAPIView):
-    queryset = CustomUser.objects.all()
+    queryset = User.objects.all()
     serializer_class = UserRegisterSerializer
     permission_classes = [AllowAny]
     authentication_classes = []
