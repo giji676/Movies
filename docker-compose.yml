@@ -17,9 +17,16 @@ services:
       - static_volume:/app/backend/movie/static/
       - ./nginx/production:/etc/nginx/conf.d
       - /media/downloads:/media/downloads
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
     depends_on:
       - backend
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
 
   backend:
     image: ghcr.io/giji676/movies/backend:${IMAGE_TAG}
@@ -46,6 +53,8 @@ services:
       - ./backend/.env.production
 
 volumes:
-  static_volume: {}
-  postgres_data: {}
-  redis_data: {}
+  static_volume:
+  postgres_data:
+  redis_data:
+  certbot_www:
+  certbot_conf:
