@@ -67,6 +67,7 @@ jobs:
             cd /root/movies
             echo IMAGE_TAG=${{ github.sha }} > .env
             cat .env
+            git pull
             docker login ghcr.io -u giji676 -p ${{ secrets.GHCR_PAT }}
             
             # Stop containers first
